@@ -44,7 +44,10 @@ export default defineConfig({
     "scripts": {
         // 发布前自动跑根 CI（格式/边界/lint/测试/build 全绿才放行）；
         // ci 脚本在根 package.json，故 --prefix ../.. 回到根执行。
-        "prepublishOnly": "npm --prefix ../.. run ci"
+        "prepublishOnly": "npm --prefix ../.. run ci",
+        // `npm version` 钩子：bump 完 package.json 后，把 .claude-plugin/plugin.json
+        // 的版本就地同步成同一个值并 git add —— 组件库版本 = skill 插件版本，永不漂移。
+        "version": "node ../../scripts/sync-plugin-version.mjs && git add ../../.claude-plugin/plugin.json"
     },
     "files": ["dist"],
     "sideEffects": ["**/*.css"],            // 只有 CSS 有副作用，防 tree-shaking 误删样式 import

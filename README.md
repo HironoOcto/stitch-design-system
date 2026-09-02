@@ -67,7 +67,7 @@
 
 发布是**人工操作**（npm 凭证在维护者手上），不走 agent 流程。每次发版按序执行下面四步：
 
-1. **改版本号**：在 `packages/react/` 执行 `npm version <patch|minor|major>`——它自动把 `package.json` 的 `version` 递增，并在 git 里建一个 `v<版本号>` 的 commit + tag。
+1. **改版本号**：在 `packages/react/` 执行 `npm version <patch|minor|major>`——它把 `packages/react/package.json` 的 `version` 递增，**并经 `version` 生命周期钩子（[scripts/sync-plugin-version.mjs](./scripts/sync-plugin-version.mjs)）把 `.claude-plugin/plugin.json` 的版本就地同步成同一个值**（组件库版本 = skill 插件版本，永不漂移），再在 git 里建一个 `v<版本号>` 的 commit + tag——**两份改动都在这同一个 commit 里**。
 2. **本地自证**（两条命令，都不联网、不发布）：
    - 执行 `npm run ci`——八步须**全绿**（格式 / 边界 / lint / 单测 / a11y / build）才算过。
    - 在 `packages/react/` 执行 `npm pack --dry-run`——它不真打包，只**打印"这次会打进 tarball 的文件清单"**。核对该清单：**只应有** `dist/**` + `package.json` + `README.md`，**绝不能**出现 `src/`、`*.test.*`、`*.less` 等源文件（`files` 白名单闸，原理见 [packaging.md](./docs/contributing/packaging.md)）。

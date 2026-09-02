@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "prepublishOnly": "npm --prefix ../.. run ci"
+    "prepublishOnly": "npm --prefix ../.. run ci",
+    "version": "node ../../scripts/sync-plugin-version.mjs && git add ../../.claude-plugin/plugin.json"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",

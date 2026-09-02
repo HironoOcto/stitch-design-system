@@ -1,6 +1,6 @@
 {
   "name": "stitch-design-system",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Agent skill for building React UIs with the stitch-design-system component library and its themeable --stitch-* design tokens.",
   "author": {
     "name": "HironoOcto",

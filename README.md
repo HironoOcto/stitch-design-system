@@ -76,6 +76,28 @@
 
 > 分发装法（`npx skills add` / `.claude-plugin` 原生路径）见 skill 侧 [安装说明](./skills/stitch-design-system/README.md#安装) 与 [ADR 0008](./docs/adr/0008-distribution-and-package-name.md)。
 
+### 本地重装验证 skill 插件（`.claude-plugin` 路径）
+
+换了插件版本、`git push` 之后，Claude 会**缓存旧的 marketplace**——不先刷新就还是旧版本。测试 / 重装按这个来（GitHub owner=`HironoOcto`，marketplace 名=`hironoocto`）：
+
+```bash
+# scope 四条命令必须一致：装/卸都用同一个 scope，否则去别的 scope 找会落空。
+# 下面统一用 project（只在当前项目生效）；想全局就把四处 --scope project 都换成 --scope user（或都去掉，默认 user）。
+
+# 1. 清掉旧安装（含缓存的 marketplace）
+claude plugins uninstall stitch-design-system --scope project
+claude plugins marketplace remove hironoocto --scope project
+
+# 2. 重新拉最新 + 装
+claude plugins marketplace add HironoOcto/stitch-design-system --scope project
+claude plugins install stitch-design-system@hironoocto --scope project
+
+# 3. 确认版本 / scope
+claude plugins list | grep -i stitch     # 应显示当前 plugin.json 版本、project
+```
+
+> 卸载测试痕迹 = 只跑第 1 步那两条。`npx skills add` 那条路的卸载是 `npx skills remove stitch-design-system`。
+
 ---
 
 ## 命令速查

@@ -1,0 +1,178 @@
+// ============================================
+// Menubar
+// ============================================
+// 桌面应用式命令栏：横排一组顶层菜单按钮，点开是一列动作项。
+// 菜单面 / 项皮与 DropdownMenu / ContextMenu 同族（同一列动作、同 menu/menuitem 语义），
+// 仅顶层多一层「菜单栏按钮」（Trigger）。值全走角色契约 var(--stitch-*)；开合 / 高亮 / 禁用态
+// 用底层自动挂的 data-* 选（源码里不写、别猜，已照 radix menubar.md「Data attribute」表核准：
+//   Trigger 有 [data-state]=open|closed、[data-highlighted]、[data-disabled]；
+//   Content/SubContent 有 [data-state]=open|closed、[data-side]、[data-align]（SubContent 另有 [data-orientation]）；
+//   Item/SubTrigger 有 [data-highlighted]（高亮时在）、[data-disabled]（禁用时在），SubTrigger 另有 [data-state]=open|closed）。
+
+// ---------- Bar ----------
+// 菜单栏根：横排一组顶层菜单按钮，安静无底（栏本身不抢视觉，按钮才是落点）。
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+}
+
+// ---------- Trigger ----------
+// 顶层菜单栏按钮：一行安静命令文字，默认无底；hover / 打开时软底（同项高亮的 bg-section）。
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--stitch-spacing-xs) var(--stitch-spacing-md);
+  border: none;
+  border-radius: var(--stitch-radius-button);
+  background: transparent;
+  color: var(--stitch-text-secondary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: var(--stitch-line-height-base);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  // 打开态 = 当前活动菜单：软底 + 深字（底层把开合态暴露成 data-state，直接选、不自己 useState）。
+  &[data-state='open'] {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  // 键盘漫游焦点走焦点环（只在键盘操作时亮）。
+  //
+  // 刻意不给顶层 Trigger 画 [data-highlighted] 的填充底：菜单栏是漫游焦点部件，鼠标点完一个动作、
+  // 菜单关闭后焦点回到该按钮，底层会把 data-highlighted 留在它身上（供接着用方向键切菜单）直到失焦——
+  // 若在此填充底，就会「点完还卡在选中态」。原生 / Radix 参考实现的菜单栏按钮同样不描 data-highlighted，
+  // 只描打开态 + hover + 焦点环；data-highlighted 的高亮留给下方菜单「项」（见 .item）。别加回来。
+  // --stitch-focus-ring 是颜色（= accent）；box-shadow 必须带偏移量，否则 `box-shadow: <color>`
+  // 是无效声明、计算成 none 环画不出来。用 0 0 0 2px 描 2px 环（同 Input/Select/OtpField 药丸件惯例，
+  // 环随按钮圆角）。
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+
+  &[data-disabled] {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// ---------- Surface ----------
+// 浮起面（同 DropdownMenu / ContextMenu / Popover 族）：底 bg-elevated + 深字 text-primary；
+// 边 border + 圆角 radius-card + 阴影 shadow-base。
+.content {
+  box-sizing: border-box;
+  min-width: 180px;
+  padding: var(--stitch-spacing-xs);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  z-index: 100;
+
+  // 底层把开合态暴露成 data-state，直接选，不自己 useState 切 class。
+  &[data-state='open'] {
+    animation: stitch-menubar-in var(--stitch-motion-duration-base)
+      var(--stitch-motion-ease);
+  }
+
+  &[data-state='closed'] {
+    animation: stitch-menubar-out var(--stitch-motion-duration-fast)
+      var(--stitch-motion-ease);
+  }
+}
+
+// ---------- Item ----------
+// 一行动作：左图标 + 文字，可选尾随子菜单箭头。默认无底色；高亮（键盘 / 鼠标同一视觉）软底而非品牌色。
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-input);
+  color: var(--stitch-text-primary);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  // 高亮态（底层用 data-highlighted 暴露键盘 active / 鼠标 hover 的统一态）。
+  &[data-highlighted] {
+    background: var(--stitch-bg-section);
+  }
+
+  // 禁用态（底层用 data-disabled 暴露）：灰显、不可点。
+  &[data-disabled] {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// 危险项：文字走 --stitch-danger；高亮时软底 --stitch-danger-bg。
+.danger {
+  color: var(--stitch-danger);
+
+  &[data-highlighted] {
+    background: var(--stitch-danger-bg);
+    color: var(--stitch-danger);
+  }
+}
+
+// 项内图标：跟随字号、取当前文字色（含 danger）。
+.itemIcon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+// 项文字占满、把尾随的子菜单箭头推到右缘。
+.itemLabel {
+  flex: 1;
+}
+
+// 子菜单入口尾随的箭头。
+.subArrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--stitch-text-muted);
+}
+
+// ---------- Motion ----------
+// 进出淡入 + 轻微缩放，方向由 data-side 决定（视觉从触发按钮一侧展开）。
+@keyframes stitch-menubar-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stitch-menubar-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

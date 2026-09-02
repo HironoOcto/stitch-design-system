@@ -1,0 +1,103 @@
+// ============================================
+// Slider —— 拖动条（Root 轨道容器 + Track 底槽 + Range 已选段 + Thumb 圆点）
+// ============================================
+// 值全走角色契约 var(--stitch-*)；禁用态用底层自动挂的 data-disabled 选（源码里不写、别猜，
+// 已照 radix slider.md「Data attribute」表核准：每个 part 都有 [data-disabled]（禁用时在）、
+// [data-orientation]=horizontal|vertical）。控件几何为物理像素（人机工程），圆角/颜色走 token。
+
+// ---------- Root（轨道容器）----------
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  user-select: none;
+  touch-action: none;
+  font-family: var(--stitch-font-body);
+
+  &[data-orientation='horizontal'] {
+    width: 100%;
+    height: var(--sl-thumb);
+  }
+
+  &[data-orientation='vertical'] {
+    flex-direction: column;
+    width: var(--sl-thumb);
+    height: 160px;
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+// ---------- Track（底槽 = 未选中的整条）----------
+// 走中性 --stitch-border，药丸圆角随站点按钮圆角（H2 禁写死圆角）。
+.track {
+  position: relative;
+  flex-grow: 1;
+  background: var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+
+  &[data-orientation='horizontal'] {
+    height: var(--sl-rail);
+  }
+
+  &[data-orientation='vertical'] {
+    width: var(--sl-rail);
+    height: 100%;
+  }
+}
+
+// ---------- Range（已选段 = 从起点到 thumb）----------
+// 走主强调色 --stitch-accent（与 CTA/选中同源），底层按值定位。
+.range {
+  position: absolute;
+  background: var(--stitch-accent);
+  border-radius: var(--stitch-radius-button);
+
+  &[data-orientation='horizontal'] {
+    height: 100%;
+  }
+
+  &[data-orientation='vertical'] {
+    width: 100%;
+  }
+}
+
+// ---------- Thumb（圆点手柄）----------
+// 浮起面圆点 + accent 描边 + 软影；focus 环走 --stitch-focus-ring。
+.thumb {
+  display: block;
+  width: var(--sl-thumb);
+  height: var(--sl-thumb);
+  box-sizing: border-box;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-accent);
+  border-radius: var(--stitch-radius-button);
+  box-shadow: var(--stitch-shadow-sm);
+  cursor: grab;
+  transition: box-shadow var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover {
+    box-shadow: var(--stitch-shadow-base);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+// ---------- Geometry（控件几何为物理像素；圆角/颜色/字体走 token）----------
+.root {
+  --sl-rail: 4px; // 底槽粗细
+  --sl-thumb: 16px; // 圆点直径
+}

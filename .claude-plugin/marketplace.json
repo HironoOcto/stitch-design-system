@@ -1,0 +1,23 @@
+{
+  "name": "hironoocto",
+  "owner": {
+    "name": "HironoOcto",
+    "url": "https://github.com/HironoOcto"
+  },
+  "description": "HironoOcto's design-system skills as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "stitch-design-system",
+      "source": "./",
+      "description": "Agent skill for building React UIs with the stitch-design-system component library and its themeable design tokens.",
+      "category": "design",
+      "keywords": [
+        "design-system",
+        "react",
+        "skills",
+        "design-tokens",
+        "components"
+      ]
+    }
+  ]
+}

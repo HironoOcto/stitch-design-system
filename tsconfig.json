@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["node", "vite/client", "vitest/globals"],
+    "paths": {
+      "@octohirono/stitch-design-system": ["./packages/react/src/index.ts"]
+    }
+  },
+  "include": [
+    "demo",
+    "vite.config.ts",
+    "vitest.setup.ts",
+    // demo 经 paths 深入 packages/react/src（含 index.ts 顶部的
+    // `import 'virtual:stitch-theme'`）——把该虚拟模块的环境声明纳入本程序，
+    // 否则 TS2882（vite/client 只覆盖 *.module.less，不覆盖此虚拟 id）。
+    "packages/react/src/types/virtual-theme.d.ts"
+  ]
+}

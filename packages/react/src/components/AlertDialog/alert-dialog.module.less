@@ -1,0 +1,12 @@
+// ============================================
+// AlertDialog
+// 确认框 = 底件 Modal + 只加「必须决策」那层：浮层面 / 圆角 / 阴影 / 页脚按钮全继承 Modal + Button，
+// 本件唯一自有视觉层 = 正文强调（Modal 的 .body 用弱化 text-secondary，确认框正文是要读者
+// 做判断的关键文案，提到 primary 前景确保可读）。全走 var(--stitch-*)，无硬编码（H2）。
+// ============================================
+
+.message {
+  color: var(--stitch-text-primary);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+}

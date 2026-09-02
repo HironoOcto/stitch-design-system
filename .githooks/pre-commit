@@ -1,0 +1,14 @@
+#!/bin/sh
+# stitch-design-system pre-commit —— 跑完整 npm run ci，任一步不过则拒绝提交。
+# 见 docs/contributing/sync-and-ci.md §6.2。禁止 `git commit --no-verify` 绕过。
+#
+# git 根目前是父仓库 design-system-study（stitch 尚未独立成 repo），故先切进
+# 本目录再跑 ci（ci 的 npm 脚本都以本目录为根）。
+set -e
+
+HOOK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROJECT_DIR=$(CDPATH= cd -- "$HOOK_DIR/.." && pwd)
+
+cd "$PROJECT_DIR"
+echo "[pre-commit] npm run ci @ $PROJECT_DIR"
+npm run ci

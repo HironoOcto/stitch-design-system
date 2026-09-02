@@ -1,0 +1,217 @@
+// ============================================
+// Card
+// 表面处理（variant）+ 颜色（语义状态 / 强调面 / 抽象分类槽）。
+// 每个颜色类只覆盖一组「角色变量」（--card-*），variant 类统一读这组变量，
+// 故只需 11 个颜色类 × 4 个 variant 类，而非写死组合。
+// 圆角/字体/色彩/间距/阴影全走 var(--stitch-*)（H2）；招牌药丸/3D 影/写死长相色/花纹背景已丢。
+// ============================================
+
+.card {
+  box-sizing: border-box;
+  display: block;
+  border-radius: var(--stitch-radius-card);
+  padding: var(--stitch-spacing-xl);
+  font-family: var(--stitch-font-body);
+  line-height: var(--stitch-line-height-base);
+  border: var(--stitch-border-width) solid transparent;
+  transition:
+    transform var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  // ---------- 颜色角色变量（default 兜底：中性）----------
+  // 每个颜色类重定义：--card-bg（面色）+ --card-ink（保证可读的文字色）+ --card-border（描边身份色）。
+  --card-bg: var(--stitch-bg-elevated);
+  --card-ink: var(--stitch-text-primary);
+  --card-border: var(--stitch-border);
+
+  background: var(--card-bg);
+  color: var(--card-ink);
+}
+
+// 消费者把卡做成可聚焦（tabIndex/role/onClick 经 ...rest 透传）时的焦点环
+.card:focus-visible {
+  outline: 2px solid var(--stitch-focus-ring);
+  outline-offset: 2px;
+}
+
+// ============================================
+// Variant — 表面处理
+// ============================================
+
+// 内容卡：描边即结构 + 极淡升起影。
+// 用 --stitch-shadow-base（非 -sm）：-sm 是发丝影，给导航/按钮；内容卡的极淡升起要 base 档。
+.card-outlined {
+  border-color: var(--card-border);
+  box-shadow: var(--stitch-shadow-base);
+}
+
+// 浮动卡：无边、更强阴影（真正抬起的浮层）。
+// 用 -lg 而非 -base，令其比 outlined（描边 + base）视觉更高一档，保住升起阶梯。
+.card-elevated {
+  box-shadow: var(--stitch-shadow-lg);
+}
+
+// 中性卡：填充底、无边无影（扁平中性面）。
+.card-filled {
+  --card-bg: var(--stitch-bg-card);
+}
+
+// 虚线卡：虚线描边。
+.card-dashed {
+  --card-bg: var(--stitch-bg-section);
+  border-style: dashed;
+  border-color: var(--card-border);
+}
+
+// ============================================
+// Color — 强调面 + 语义状态 + 抽象分类槽
+// （放在 variant 之后：颜色类覆盖 --card-* 局部变量，胜出 variant 的兜底）
+// ============================================
+
+// 强调面：底走契约强调面；文字**绝不**直接用 --stitch-text-on-accent——
+// 该角色按各站惯用强调用法调，未必够深当整卡正文（低对比会 < AA）。
+// 故 --card-ink = text-on-accent 混 text-primary 50%（保留强调 hue + 兜底墨色拉到可读，
+// dark-mode 自适应）。描边由该 ink 派生。
+.color-accent {
+  --card-bg: var(--stitch-bg-accent);
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-text-on-accent),
+    var(--stitch-text-primary) 50%
+  );
+  --card-border: color-mix(in srgb, var(--card-ink), transparent 72%);
+}
+
+// ---------- 语义状态（恒定色够深 → 文字 = 身份色混黑 35%，仍鲜明且 ≥AA）----------
+.color-danger {
+  --card-bg: var(--stitch-danger-bg);
+  --card-ink: color-mix(in srgb, var(--stitch-danger), black 35%);
+  --card-border: var(--stitch-danger);
+}
+
+.color-success {
+  --card-bg: var(--stitch-success-bg);
+  --card-ink: color-mix(in srgb, var(--stitch-success), black 35%);
+  --card-border: var(--stitch-success);
+}
+
+.color-warning {
+  --card-bg: var(--stitch-warning-bg);
+  --card-ink: color-mix(in srgb, var(--stitch-warning), black 35%);
+  --card-border: var(--stitch-warning);
+}
+
+.color-info {
+  --card-bg: var(--stitch-info-bg);
+  --card-ink: color-mix(in srgb, var(--stitch-info), black 35%);
+  --card-border: var(--stitch-info);
+}
+
+// ---------- 抽象分类槽（只为互相区分；软底由分类色混 canvas 派生，同契约软底手法）----------
+.color-cat-1 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-1);
+}
+
+.color-cat-2 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-2),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-2),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-2);
+}
+
+.color-cat-3 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-3),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-3),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-3);
+}
+
+.color-cat-4 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-4),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-4),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-4);
+}
+
+.color-cat-5 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-5),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-5),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-5);
+}
+
+.color-cat-6 {
+  --card-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-6),
+    var(--stitch-bg-canvas) 88%
+  );
+  --card-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-6),
+    var(--stitch-text-primary) 68%
+  );
+  --card-border: var(--stitch-cat-6);
+}
+
+// ============================================
+// Hoverable（opt-in）
+// ============================================
+.card-hoverable {
+  cursor: pointer;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--stitch-shadow-base);
+}
+
+.card-hoverable:active {
+  transform: translateY(0);
+}
+
+// 虚线 + hoverable：不做位移、不加阴影，只加深虚线描边。
+.card-dashed.card-hoverable:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--stitch-border-strong);
+}

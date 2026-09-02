@@ -1,0 +1,126 @@
+// ============================================
+// Collapse
+// 单项披露件（Ant v5 Collapse.Panel 语义）：头部按钮 + grid 动画展开面板。
+// 圆角/字体/色彩/间距/动效全走 var(--stitch-*)（H2）；
+// 披露指示用中立 chevron <Icon>（跟随 currentColor，可换肤）。
+// ============================================
+
+// ---------- Wrapper ----------
+.collapse {
+  box-sizing: border-box;
+  position: relative;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  overflow: hidden;
+  font-family: var(--stitch-font-body);
+  transition: border-color var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  &.disabled {
+    opacity: 0.6;
+  }
+}
+
+// ---------- Header（触发按钮）----------
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-md);
+  width: 100%;
+  padding: var(--stitch-spacing-lg) var(--stitch-spacing-xl);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--stitch-text-primary);
+
+  &:focus-visible {
+    // 负偏移：容器 overflow:hidden，焦点环内置才不被裁掉。
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// ---------- Indicator（chevron，展开时旋转 180°）----------
+.indicator {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--stitch-text-secondary);
+  transition: transform var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  .expanded & {
+    transform: rotate(180deg);
+  }
+}
+
+// ---------- Text（标题）----------
+.text {
+  flex: 1;
+  font-size: var(--stitch-font-size-lg);
+  font-weight: var(--stitch-font-weight-medium);
+  color: var(--stitch-text-primary);
+  line-height: var(--stitch-line-height-base);
+}
+
+// ---------- Panel（grid 高度动画）----------
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  .expanded & {
+    grid-template-rows: 1fr;
+  }
+}
+
+.content {
+  overflow: hidden;
+  padding: 0 var(--stitch-spacing-xl);
+  color: var(--stitch-text-secondary);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  transition: padding var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  .expanded & {
+    padding-bottom: var(--stitch-spacing-xl);
+  }
+
+  a {
+    color: var(--stitch-accent);
+    text-decoration: none;
+    font-weight: var(--stitch-font-weight-medium);
+    transition: color var(--stitch-motion-duration-fast)
+      var(--stitch-motion-ease);
+
+    &:hover {
+      color: var(--stitch-accent-hover);
+      text-decoration: underline;
+    }
+  }
+
+  p {
+    margin: 0 0 var(--stitch-spacing-sm) 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul {
+    margin: var(--stitch-spacing-sm) 0;
+    padding-left: var(--stitch-spacing-xl);
+  }
+
+  li {
+    margin-bottom: var(--stitch-spacing-xs);
+  }
+}

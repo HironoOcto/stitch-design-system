@@ -1,0 +1,15 @@
+// ============================================
+// AspectRatio
+// 锁宽高比容器（无 Ant 对应）：纯布局件，无皮无状态。
+// 比例由底层 Radix 用外层 wrapper 的 padding-bottom = 100 / ratio 撑出，
+// 本类挂在内层内容 div（Radix 已给它 position:absolute; inset:0）。
+// 无 --stitch-* 颜色角色可上（H2 不涉硬编码色/圆角/字体）——圆角/边框/底色等观感
+// 由使用者在 children 或 className/style 上定，本组件只负责撑出比例框。
+// ============================================
+
+.root {
+  // 内容层铺满比例框；overflow:hidden 让 children（媒体）随使用者给的圆角裁切。
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

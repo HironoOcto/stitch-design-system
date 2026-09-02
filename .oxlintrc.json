@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "**/dist",
+    "packages/tokens/dist",
+    "sites",
+    "templates"
+  ]
+}

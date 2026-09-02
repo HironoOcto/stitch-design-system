@@ -1,0 +1,36 @@
+{
+  "name": "@octohirono/stitch-design-system",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "prepublishOnly": "npm --prefix ../.. run ci"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style": "./dist/style.css"
+  },
+  "sideEffects": [
+    "**/*.css",
+    "**/*.less"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "radix-ui": "^1.6.7",
+    "clsx": "^2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

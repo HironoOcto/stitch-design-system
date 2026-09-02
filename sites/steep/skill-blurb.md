@@ -1,0 +1,10 @@
+<!-- sites/steep/skill-blurb.md — generated once from source/DESIGN.md by build:blurb.
+     Status: human-approved — reviewed for fidelity to source/DESIGN.md (2026-08-27).
+     build:skill injects these two sections into SKILL.md's SLOT markers. Do not hand-edit
+     the SKILL.md copies — edit here and re-inject. -->
+
+## description
+Build React UIs in the Steep style — editorial serif analytics on warm paper: a near-monochrome white canvas with a single warm peach accent used at most once per page, oversized 400-weight Signifier serif headlines up to 90px, large 24px soft-edged cards, flat pill controls, and barely-there shadows over hairline borders.
+
+## style-paragraph
+Steep presents analytics as an editorial magazine spread — 400-weight Signifier serif headlines, up to 90px with tight tracking, float over a near-monochrome white canvas. A single warm peach is the only chromatic surface and appears at most once per page, reserved for one editorial emphasis such as a callout card with dark brown ink; everything else stays achromatic. Body copy runs in Sohne at finely-stepped weights, carrying hierarchy before the type ever turns bold. Cards are large — 24px radius — flat and shadowless with hairline borders; only floating product artifacts such as region tables, activation charts, and AI composers earn a barely-there shadow, arranged around the headline rather than nested in a dashboard shell. Controls are flat pills. The page breathes on a 4px unit with 80px section gaps, and content never crowds the edges.

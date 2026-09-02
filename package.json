@@ -1,0 +1,53 @@
+{
+  "name": "stitch-design-system",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "vite",
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "build:refs": "node scripts/build-refs.mjs",
+    "build:blurb": "node scripts/build-blurb.mjs",
+    "build:skill": "node scripts/build-skill.mjs",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:skill": "node scripts/check-skill.mjs",
+    "check:boundary": "node scripts/check-boundary.mjs",
+    "lint": "oxlint && tsc -p tsconfig.json --noEmit && tsc -p packages/react/tsconfig.json --noEmit",
+    "test:run": "vitest run --project unit",
+    "test:a11y": "vitest run --project a11y",
+    "build": "vite build packages/react",
+    "ci": "npm run format:check && npm run check:docs && npm run check:skill && npm run check:boundary && npm run lint && npm run test:run && npm run test:a11y && npm run build",
+    "test:units": "node --test"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "radix-ui": "^1.6.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "axe-core": "^4.10.2",
+    "gpt-tokenizer": "4.0.0",
+    "jsdom": "^25.0.1",
+    "less": "^4.9.0",
+    "oxlint": "^1.79.0",
+    "postcss": "^8.5.26",
+    "prettier": "^3.4.2",
+    "skills-ref": "0.1.5",
+    "ts-morph": "^28.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11",
+    "vitest-axe": "^0.1.0"
+  }
+}

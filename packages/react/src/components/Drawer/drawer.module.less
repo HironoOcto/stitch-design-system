@@ -1,0 +1,192 @@
+// ============================================
+// Drawer
+// ============================================
+// 值全走角色契约 var(--stitch-*)；无写死 hex/圆角/字体（H2）。
+// 标准贴边浮层：遮罩 + 从 placement 边缘滑入的面板，圆角/阴影/字体随站点。
+
+// ---------- Mask overlay ----------
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--stitch-mask-bg);
+  animation: stitch-drawer-fade-in var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+// ---------- Panel ----------
+// 浮起面板：bg-elevated 底 + 发丝边 + base 阴影档（对齐 Modal；最深的 lg 档留给浮动预览，浮层不占用）。
+.panel {
+  position: fixed;
+  z-index: 1001;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-secondary);
+  font-family: var(--stitch-font-body);
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+// 贴边几何 + 圆角只落在朝向视口的内侧角 + 各自方向滑入。
+.panelRight {
+  top: 0;
+  right: 0;
+  height: 100vh;
+  max-width: calc(100vw - var(--stitch-spacing-xl) * 2);
+  border-radius: var(--stitch-radius-card) 0 0 var(--stitch-radius-card);
+  animation: stitch-drawer-slide-right var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.panelLeft {
+  top: 0;
+  left: 0;
+  height: 100vh;
+  max-width: calc(100vw - var(--stitch-spacing-xl) * 2);
+  border-radius: 0 var(--stitch-radius-card) var(--stitch-radius-card) 0;
+  animation: stitch-drawer-slide-left var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.panelTop {
+  top: 0;
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - var(--stitch-spacing-xl) * 2);
+  border-radius: 0 0 var(--stitch-radius-card) var(--stitch-radius-card);
+  animation: stitch-drawer-slide-top var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.panelBottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - var(--stitch-spacing-xl) * 2);
+  border-radius: var(--stitch-radius-card) var(--stitch-radius-card) 0 0;
+  animation: stitch-drawer-slide-bottom var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+// ---------- Header ----------
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stitch-spacing-md);
+  padding: var(--stitch-spacing-xl) var(--stitch-spacing-xl)
+    var(--stitch-spacing-lg);
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-lg);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--stitch-height-sm);
+  height: var(--stitch-height-sm);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--stitch-font-size-lg);
+  line-height: 1;
+  color: var(--stitch-text-muted);
+  border-radius: var(--stitch-radius-button);
+  cursor: pointer;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Body ----------
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--stitch-spacing-xl) var(--stitch-spacing-xl);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- Footer ----------
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--stitch-spacing-md);
+  padding: 0 var(--stitch-spacing-xl) var(--stitch-spacing-xl);
+  flex-shrink: 0;
+}
+
+// ---------- Animations ----------
+@keyframes stitch-drawer-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes stitch-drawer-slide-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes stitch-drawer-slide-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes stitch-drawer-slide-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes stitch-drawer-slide-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

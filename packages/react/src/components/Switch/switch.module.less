@@ -1,0 +1,156 @@
+// ============================================
+// Switch —— 开关（role="switch" 按钮，轨 + 滑块）
+// ============================================
+// 招牌值清理：
+//  · 药丸/圆滑块的固定圆角 → 走 --stitch-radius-button（开关是 <button> 型切换控件，药丸感随
+//    站点按钮圆角）。H2 禁写死圆角。
+//  · ON 态走 --stitch-accent（与 Checkbox/Radio 选中同源；开关的 ON 是选择态，非语义 success）。
+//    OFF 轨走中性 --stitch-border-strong。
+//  · inset 3D 立体影 + loading spinner 无限转 → 按 §9.5.1 / 全局动效 0.15–0.35s 丢弃。
+
+// ---------- Track（轨 = 按钮本体）----------
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  // min-width：无文案时 = 基准轨宽；有 checkedChildren/unCheckedChildren 时随文案自然增宽
+  min-width: var(--sw-w);
+  height: var(--sw-h);
+  padding: 0;
+  box-sizing: border-box;
+  background: var(--stitch-border-strong);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+  font-family: var(--stitch-font-body);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover:not(.disabled):not(.checked) {
+    border-color: var(--stitch-border-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Checked（ON = accent 填充）----------
+.checked {
+  background: var(--stitch-accent);
+  border-color: var(--stitch-accent-active);
+
+  &:hover:not(.disabled) {
+    background: var(--stitch-accent-hover);
+    border-color: var(--stitch-accent-hover);
+  }
+
+  // 规则 7：ON 轨用 accent 铺底、与 focus-ring 同色会隐没 → 叠内圈 bg-elevated 间隔环隔开。
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--stitch-bg-elevated),
+      0 0 0 4px var(--stitch-focus-ring);
+  }
+}
+
+// ---------- Handle（滑块）----------
+.handle {
+  position: absolute;
+  top: 50%;
+  left: var(--sw-gap);
+  width: var(--knob);
+  height: var(--knob);
+  transform: translateY(-50%);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+  box-sizing: border-box;
+  transition: left var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+}
+
+.checked .handle {
+  left: calc(100% - var(--knob) - var(--sw-gap));
+  border-color: var(--stitch-accent-active);
+}
+
+// ---------- Inner Text（轨内文案，滑块对侧）----------
+// .inner：flex:1 铺满轨（滑块 absolute 不占位）→ align/justify center 把文案块居中在「让出滑块后」
+// 的剩余半区（竖向 + 横向）；min-width:auto 让长文案（如 OFF）自然把 min-width 轨撑宽；
+// pointer-events:none 让点击穿透到 button。
+.inner {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: var(--sw-font);
+  font-weight: var(--stitch-font-weight-medium);
+  color: var(--stitch-text-secondary);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  // 未选中：滑块在左，文字让出左侧
+  padding: 0 var(--sw-gap) 0 calc(var(--knob) + var(--sw-gap) * 2);
+}
+
+.checked .inner {
+  color: var(--stitch-accent-text);
+  // 选中：滑块在右，文字让出右侧
+  padding: 0 calc(var(--knob) + var(--sw-gap) * 2) 0 var(--sw-gap);
+}
+
+// .innerText：真正承载文字的 inline-block —— text-box 只对「直接生成行盒」的块/行内块生效，
+// 若放在 flex 的 .inner 上会被静默忽略（实测 box 高不变、trim 不发生）。
+// 轨内小字竖向居中：纯行盒居中对不齐——CJK 墨迹填满 em 盒、Latin 全大写(ON/OFF)无降部会偏低，
+// 二者在行盒里的墨位不同，单靠 line-height 两种字满足不了。
+//  · fallback（Firefox/旧版）：line-height:normal，字体自然行距把上下留白匀开（CJK 正、Latin 略偏）。
+//    不写死像素补偿——换肤会换字体(Inter/Söhne/未来站)，魔法数字换字即歪。
+//  · 渐进增强（Chrome 133+/Safari 18.2+）：text-box 把行盒裁到真实 cap 顶/基线 → 按**墨迹**居中，
+//    Latin 全大写与 CJK 都精确落在轨竖向正中（实测裁后盒高=cap 高、中心=轨中心）。
+.innerText {
+  display: inline-block;
+  line-height: normal;
+  text-box: trim-both cap alphabetic;
+  white-space: nowrap;
+}
+
+// ---------- Disabled ----------
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+// ---------- Loading（非交互 + aria-busy；无内建 spinner，见 notes）----------
+.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+// ---------- Sizes（控件几何为物理像素；圆角/颜色/字体走 token）----------
+.small {
+  --sw-h: 18px;
+  --sw-w: 32px;
+  --knob: 12px;
+  --sw-gap: 2px;
+  --sw-font: 9px;
+}
+
+.middle {
+  --sw-h: 24px;
+  --sw-w: 44px;
+  --knob: 18px;
+  --sw-gap: 2px;
+  --sw-font: 11px;
+}
+
+.large {
+  --sw-h: 30px;
+  --sw-w: 54px;
+  --knob: 24px;
+  --sw-gap: 2px;
+  --sw-font: 13px;
+}

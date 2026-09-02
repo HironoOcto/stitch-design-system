@@ -1,0 +1,32 @@
+// ============================================
+// Icon
+// ============================================
+
+// ---------- Wrapper ----------
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  // 颜色跟随角色变量 → 图标随换肤变色（consumer 可用 style 覆盖成 accent/danger 等角色色）。
+  color: var(--stitch-text-secondary);
+  // src 模式的背景图定位（name 模式走内联 svg，不受影响）。
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+// ---------- Glyph (inline svg) ----------
+.icon-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  // 描边粗细走角色变量 → 每站 adapter 说了算。
+  // 覆盖 <svg> 上的 stroke-width fallback 属性，并被 paths 继承。
+  stroke-width: var(--stitch-icon-stroke-width);
+}
+
+// non-scaling-stroke 不可继承，须落在被描边的 path 上：描边恒定像素、不随 size 缩放变粗（真发丝）。
+.icon-svg path {
+  vector-effect: non-scaling-stroke;
+}

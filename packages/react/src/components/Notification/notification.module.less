@@ -1,0 +1,316 @@
+// ============================================
+// Notification
+// ============================================
+// 值全走角色契约 var(--stitch-*)；无写死 hex/圆角/字体（H2）。
+// 4 类型走同套结构：中性卡底（方案 B），靠 .type-* 换「状态色边框 + 实心状态色 chip」区分（文字坐高对比中性面）。
+// 面/字/边/焦点环/卡角/阴影全走角色变量（--stitch-bg-elevated / -text-* / -border /
+//   -focus-ring / -radius-card / -shadow-*）；4 类型软底 -bg 弃用（选 B 中性卡），
+//   图标 chip 走实心 --stitch-<状态> + 白字。
+// 6 个 position 各自 fixed 在视口，内层 column 堆叠；进场从 placement 方向滑入，退场反向滑出。
+
+.notificationRoot {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2000;
+  /* 高于 Modal(1000)/Drawer(1001) */
+}
+
+// ---------- Position groups ----------
+.position-top,
+.position-topLeft,
+.position-topRight,
+.position-bottom,
+.position-bottomLeft,
+.position-bottomRight {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-md);
+  pointer-events: none;
+  max-width: calc(100vw - var(--stitch-spacing-xl) * 2);
+}
+
+.position-top {
+  top: var(--stitch-spacing-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+
+.position-topLeft {
+  top: var(--stitch-spacing-xl);
+  left: var(--stitch-spacing-xl);
+  align-items: flex-start;
+}
+
+.position-topRight {
+  top: var(--stitch-spacing-xl);
+  right: var(--stitch-spacing-xl);
+  align-items: flex-end;
+}
+
+.position-bottom {
+  bottom: var(--stitch-spacing-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  flex-direction: column-reverse;
+}
+
+.position-bottomLeft {
+  bottom: var(--stitch-spacing-xl);
+  left: var(--stitch-spacing-xl);
+  align-items: flex-start;
+  flex-direction: column-reverse;
+}
+
+.position-bottomRight {
+  bottom: var(--stitch-spacing-xl);
+  right: var(--stitch-spacing-xl);
+  align-items: flex-end;
+  flex-direction: column-reverse;
+}
+
+// ---------- Notification card ----------
+.notification {
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-md);
+  width: 384px;
+  max-width: calc(100vw - var(--stitch-spacing-xl) * 2);
+  padding: var(--stitch-spacing-lg);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  font-family: var(--stitch-font-body);
+  color: var(--stitch-text-secondary);
+  transition:
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    transform var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+  will-change: transform, opacity;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  box-shadow: var(--stitch-shadow-lg);
+  transform: translateY(-1px);
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--stitch-focus-ring);
+  outline-offset: 2px;
+}
+
+// ---------- Type accent（中性卡底 + 状态色边框 + 图标实心 chip）----------
+// 卡底方案 B（用户 demo 定夺 2026-08-26）：卡底保持中性 --stitch-bg-elevated，不做整卡染色；
+// 类型信号由「状态色边框 + 实心状态色 chip + 白字」承载（antd Notification 同法），文字层坐高对比中性面。
+// （方案 A 彩色软底同样达 AA，用户看真组件对比后选了 B「更干净」。）实测对比度见根 迁移笔记.md。
+.type-success {
+  border-color: var(--stitch-success);
+}
+
+.type-success .iconWrap {
+  background: var(--stitch-success);
+  color: var(--stitch-text-on-dark);
+}
+
+.type-info {
+  border-color: var(--stitch-info);
+}
+
+.type-info .iconWrap {
+  background: var(--stitch-info);
+  color: var(--stitch-text-on-dark);
+}
+
+.type-warning {
+  border-color: var(--stitch-warning);
+}
+
+.type-warning .iconWrap {
+  background: var(--stitch-warning);
+  color: var(--stitch-text-on-dark);
+}
+
+.type-error {
+  border-color: var(--stitch-danger);
+}
+
+.type-error .iconWrap {
+  background: var(--stitch-danger);
+  color: var(--stitch-text-on-dark);
+}
+
+// ---------- Icon ----------
+.iconWrap {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%; // 结构性圆形（rule 1 例外：布局 %），非品牌药丸
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+}
+
+// ---------- Body ----------
+.body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-xs);
+}
+
+// 标题领衔 = display 字族 + medium 字重 + base 字号；描述是正文内容（须可读）→ 走 text-primary
+// 而非 text-secondary：某些站浅次要色下 14px 小字会 < AA 4.5。层级靠「字号/字重/字族」
+// 拉开，不靠把描述压淡。
+.title {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-base);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+  word-break: break-word;
+}
+
+.description {
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+  word-break: break-word;
+}
+
+// ---------- Action button slot ----------
+.btnSlot {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--stitch-spacing-xs);
+}
+
+// ---------- Close button ----------
+.close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: var(--stitch-spacing-xs);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-lg);
+  line-height: 1;
+  border-radius: 50%; // 结构性圆形（rule 1 例外：布局 %）
+  cursor: pointer;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+}
+
+.close:hover {
+  background: var(--stitch-bg-section);
+  color: var(--stitch-text-primary);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--stitch-focus-ring);
+  outline-offset: 2px;
+}
+
+// ---------- Enter / leave animations ----------
+// placement=top: 从 -16px 滑入，leave 向上滑出
+.placement-top {
+  animation: stitch-notification-slide-from-top
+    var(--stitch-motion-duration-base) var(--stitch-motion-ease) both;
+}
+
+.placement-top.leaving {
+  animation: stitch-notification-slide-out-top
+    var(--stitch-motion-duration-base) var(--stitch-motion-ease) both;
+}
+
+// placement=bottom: 从 +16px 滑入，leave 向下滑出
+.placement-bottom {
+  animation: stitch-notification-rise-from-bottom
+    var(--stitch-motion-duration-base) var(--stitch-motion-ease) both;
+}
+
+.placement-bottom.leaving {
+  animation: stitch-notification-sink-out-bottom
+    var(--stitch-motion-duration-base) var(--stitch-motion-ease) both;
+}
+
+@keyframes stitch-notification-slide-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stitch-notification-slide-out-top {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes stitch-notification-rise-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stitch-notification-sink-out-bottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+// 全局降低动效偏好
+@media (prefers-reduced-motion: reduce) {
+  .placement-top,
+  .placement-bottom {
+    animation-duration: 0.01s;
+  }
+
+  .placement-top.leaving,
+  .placement-bottom.leaving {
+    animation-duration: 0.01s;
+  }
+}

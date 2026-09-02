@@ -1,0 +1,98 @@
+// ============================================
+// Skeleton
+// 加载占位骨架：中性底块 + 扫光高光；loading=false 时渲染 children。
+// 色/圆角全走 var(--stitch-*)（H2）：底走 --stitch-bg-disabled 常量中性占位面、扫光走半透明
+// bg-elevated、圆角按元素取 --stitch-radius-*（随站点，不固定药丸）。
+// 扫光是「持续加载动画」（同 Loading 转圈的豁免），> 0.35s 且 prefers-reduced-motion 下停。
+// ============================================
+
+// ---------- Root ----------
+.skeleton {
+  background: var(--stitch-bg-disabled);
+  border-radius: var(--stitch-radius-input);
+  display: inline-block;
+  line-height: 1;
+  position: relative;
+  overflow: hidden;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+// ---------- Active: 扫光高光（持续加载动画）----------
+.active {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--stitch-bg-elevated), transparent 45%),
+      transparent
+    );
+    animation: stitch-skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes stitch-skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// ---------- Variant: text ----------
+.vt-text {
+  border-radius: var(--stitch-radius-input);
+  height: 16px;
+  margin-bottom: var(--stitch-spacing-sm);
+}
+
+// ---------- Variant: circle ----------
+.vt-circle {
+  border-radius: 50%; // 结构性圆形（rule 1 例外：布局 %）
+}
+
+// ---------- Variant: rect ----------
+.vt-rect {
+  border-radius: var(--stitch-radius-image);
+}
+
+// ---------- Variant: paragraph ----------
+.vt-paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-md);
+  border-radius: 0;
+  background: none;
+}
+
+.line {
+  height: 14px;
+  border-radius: var(--stitch-radius-input);
+  background: var(--stitch-bg-disabled);
+}
+
+// ---------- Sub: Button 占位 ----------
+.skeleton-btn {
+  border-radius: var(--stitch-radius-button);
+}
+
+// ---------- Sub: Input 占位 ----------
+.skeleton-input {
+  border-radius: var(--stitch-radius-input);
+}
+
+// ---------- Sub: Avatar 方形占位 ----------
+.skeleton-avatar-square {
+  border-radius: var(--stitch-radius-image);
+}
+
+// 尊重「减少动效」偏好：停掉扫光
+@media (prefers-reduced-motion: reduce) {
+  .active::after {
+    animation: none;
+  }
+}

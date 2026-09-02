@@ -1,0 +1,95 @@
+// ============================================
+// Divider
+// 语义分隔件（Ant v5 Divider 归一）：不迁长相名、不迁图片、不留任一长相色。
+// 线色统一走 --stitch-border（主结构分隔角色，随换肤变色）；
+// 线宽/字体/间距全 var(--stitch-*)（H2 禁写死 hex/圆角/字体）。
+// ============================================
+
+.divider {
+  box-sizing: border-box;
+  border: 0 solid var(--stitch-border); // 线色角色：随站换肤变色
+  border-style: solid;
+}
+
+// 虚线（dashed）——线型改由 border-style 表达，颜色仍是 --stitch-border。
+.divider-dashed {
+  border-style: dashed;
+}
+
+// ---------- 水平（默认）：整条顶边线 ----------
+.divider-horizontal {
+  display: flex;
+  clear: both;
+  width: 100%;
+  min-width: 100%;
+  margin: var(--stitch-spacing-lg) 0;
+  border-top-width: var(--stitch-border-width);
+}
+
+// ---------- 垂直：内联细线（用于行内元素分隔）----------
+.divider-vertical {
+  display: inline-block;
+  height: 0.9em;
+  margin: 0 var(--stitch-spacing-sm);
+  vertical-align: middle;
+  border-left-width: var(--stitch-border-width);
+}
+
+// ============================================
+// 文字分隔线（水平 + children）
+// 线由 ::before / ::after 两段绘制，文字居中夹在中间；orientation 调左右占比。
+// ============================================
+.divider-with-text {
+  display: flex;
+  align-items: center;
+  margin: var(--stitch-spacing-xl) 0;
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-weight: var(--stitch-font-weight-medium);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  white-space: nowrap;
+  text-align: center;
+  border-top: 0; // 线交给伪元素画，根 border 让位
+}
+
+.divider-with-text::before,
+.divider-with-text::after {
+  position: relative;
+  width: 50%;
+  border-top: var(--stitch-border-width) solid var(--stitch-border);
+  content: '';
+}
+
+// 虚线文字分隔线：两段伪元素线也走虚线。
+.divider-with-text.divider-dashed::before,
+.divider-with-text.divider-dashed::after {
+  border-top-style: dashed;
+}
+
+// 文字与两侧线的间隔。
+.divider-text {
+  display: inline-block;
+  padding: 0 var(--stitch-spacing-lg);
+}
+
+// ---------- orientation：文字靠左 / 靠右（调两段占比）----------
+.divider-left::before {
+  width: 5%;
+}
+.divider-left::after {
+  width: 95%;
+}
+
+.divider-right::before {
+  width: 95%;
+}
+.divider-right::after {
+  width: 5%;
+}
+
+// plain：文字用常规字重（非强调）。
+.divider-plain {
+  font-weight: var(--stitch-font-weight-normal);
+  font-size: var(--stitch-font-size-sm);
+}

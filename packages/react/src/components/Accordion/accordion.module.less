@@ -1,0 +1,12 @@
+// ============================================
+// Accordion
+// 一组披露块 + 互斥单开：容器只做布局与联动，单块长相全复用 Collapse。
+// 只做纵向堆叠 + 间距（全走 var(--stitch-*)，H2）；无自有颜色 / 圆角 / 字体。
+// ============================================
+
+// ---------- Wrapper（纵向堆叠一列 Collapse）----------
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-md);
+}

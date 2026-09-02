@@ -1,0 +1,141 @@
+// ============================================
+// Table
+// 数据表（Ant v5 Table `columns`/`dataSource` 语义）：卡面容器 + 原生 <table>。
+// 圆角/字体/色彩/间距/动效全走 var(--stitch-*)（H2）；招牌暖底/药丸圆角/虚线金分隔/
+// 斜纹 hover/有机气泡/裸 <svg> 图标全丢，图标改 <Icon> + 纯 CSS spinner。
+// 换肤后行分隔为发丝实线、hover/斑马为中性表面层、圆角由站点定（视觉会变，正常）。
+// ============================================
+
+// ---------- Wrapper（卡面容器）----------
+.wrapper {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--stitch-spacing-sm);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  font-family: var(--stitch-font-body);
+}
+
+.scrollable {
+  overflow: auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Table ----------
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.thead {
+  background: transparent;
+}
+
+// ---------- Header cell ----------
+.headerCell {
+  padding: var(--stitch-spacing-lg) var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-medium);
+  color: var(--stitch-text-primary);
+  text-align: left;
+  white-space: nowrap;
+  background: transparent;
+  border-bottom: var(--stitch-border-width) solid var(--stitch-border);
+}
+
+.tbody {
+  background: transparent;
+}
+
+// ---------- Row ----------
+.row {
+  transition: background-color var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-bg-card);
+  }
+}
+
+.striped {
+  background: var(--stitch-bg-section);
+
+  &:hover {
+    background: var(--stitch-bg-card);
+  }
+}
+
+// ---------- Body cell ----------
+.cell {
+  padding: var(--stitch-spacing-md) var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-normal);
+  color: var(--stitch-text-primary);
+  line-height: var(--stitch-line-height-base);
+  border-bottom: var(--stitch-border-width) solid var(--stitch-border);
+  transition: color var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+}
+
+.row:last-child .cell {
+  border-bottom: none;
+}
+
+// ---------- Empty state ----------
+.emptyCell {
+  padding: var(--stitch-spacing-xl) var(--stitch-spacing-lg);
+  text-align: center;
+}
+
+.emptyContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--stitch-spacing-lg);
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.emptyIcon {
+  color: var(--stitch-text-muted);
+  opacity: 0.6;
+}
+
+// ---------- Loading overlay ----------
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--stitch-bg-elevated), transparent 20%);
+  backdrop-filter: blur(2px);
+  border-radius: var(--stitch-radius-card);
+}
+
+// 纯 CSS 环形 spinner（无裸 <svg>）：中性描边环 + accent 高亮弧旋转。
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--stitch-border);
+  border-top-color: var(--stitch-accent);
+  border-radius: var(--stitch-radius-button);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

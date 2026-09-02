@@ -1,0 +1,18 @@
+// ============================================
+// Label
+// 表单标签：为控件提供文字标签，点标签聚焦控件（原生 <label for> 保证）。
+// 极简无状态皮：文字取 --stitch-text-primary + --stitch-font-body（随站换肤），
+// 与 Form 自渲 label 视觉一致（同 text-primary + normal 字重）；无 hover/disabled
+// 状态色——禁用等语义由被关联控件承载，非标签自身。
+// user-select:none 防「点标签聚焦」时误选中标签文字。
+// ============================================
+
+.root {
+  display: inline-block;
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: var(--stitch-line-height-base);
+  user-select: none;
+}

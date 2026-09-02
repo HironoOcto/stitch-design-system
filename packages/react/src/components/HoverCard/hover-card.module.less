@@ -1,0 +1,65 @@
+// ============================================
+// HoverCard
+// ============================================
+// 值全走角色契约 var(--stitch-*)；开合态用底层自动挂的 data-state 选（源码里不写、别猜，
+// 已照 radix hover-card.md「Data attribute」表核准：Content 有 [data-state]=open|closed、
+// [data-side]=top|right|bottom|left、[data-align]=start|center|end；Trigger 亦有 [data-state]）。
+// 面属浮层族，与 Popover 同一浮起面声音（bg-elevated + radius-card + shadow-base）。
+
+// ---------- Surface ----------
+// 浮起面：底 bg-elevated + 深字 text-primary；边 border + 圆角 radius-card + 阴影 shadow-base。
+// 富内容卡比 Popover 略宽，容头像 / 简介 / 预览。
+.content {
+  box-sizing: border-box;
+  width: 300px;
+  max-width: 360px;
+  padding: var(--stitch-spacing-lg);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  z-index: 100;
+
+  // 底层把开合态暴露成 data-state，直接选，不自己 useState 切 class。
+  &[data-state='open'] {
+    animation: stitch-hover-card-in var(--stitch-motion-duration-base)
+      var(--stitch-motion-ease);
+  }
+
+  &[data-state='closed'] {
+    animation: stitch-hover-card-out var(--stitch-motion-duration-fast)
+      var(--stitch-motion-ease);
+  }
+}
+
+// ---------- Arrow ----------
+// 底层渲染的三角 svg，靠 fill 取面色贴合卡片。
+.arrow {
+  fill: var(--stitch-bg-elevated);
+}
+
+// ---------- Motion ----------
+// 进出淡入 + 轻微缩放，方向由 data-side 决定（视觉从触发器一侧展开）。
+@keyframes stitch-hover-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stitch-hover-card-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

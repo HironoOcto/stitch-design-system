@@ -1,0 +1,174 @@
+// ============================================
+// Input
+// ============================================
+
+// ---------- Wrapper ----------
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  background: var(--stitch-bg-elevated);
+  // 结构靠 1px 边框而非品牌 3D 像素影（3D 影按 §9.5.1 丢；两站 Input 皆扁平+边）。
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-input);
+  transition:
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover:not(.wrapper-disabled):not(.wrapper-error):not(.wrapper-warning) {
+    border-color: var(--stitch-border-strong);
+  }
+
+  // 输入框：点击/键盘聚焦都应显示焦点环（表单控件惯例，用 :focus-within）。
+  &:focus-within:not(.wrapper-disabled) {
+    border-color: var(--stitch-accent);
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+}
+
+// ---------- Size ----------
+.wrapper-small {
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-md);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.wrapper-middle {
+  height: var(--stitch-height-base);
+  padding: 0 var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-base);
+}
+
+.wrapper-large {
+  height: var(--stitch-height-lg);
+  padding: 0 var(--stitch-spacing-xl);
+  font-size: var(--stitch-font-size-lg);
+}
+
+// ---------- Status ----------
+.wrapper-error {
+  border-color: var(--stitch-danger);
+
+  &:focus-within:not(.wrapper-disabled) {
+    border-color: var(--stitch-danger);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--stitch-danger), transparent 70%);
+  }
+}
+
+.wrapper-warning {
+  border-color: var(--stitch-warning);
+
+  &:focus-within:not(.wrapper-disabled) {
+    border-color: var(--stitch-warning);
+    box-shadow: 0 0 0 2px
+      color-mix(in srgb, var(--stitch-warning), transparent 70%);
+  }
+}
+
+// ---------- Disabled ----------
+.wrapper-disabled {
+  background: var(--stitch-bg-disabled);
+  opacity: 0.6;
+  cursor: not-allowed;
+
+  .input {
+    cursor: not-allowed;
+    color: var(--stitch-text-disabled);
+  }
+}
+
+// ---------- Inner Elements ----------
+.input {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--stitch-text-primary);
+  font-size: inherit;
+  font-family: var(--stitch-font-body);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: var(--stitch-line-height-base);
+  letter-spacing: 0.01em;
+
+  &::placeholder {
+    color: var(--stitch-text-muted);
+    font-weight: var(--stitch-font-weight-normal);
+  }
+
+  // ---------- 浏览器 autofill ----------
+  // 登录/注册类字段被 Chrome 自动填充时会:①盖上蓝/黄高亮(只铺内层 input,与 wrapper
+  // 底色割裂);②不触发 React 的 onChange(受控表单取不到值 → 误报必填)。
+  // 修 ①:用 inset box-shadow 把填充态底色压成 wrapper 的 elevated,文字色显式回填。
+  // 修 ②:挂一个空动画,autofill 命中伪类瞬间触发 animationstart,由 Input.tsx 侦测并补发。
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 100px var(--stitch-bg-elevated) inset;
+    -webkit-text-fill-color: var(--stitch-text-primary);
+    caret-color: var(--stitch-text-primary);
+    animation-name: stitch-onautofillstart;
+    animation-duration: 0.001s;
+  }
+}
+
+// autofill 侦测钩子的空动画（:global 保持字面名，供 JS 比对 e.animationName）。
+:global {
+  @keyframes stitch-onautofillstart {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.prefix,
+.suffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--stitch-text-secondary);
+  flex-shrink: 0;
+  font-size: 1em;
+}
+
+.prefix {
+  margin-right: var(--stitch-spacing-sm);
+}
+
+.suffix {
+  margin-left: var(--stitch-spacing-sm);
+}
+
+// ---------- Clear button（图标走 <Icon name="close">，非 Unicode ×）----------
+.clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: var(--stitch-spacing-xs);
+  padding: 0;
+  color: var(--stitch-text-muted);
+  cursor: pointer;
+  border: none;
+  // 方形上取 radius-button（药丸）即圆形，随换肤且不硬编码圆角。
+  border-radius: var(--stitch-radius-button);
+  background: transparent;
+  transition:
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    color: var(--stitch-text-primary);
+    background: color-mix(in srgb, var(--stitch-text-primary), transparent 90%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+}

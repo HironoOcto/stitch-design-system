@@ -1,0 +1,159 @@
+// ============================================
+// NavigationMenu
+// ============================================
+// 站点导航（顶栏一排导航项，部分项展开一块浮起面板）。链接项 = 一行安静导航文字；
+// 面板 = 浮起层（同 Popover / Menu 族角色）。值全走角色契约 var(--stitch-*)；
+// 开合 / 当前项态用底层自动挂的 data-* 选（源码里不写、别猜，已照 radix
+// navigation-menu.md「Data attribute」表核准：
+//   Root/List/Sub/Content/Viewport/Indicator 有 [data-orientation]=vertical|horizontal；
+//   Trigger 有 [data-state]=open|closed、[data-disabled]（禁用时在）；
+//   Content 另有 [data-state]=open|closed、[data-motion]=to-start|to-end|from-start|from-end；
+//   Link 有 [data-active]（当前项时在）；
+//   Viewport 另有 [data-state]=open|closed；Item 无 data 属性）。
+
+// ---------- Root（<nav> 顶栏容器） ----------
+.root {
+  position: relative;
+  display: flex;
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+}
+
+// ---------- List（一排导航项） ----------
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+// ---------- Link / Trigger（一行安静导航文字） ----------
+// 无填充无边框、导航中性字（text-secondary = 正文/导航链接角色），hover / 键盘高亮 → 深字（text-primary）。
+// Trigger 是按钮元素，重置成与 Link 同款视觉（导航项一致）。
+.link,
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  height: 32px;
+  padding: 0 var(--stitch-spacing-md);
+  border: none;
+  border-radius: var(--stitch-radius-button);
+  background: transparent;
+  color: var(--stitch-text-secondary);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    color: var(--stitch-text-primary);
+  }
+
+  // 键盘可达焦点环（focus-visible 才亮，同库里 Button/Card 的 outline 写法）。
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// 当前项（底层用 data-active 暴露，同时挂 aria-current="page"）：走品牌强调色。
+.link[data-active] {
+  color: var(--stitch-accent);
+}
+
+// 带面板项打开时（Trigger 底层挂 data-state=open）：深字，强调「此面板已展开」。
+.trigger[data-state='open'] {
+  color: var(--stitch-text-primary);
+}
+
+// ---------- 收起箭头（跟随字号；面板展开时翻转） ----------
+.caret {
+  flex-shrink: 0;
+  color: var(--stitch-text-muted);
+  transition: transform var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+}
+
+.trigger[data-state='open'] .caret {
+  transform: rotate(180deg);
+}
+
+// ---------- Viewport（展开面板停靠区 = 浮起层） ----------
+// 面 = 浮起层（同 Popover 族）：底 bg-elevated + 深字 text-primary；边 border + 圆角 radius-card + 阴影 shadow-base。
+.viewportWrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: flex;
+  justify-content: flex-start;
+  z-index: 100;
+}
+
+.viewport {
+  position: relative;
+  margin-top: var(--stitch-spacing-sm);
+  // 面板按内容自然定宽定高：**不接 radix 的 --radix-navigation-menu-viewport-width/height
+  // + overflow:hidden 那套「换板 morph」机制**——它把内容测量约束在受限宽度里 overflow 裁掉，
+  // 会自塌成一条竖窄条（width 塌、height 留）。这里让 Viewport 裹住 Content 的自然尺寸即可，
+  // 开合只走纵向淡入/淡出。（代价：产品↔资源 不同尺寸面板之间无 morph 动画，可接受。）
+  width: max-content;
+  max-width: 90vw;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-primary);
+
+  // 底层把开合态暴露成 data-state，直接选，不自己 useState 切 class。
+  // 开：从顶缘纵向淡入；关：快速淡出——纯纵向，无横向位移/塌缩。
+  &[data-state='open'] {
+    animation: stitch-navigation-menu-in var(--stitch-motion-duration-base)
+      var(--stitch-motion-ease);
+  }
+
+  &[data-state='closed'] {
+    animation: stitch-navigation-menu-out var(--stitch-motion-duration-fast)
+      var(--stitch-motion-ease);
+  }
+}
+
+// ---------- Content（单个面板内容） ----------
+// 只上内边距；面板进出动画统一由 .viewport 承担（纵向淡入/淡出）。不按 data-motion 做
+// 横向平移——那会在关闭 / 换板时产生「从右往左」横移，观感像内容被抽走。
+.content {
+  padding: var(--stitch-spacing-lg);
+}
+
+// ---------- Motion ----------
+// 纯纵向：从顶缘轻微下移淡入 / 上移淡出。无 scale、无横向位移——避免关闭时「从右往左」塌缩。
+@keyframes stitch-navigation-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stitch-navigation-menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}

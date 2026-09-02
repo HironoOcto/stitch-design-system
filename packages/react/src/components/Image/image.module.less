@@ -1,0 +1,227 @@
+// ============================================
+// Image
+// 衬板相框（matte frame）+ 加载淡入 + 错误占位 + 点击大图预览。
+// 圆角/字体/色彩/间距/阴影/动效全走 var(--stitch-*)（H2）；招牌白底/固定圆角/3D 软影/
+// 长相调色板/聚焦黄/暖色深影全丢，裸 CSS 叉号与占位改 <Icon name="close"/"error">。
+// color API 从「长相制」改为「语义 + 抽象分类」，与同源 Card 对齐
+// （default 中性 / accent / danger / success / warning / info / cat-1…6）。
+// 换肤后相框底为中性面、圆角随站点定、影随站点强弱（视觉会变，正常）。
+// ============================================
+
+// ---------- Frame（衬板相框）----------
+.image {
+  --img-matte: var(--stitch-bg-elevated);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: var(--stitch-spacing-md);
+  background: var(--img-matte);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-image);
+  box-shadow: var(--stitch-shadow-sm);
+  line-height: 0;
+  vertical-align: middle;
+  transition: transform var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.loaded .img {
+  opacity: 1;
+}
+
+// ---------- Error placeholder（错误占位）----------
+.error {
+  flex-direction: column;
+  gap: var(--stitch-spacing-sm);
+  color: var(--stitch-text-disabled);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+}
+
+// ============================================
+// Color variants — matte 底色（语义 + 抽象分类，与同源 Card 对齐）
+// default = 中性（走基础类的 --stitch-bg-elevated，不加类，便于测试断言）。
+// ============================================
+
+// 强调面（走契约强调面角色）
+.image-accent {
+  --img-matte: var(--stitch-bg-accent);
+}
+
+// 语义软底
+.image-danger {
+  --img-matte: var(--stitch-danger-bg);
+}
+
+.image-success {
+  --img-matte: var(--stitch-success-bg);
+}
+
+.image-warning {
+  --img-matte: var(--stitch-warning-bg);
+}
+
+.image-info {
+  --img-matte: var(--stitch-info-bg);
+}
+
+// 分类色槽（只为「互相区分」，非表状态）：分类色混 canvas 成浅底。
+.image-cat-1 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.image-cat-2 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-2),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.image-cat-3 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-3),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.image-cat-4 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-4),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.image-cat-5 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-5),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.image-cat-6 {
+  --img-matte: color-mix(
+    in srgb,
+    var(--stitch-cat-6),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+// ---------- Preview trigger（相框升格为按钮，点击开大图）----------
+.preview {
+  font: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: zoom-in;
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Preview mask（大图预览遮罩）----------
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stitch-mask-bg);
+  animation: stitch-image-fade-in var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.dialog {
+  position: relative;
+  display: inline-flex;
+  line-height: 0;
+}
+
+.previewImg {
+  max-width: min(88vw, 1100px);
+  max-height: 86vh;
+  border-radius: var(--stitch-radius-image);
+  box-shadow: var(--stitch-shadow-lg);
+  object-fit: contain;
+  animation: stitch-image-zoom-in var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+// ---------- Close button（关闭预览）----------
+.closeBtn {
+  position: absolute;
+  top: var(--stitch-spacing-md);
+  right: var(--stitch-spacing-md);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+  box-shadow: var(--stitch-shadow-sm);
+  cursor: pointer;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    transform var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-bg-card);
+    transform: scale(1.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes stitch-image-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes stitch-image-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

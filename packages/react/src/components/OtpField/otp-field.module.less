@@ -1,0 +1,53 @@
+// ============================================
+// OtpField —— 一次性验证码分格输入（Root 分格容器 + 每格 Input + 隐藏聚合 HiddenInput）
+// ============================================
+// 值全走角色契约 var(--stitch-*)；禁用态由底层给每格 <input> 挂原生 disabled 属性
+// （已照 radix one-time-password-field.md「Data attribute」表核准：Root 仅有 [data-orientation]、
+// Input 仅有 [data-index]，均无 [data-disabled]/[data-state]——别照 Popover 族臆造 data-state；
+// 禁用用每格的 :disabled 伪类选）。分格几何为物理像素（人机工程），圆角/颜色/字体走 token。
+
+// ---------- Root（分格容器）----------
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  font-family: var(--stitch-font-body);
+}
+
+// ---------- Input（单个字符分格）----------
+// 与表单控件族（Input）对齐：扁平 + 1px 边 + radius-input；focus → accent + focus 环。
+.input {
+  width: 44px; // 分格宽 = 物理像素（人机工程 · 命中区），非主题值
+  height: var(--stitch-height-lg);
+  box-sizing: border-box;
+  padding: 0;
+  text-align: center;
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-lg);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-input);
+  outline: none;
+  transition:
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover:not(:disabled) {
+    border-color: var(--stitch-border-strong);
+  }
+
+  // 表单控件惯例：聚焦（点击/键盘）显示焦点环。
+  &:focus-visible {
+    border-color: var(--stitch-accent);
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+
+  &:disabled {
+    background: var(--stitch-bg-disabled);
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+  }
+}

@@ -1,0 +1,163 @@
+// ============================================
+// Progress
+// 进度条：中性凹槽 track + accent 填充 fill（斜纹持续滚动的加载指示）。
+// 色/圆角/字体全走 var(--stitch-*)（H2）：填充走 accent（+ accent-hover 派生）、track 走中性
+//   --stitch-bg-disabled（扁平无 inset 影，靠 border 撑结构）、圆角随站点 --stitch-radius-input、
+//   填充上文字走 --stitch-accent-text、低占比回退文字走 --stitch-text-primary。
+// 斜纹滚动是「持续加载动画」（同 Loading 转圈 / Skeleton 扫光的豁免），
+//   prefers-reduced-motion 下停。
+// ============================================
+
+// ---------- Root ----------
+.progress {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  font-family: var(--stitch-font-body);
+  line-height: 1;
+  user-select: none;
+  vertical-align: middle;
+  width: 100%;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-sm);
+}
+
+.body.noGap {
+  gap: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-md);
+  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.info {
+  font-weight: var(--stitch-font-weight-medium);
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.info.right {
+  min-width: 44px;
+  text-align: right;
+}
+
+.info.top {
+  align-self: flex-end;
+}
+
+// ---------- Track（中性凹槽）----------
+.track {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 80px;
+  background: var(--stitch-bg-disabled);
+  border: 2px solid var(--stitch-border);
+  overflow: hidden;
+  border-radius: var(--stitch-radius-input);
+}
+
+.track.size-small {
+  height: 12px;
+  border-width: 1.5px;
+}
+
+.track.size-middle {
+  height: 20px;
+}
+
+.track.size-large {
+  height: 28px;
+}
+
+// ---------- Fill（accent 填充 + 斜纹持续滚动）----------
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: var(--stitch-radius-input);
+  background: var(--stitch-accent);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--stitch-accent) 0,
+    var(--stitch-accent) 10px,
+    var(--stitch-accent-hover) 10px,
+    var(--stitch-accent-hover) 20px
+  );
+  // 28.28px = 10px * √2（条纹沿水平方向投影的步进）
+  background-size: 28.28px 28.28px;
+  animation: stitch-progress-stripe 1s linear infinite;
+  transition: width var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+}
+
+.fill.noTransition {
+  transition: none;
+}
+
+@keyframes stitch-progress-stripe {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -28.28px 0;
+  }
+}
+
+// ---------- Info text（fill 内右对齐）----------
+.infoInside {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--stitch-accent-text);
+  font-weight: var(--stitch-font-weight-medium);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+// fill 过窄时文字退到 track 末端外侧：改用 track 文字色（不再是反白）
+.infoInside.infoOutside {
+  color: var(--stitch-text-primary);
+}
+
+.track.size-large .infoInside {
+  font-size: 13px;
+}
+
+.track.size-small .infoInside {
+  font-size: 9px;
+  right: 4px;
+}
+
+// ---------- 尊重「减少动效」偏好 ----------
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+    animation: none;
+  }
+}

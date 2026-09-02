@@ -1,0 +1,68 @@
+// ============================================
+// CodeBlock
+// 只读展示的代码块：暗色表面 + 轻量 JSX/TS 语法高亮。
+// 色/圆角/字体全走 var(--stitch-*)（H2）：暗底走 --stitch-bg-inverted、反白正文走
+//   --stitch-text-on-dark、暗面发丝边走 color-mix(on-dark, transparent 88%)（契约无「暗面边框」
+//   角色）、圆角随站点 --stitch-radius-card、等宽字体 --stitch-font-mono。
+// ---- 语法高亮调色板（契约无对应角色）----
+//   token 类型是「互相区分的分类」→ 复用契约分类色槽 --stitch-cat-*（+ on-dark/dim）。
+//   刻意避开落在暗面上会隐形的深分类值。
+//   语义合并：string=number、keyword=react、component=func、prop=jsx（12 色 → 6 桶）。
+// ============================================
+
+// ---------- Root ----------
+.codeBlock {
+  margin: 0;
+  padding: var(--stitch-spacing-lg) var(--stitch-spacing-xl);
+  background: var(--stitch-bg-inverted);
+  border: var(--stitch-border-width) solid
+    color-mix(in srgb, var(--stitch-text-on-dark), transparent 88%);
+  border-radius: var(--stitch-radius-card);
+  font-family: var(--stitch-font-mono);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-on-dark);
+  white-space: pre;
+  overflow: auto;
+  tab-size: 4;
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Syntax tokens（interim：--stitch-cat-* 分类色槽，见顶注）----------
+.tok-default {
+  color: var(--stitch-text-on-dark);
+}
+.tok-comment {
+  color: color-mix(in srgb, var(--stitch-text-on-dark), transparent 45%);
+}
+.tok-operator {
+  color: color-mix(in srgb, var(--stitch-text-on-dark), transparent 25%);
+}
+.tok-keyword {
+  color: var(--stitch-cat-1);
+}
+.tok-react {
+  color: var(--stitch-cat-1);
+}
+.tok-string {
+  color: var(--stitch-cat-6);
+}
+.tok-number {
+  color: var(--stitch-cat-6);
+}
+.tok-component {
+  color: var(--stitch-cat-5);
+}
+.tok-func {
+  color: var(--stitch-cat-5);
+}
+.tok-prop {
+  color: var(--stitch-cat-3);
+}
+.tok-jsx {
+  color: var(--stitch-cat-3);
+}

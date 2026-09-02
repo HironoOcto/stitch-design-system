@@ -1,0 +1,11 @@
+# dependencies
+node_modules/
+
+# generated build artifacts (never committed — see ADR 0007; build-tokens.mjs default --out)
+packages/tokens/dist/
+
+# component library build output (vite lib mode)
+packages/react/dist/
+
+# demo 站构建产物（vite build，非 ci 步骤）
+/dist/

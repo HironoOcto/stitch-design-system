@@ -1,0 +1,116 @@
+// ============================================
+// ContextMenu
+// ============================================
+// 与 DropdownMenu 同族（同一列动作、同 menu/menuitem 语义），仅触发方式不同（右键 ↔ 点按钮）。
+// 皮沿用 DropdownMenu 角色写法：面 = 浮起层，项 = 一行动作，高亮 / 危险 / 禁用同族一致。
+// 值全走角色契约 var(--stitch-*)；开合 / 高亮 / 禁用态用底层自动挂的 data-* 选（源码里不写、别猜，
+// 已照 radix context-menu.md「Data attribute」表核准：
+//   Content/SubContent 有 [data-state]=open|closed、[data-side]、[data-align]；
+//   Item/SubTrigger 有 [data-highlighted]（高亮时在）、[data-disabled]（禁用时在）；
+//   SubTrigger/Trigger 另有 [data-state]=open|closed）。
+
+// ---------- Surface ----------
+// 浮起面（同 DropdownMenu / Popover 族）：底 bg-elevated + 深字 text-primary；边 border + 圆角 radius-card + 阴影 shadow-base。
+.content {
+  box-sizing: border-box;
+  min-width: 180px;
+  padding: var(--stitch-spacing-xs);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  z-index: 100;
+
+  // 底层把开合态暴露成 data-state，直接选，不自己 useState 切 class。
+  &[data-state='open'] {
+    animation: stitch-context-menu-in var(--stitch-motion-duration-base)
+      var(--stitch-motion-ease);
+  }
+
+  &[data-state='closed'] {
+    animation: stitch-context-menu-out var(--stitch-motion-duration-fast)
+      var(--stitch-motion-ease);
+  }
+}
+
+// ---------- Item ----------
+// 一行动作：左图标 + 文字，可选尾随子菜单箭头。默认无底色；高亮（键盘 / 鼠标同一视觉）软底而非品牌色。
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-input);
+  color: var(--stitch-text-primary);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  // 高亮态（底层用 data-highlighted 暴露键盘 active / 鼠标 hover 的统一态）。
+  &[data-highlighted] {
+    background: var(--stitch-bg-section);
+  }
+
+  // 禁用态（底层用 data-disabled 暴露）：灰显、不可点。
+  &[data-disabled] {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// 危险项：文字走 --stitch-danger；高亮时软底 --stitch-danger-bg。
+.danger {
+  color: var(--stitch-danger);
+
+  &[data-highlighted] {
+    background: var(--stitch-danger-bg);
+    color: var(--stitch-danger);
+  }
+}
+
+// 项内图标：跟随字号、取当前文字色（含 danger）。
+.itemIcon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+// 项文字占满、把尾随的子菜单箭头推到右缘。
+.itemLabel {
+  flex: 1;
+}
+
+// 子菜单入口尾随的箭头。
+.subArrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--stitch-text-muted);
+}
+
+// ---------- Motion ----------
+// 进出淡入 + 轻微缩放，方向由 data-side 决定（视觉从光标一侧展开）。
+@keyframes stitch-context-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stitch-context-menu-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

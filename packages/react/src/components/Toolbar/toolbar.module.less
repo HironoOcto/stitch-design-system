@@ -1,0 +1,203 @@
+// ============================================
+// Toolbar（工具栏容器）
+// ============================================
+//
+// 一条横向容器，盛放异构混排的动作控件（按钮 / 链接 / 分隔线 / 分段切换组），给 role="toolbar"
+// + 方向键在控件间 roving（键盘编排归底层 Radix）。容器本身安静无底 —— 编排件不抢视觉，落点在
+// 里面的控件。值全走角色契约 var(--stitch-*)，不硬编码。
+//
+// 长相取「安静命令控件」语言（照 Menubar 命令栏按钮先例，**非**复用独立 Button/ToggleGroup 的
+// 药丸皮）：工具栏控件是密集条里的紧凑安静控件，不是页面级独立 CTA —— 透明底 + 中性字 + hover
+// 软底 + **小圆角 var(--stitch-radius-input)（非药丸 radius-button）**。分段选中态走软 accent 底
+// （data-state='on' 用 --stitch-bg-accent + --stitch-text-on-accent，同成熟工具栏参照的激活格式钮），
+// 圆角同样收到 radius-input 与整条栏协调。
+//
+// data-* 已照 radix toolbar.md「Data attribute」表核准（见 预建笔记.md）：所有 part 只有
+// [data-orientation]=horizontal|vertical，ToggleItem 另有 [data-state]=on|off / [data-disabled]。
+
+// 安静命令控件基座（Toolbar.Button 与分段项共用同一套长相语言）。
+.control-base() {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stitch-spacing-xs);
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-md);
+  border: none;
+  border-radius: var(--stitch-radius-input); // 紧凑工具栏圆角，非药丸
+  background: transparent;
+  color: var(--stitch-text-secondary);
+  font-family: inherit;
+  font-size: var(--stitch-font-size-base);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+}
+
+// ---------- 容器 ----------
+.root {
+  // inline-flex：容器随内容收缩，不占满整行宽（否则纵向栏 align-items:stretch 会把控件撑到父全宽）。
+  // 需要满宽工具栏的消费者自行 style={{ width: '100%' }} 覆盖。
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs); // 收紧间距，成一条密集栏（非一排离散按钮）
+  font-family: var(--stitch-font-body);
+
+  // 工具栏本体是一条浮起面板（同 Radix 参照：控件坐在一张浅色卡上，与内容区分隔）：
+  // 白面 + 发丝边 + 卡片圆角 + 内缩 padding。值全走角色契约，随主题换肤。
+  padding: var(--stitch-spacing-xs);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+
+  // 纵向工具栏（Radix 在 Root 挂 data-orientation='vertical'）：纵排收成一条窄列（控件等宽齐平）。
+  &[data-orientation='vertical'] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+// ---------- 按钮（安静命令控件）----------
+.button {
+  .control-base();
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+// 危险动作：文字走 --stitch-danger；hover 软底 --stitch-danger-bg。
+.buttonDanger {
+  color: var(--stitch-danger);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-danger-bg);
+    color: var(--stitch-danger);
+  }
+}
+
+// 按钮内图标：跟随字号、取当前文字色。
+.buttonIcon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  color: currentColor;
+}
+
+// ---------- 分段切换组 ----------
+// 一排相邻安静控件；选中项（Radix 挂 data-state='on'）= 软 accent 底（--stitch-bg-accent +
+// --stitch-text-on-accent，同成熟工具栏参照的激活格式钮），圆角收到 radius-input 与整条工具栏协调。
+.toggleGroup {
+  display: inline-flex;
+  gap: var(--stitch-spacing-xs);
+}
+
+.toggleItem {
+  .control-base();
+
+  // 未选中项 hover = 中性预览（软底 + 深字，不沾青）。
+  &:hover:not([data-disabled]):not([data-state='on']) {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  // 按下选中态：软 accent 底 + accent 文字（同成熟工具栏参照 Radix / Docs 的「激活格式钮」软色底，
+  // 而非 Tab-Pill 的 ink 重填充——工具栏格式钮是轻量内联控件，重黑块在密集条里显突兀）。
+  // 用 --stitch-bg-accent（软强调底，非 CTA 填充青 --stitch-accent）+ --stitch-text-on-accent。
+  &[data-state='on'] {
+    background: var(--stitch-bg-accent);
+    color: var(--stitch-text-on-accent);
+    font-weight: var(--stitch-font-weight-medium);
+  }
+}
+
+.itemIcon {
+  flex-shrink: 0;
+}
+
+// ---------- 分隔线 ----------
+// 横排工具栏里 = 一条竖发丝线（宽 = 边宽、竖向撑起）；纵排时转成横发丝线。
+// 底层给 Separator 挂 role="separator" + [data-orientation]（发丝线自身方向与栏垂直）。
+.separator {
+  flex-shrink: 0;
+  background: var(--stitch-border);
+  align-self: stretch;
+
+  // 竖发丝线（横排工具栏的默认）：细宽 + 上下留一点内缩。
+  width: var(--stitch-border-width);
+  margin: var(--stitch-spacing-xs) var(--stitch-spacing-xs);
+
+  // 横发丝线（纵排工具栏，Separator 自身 data-orientation='horizontal'）。
+  &[data-orientation='horizontal'] {
+    width: auto;
+    height: var(--stitch-border-width);
+    margin: var(--stitch-spacing-xs) var(--stitch-spacing-xs);
+  }
+}
+
+// ---------- 链接 ----------
+// 工具栏里的文字链接（Radix Toolbar.Link 渲染 <a>，也是 roving 项）：安静导航文字声音
+// （同 Menubar 命令按钮 / NavigationMenu Link）—— 无填充无边框、中性字，hover 到深字软底。
+.link {
+  display: inline-flex;
+  align-items: center;
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-input);
+  color: var(--stitch-text-secondary);
+  font-family: inherit;
+  font-size: var(--stitch-font-size-base);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover {
+    color: var(--stitch-text-primary);
+    background: var(--stitch-bg-section);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+
+  &[data-disabled] {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}

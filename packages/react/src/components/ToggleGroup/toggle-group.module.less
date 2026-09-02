@@ -1,0 +1,107 @@
+// ============================================
+// ToggleGroup（分段切换组）
+// ============================================
+//
+// 一排相邻拼接的两态按钮：每项底皮 = default Button 的安静档（bg-elevated 面 + border 边 +
+// text-primary 字），按下态（Radix 挂 data-state='on'）= 软 accent 底（--stitch-bg-accent +
+// --stitch-text-on-accent，与 Toolbar 内分段选中态同源）；圆角走紧凑 radius-input（非药丸）。
+// token 全走角色契约 var(--stitch-*)，不硬编码。
+//
+// 分段外观：相邻项共享一条边（负外边距叠边），只有整组最外两端圆角，中间项直角 —— 拼成
+// 一个连续的分段控件而非一排离散按钮。
+
+.group {
+  display: inline-flex;
+  // 整组圆角走表单控件档 radius-input（紧凑小圆角、非药丸）——分段开关是紧凑控件，
+  // 与 Toolbar 内分段一致；药丸胶囊 Tab 语言归 Tabs（见组件 JSDoc 边界）。
+  border-radius: var(--stitch-radius-input);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stitch-spacing-sm);
+
+  // ---- 尺寸 / 排版（对齐 default middle Button 的安静档）----
+  height: var(--stitch-height-base);
+  padding: 0 var(--stitch-spacing-lg);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+
+  // ---- 底皮：安静 default 档 ----
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  outline: none;
+  transition:
+    color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    background var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  // 相邻项叠掉一条边，拼成连续分段
+  & + & {
+    margin-left: calc(-1 * var(--stitch-border-width));
+  }
+
+  // 只有整组两端项承外框圆角，中间项直角
+  &:first-child {
+    border-top-left-radius: var(--stitch-radius-input);
+    border-bottom-left-radius: var(--stitch-radius-input);
+  }
+  &:last-child {
+    border-top-right-radius: var(--stitch-radius-input);
+    border-bottom-right-radius: var(--stitch-radius-input);
+  }
+
+  // 未选中项 hover = 中性预览（同 Tabs hover，不沾青）：加深边 + 卡底
+  &:hover:not([data-disabled]):not([data-state='on']) {
+    background: var(--stitch-bg-card);
+    border-color: var(--stitch-border-strong);
+    // hover 项抬到最上，边色不被相邻项压住
+    position: relative;
+    z-index: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px; // 内嵌，避免焦点环被相邻项裁切
+    position: relative;
+    z-index: 2;
+  }
+
+  &[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+// ---------- 按下选中态（软 accent 底，data-state='on'）----------
+// Radix 把每项开合暴露成 data-state='on'|'off'，直接选，不自己 useState 切 class。
+// 选中皮 = 软 accent 底（--stitch-bg-accent 软色底 + --stitch-text-on-accent），与 Toolbar 内
+// 分段选中态同源（成熟工具栏参照的「激活格式钮」软色底）——同一个分段开关无论独立还是在
+// Toolbar 里都长一样。刻意**不**走 CTA 填充青 --stitch-accent（青只归真正 CTA）、也**不**走
+// ink 重填充（那是胶囊 Tab 的语言、归 Tabs，重黑块在格式钮上显突兀）。
+.item[data-state='on'] {
+  color: var(--stitch-text-on-accent);
+  background: var(--stitch-bg-accent);
+  border-color: var(--stitch-bg-accent);
+  font-weight: var(--stitch-font-weight-medium); // 选中加重，同 Toolbar 分段
+  // 选中项抬到相邻项之上，边完整可见
+  position: relative;
+  z-index: 1;
+  // 选中态无独立 hover 变色（同 Toolbar 分段）
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  // 图标跟随本项文字色（默认 text-primary、选中态转 text-on-accent、禁用随 opacity），
+  // 而非 Icon 默认的 text-secondary——否则选中软 accent 底上图标会是灰的、对比不足（同 DropdownMenu 先例）。
+  color: currentColor;
+}

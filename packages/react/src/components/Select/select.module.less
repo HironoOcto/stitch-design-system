@@ -1,0 +1,190 @@
+// ============================================
+// Select —— 单选下拉（Ant Select 语义，combobox/listbox 模式）
+// ============================================
+
+// ---------- Wrapper ----------
+.wrapper {
+  position: relative;
+  display: inline-block;
+  min-width: 160px;
+  font-family: var(--stitch-font-body);
+  user-select: none;
+}
+
+// ---------- Trigger ----------
+// 结构靠 1px 边框而非品牌 3D 像素影 / 药丸招牌形（按 §9.5.1 丢，改随站点 token）。
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stitch-spacing-sm);
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-input);
+  color: var(--stitch-text-primary);
+  cursor: pointer;
+  transition:
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover {
+    border-color: var(--stitch-border-strong);
+  }
+
+  // 点击 / 键盘聚焦都显示焦点环（表单控件惯例）。
+  &:focus-visible {
+    outline: none;
+    border-color: var(--stitch-accent);
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+
+  &.open {
+    border-color: var(--stitch-accent);
+  }
+}
+
+// ---------- Size（与 Input 同源：按 size 取控件高度）----------
+.small {
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-md);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.middle {
+  height: var(--stitch-height-base);
+  padding: 0 var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-base);
+}
+
+.large {
+  height: var(--stitch-height-lg);
+  padding: 0 var(--stitch-spacing-xl);
+  font-size: var(--stitch-font-size-lg);
+}
+
+// ---------- Trigger 内文本 ----------
+.value {
+  color: var(--stitch-text-primary);
+  font-weight: var(--stitch-font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--stitch-text-muted);
+  font-weight: var(--stitch-font-weight-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---------- Arrow（走 <Icon name="chevron-down">，非裸 svg）----------
+.arrow {
+  flex-shrink: 0;
+  color: var(--stitch-text-secondary);
+  transition: transform var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+  color: var(--stitch-accent);
+}
+
+// ---------- Dropdown（招牌黄药丸浮层按 §9.5.1 丢，改扁平卡）----------
+.dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + var(--stitch-spacing-xs));
+  z-index: 100;
+  min-width: 100%;
+  box-sizing: border-box;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: var(--stitch-spacing-xs);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  box-shadow: var(--stitch-shadow-base);
+  opacity: 0;
+  animation: dropdownFadeIn var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease) forwards;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ---------- Option ----------
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--stitch-spacing-sm);
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-input);
+  font-size: var(--stitch-font-size-base);
+  color: var(--stitch-text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+}
+
+.optionLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// 高亮项（键盘 active / 鼠标 hover 同一视觉）：软底而非品牌黄药丸。
+.optionActive {
+  background: var(--stitch-bg-section);
+}
+
+// 选中项：文字用 accent + 加粗，尾随勾标记。
+.optionSelected {
+  color: var(--stitch-accent);
+  font-weight: var(--stitch-font-weight-medium);
+}
+
+.checkMark {
+  flex-shrink: 0;
+  color: var(--stitch-accent);
+}
+
+.optionDisabled {
+  color: var(--stitch-text-disabled);
+  cursor: not-allowed;
+
+  &.optionActive {
+    background: transparent;
+  }
+}
+
+// ---------- Disabled（整体）----------
+.disabled {
+  .trigger {
+    background: var(--stitch-bg-disabled);
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      border-color: var(--stitch-border);
+    }
+  }
+
+  .value {
+    color: var(--stitch-text-disabled);
+  }
+}

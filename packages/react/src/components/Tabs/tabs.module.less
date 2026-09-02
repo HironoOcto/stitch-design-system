@@ -1,0 +1,97 @@
+// ============================================
+// Tabs
+// 药丸标签组（Ant v5 Tabs `items` 语义）：tablist（药丸按钮行）+ 单 tabpanel。
+// 圆角/字体/色彩/间距/动效全走 var(--stitch-*)（H2）。
+// 激活态按角色映射为「反色暗面」= var(--stitch-bg-inverted) + var(--stitch-text-on-dark)
+// （反色面而非彩色 accent 承载激活对比），可换肤。
+// ============================================
+
+// ---------- Wrapper（卡面容器）----------
+.tabs {
+  box-sizing: border-box;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+  overflow: hidden;
+  font-family: var(--stitch-font-body);
+}
+
+// ---------- Tablist（药丸按钮行）----------
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--stitch-spacing-sm);
+  padding: var(--stitch-spacing-lg);
+  border-bottom: var(--stitch-border-width) solid var(--stitch-border);
+}
+
+// ---------- Tab（药丸按钮）----------
+.tabItem {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-lg);
+  background: transparent;
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--stitch-font-size-base);
+  font-weight: var(--stitch-font-weight-normal);
+  color: var(--stitch-text-primary);
+  transition:
+    background-color var(--stitch-motion-duration-base)
+      var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover:not(.active) {
+    background: var(--stitch-bg-card);
+    border-color: var(--stitch-border-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background: var(--stitch-bg-inverted);
+    border-color: var(--stitch-bg-inverted);
+    color: var(--stitch-text-on-dark);
+    font-weight: var(--stitch-font-weight-medium);
+  }
+}
+
+.tabLabel {
+  color: inherit;
+  line-height: var(--stitch-line-height-base);
+}
+
+// ---------- Tabpanel（内容区，切换时淡入）----------
+.tabContent {
+  padding: var(--stitch-spacing-xl);
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+.tabContentInner {
+  color: var(--stitch-text-secondary);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  animation: fadeIn var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

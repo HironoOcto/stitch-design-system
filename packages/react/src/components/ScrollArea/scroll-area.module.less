@@ -1,0 +1,86 @@
+// ============================================
+// ScrollArea —— 自定义滚动区（Root 容器 + Viewport 视口 + Scrollbar 槽 + Thumb 手柄 + Corner 角块）
+// ============================================
+// 值全走角色契约 var(--stitch-*)；状态用底层自动挂的 data-* 选（源码里不写、别猜，已照 radix
+// scroll-area.md「Data attribute」表核准：Root/Viewport/Corner 无 data 属性；Scrollbar 有
+// [data-state]=visible|hidden、[data-orientation]=vertical|horizontal；Thumb 有 [data-state]）。
+// 条/手柄几何为物理像素（人机工程），圆角/颜色走 token。
+
+// ---------- Root（容器）----------
+// 高度/最大高度由使用者经 className/style 给；这里只负责裁剪溢出 + 定位滚动条。
+.root {
+  overflow: hidden;
+  position: relative;
+}
+
+// ---------- Viewport（视口 = 真正滚动的内容盒）----------
+.viewport {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+// ---------- Scrollbar（滚动槽）----------
+// 透明槽、细窄；纵条定宽、横条定高。淡入淡出交给底层 data-state（本处不写死显隐）。
+.scrollbar {
+  display: flex;
+  user-select: none;
+  touch-action: none;
+  padding: var(--sa-track-pad);
+  background: transparent;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-bg-section);
+  }
+
+  &[data-orientation='vertical'] {
+    width: var(--sa-size);
+  }
+
+  &[data-orientation='horizontal'] {
+    flex-direction: column;
+    height: var(--sa-size);
+  }
+}
+
+// ---------- Thumb（手柄）----------
+// 走中性中灰 --stitch-text-muted（近原生滚动条手柄，比 hairline 边框色更可辨/可抓），
+// hover/拖动加深到 --stitch-text-secondary；圆角走 --stitch-radius-button。
+.thumb {
+  flex: 1;
+  position: relative;
+  background: var(--stitch-text-muted);
+  border-radius: var(--stitch-radius-button);
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover {
+    background: var(--stitch-text-secondary);
+  }
+
+  // 命中区放大到 44px（可点区，人机工程；不改视觉粗细）
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+// ---------- Corner（纵横两条交汇的右下角块）----------
+.corner {
+  background: transparent;
+}
+
+// ---------- Geometry（几何为物理像素；圆角/颜色走 token）----------
+.root {
+  --sa-size: 10px; // 滚动槽厚度
+  --sa-track-pad: 2px; // 槽内边（令手柄比槽略细）
+}

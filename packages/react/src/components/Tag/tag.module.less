@@ -1,0 +1,297 @@
+// ============================================
+// Tag
+// 颜色 API = 语义状态 + 抽象分类槽（非「长相制」）。
+// 每个颜色类只覆盖一组「角色变量」（--tag-*），variant 类统一读这组变量，
+// 故只需 11 个颜色类 × 5 个 variant 类，而非 55 个写死组合。
+// 圆角/字体/色彩/间距全走 var(--stitch-*)（H2）；招牌药丸/3D 影/写死长相色已丢。
+// ============================================
+
+.tag {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  line-height: 1;
+  font-family: var(--stitch-font-body);
+  font-weight: var(--stitch-font-weight-medium);
+  border-radius: var(
+    --stitch-radius-button
+  ); // 药丸随站点按钮圆角（H2 禁写死 999px）
+  border: var(--stitch-border-width) solid transparent;
+  transition:
+    transform var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+  user-select: none;
+  white-space: nowrap;
+
+  // ---------- 颜色角色变量（default 兜底：中性）----------
+  // 每个颜色类重定义：--tag-fg（身份色，用于描边 + bg 派生）+ --tag-ink（保证可读的文字色）+ --tag-soft-bg（soft 软底）。
+  // --tag-ink 是关键：文字**绝不**直接用身份色——分类槽 --stitch-cat-* 各站可能填浅色（peach/sky/stone），
+  //   浅色当文字必失对比（实测 5/6 分类槽 <AA）。故语义色文字=身份色混黑（够深仍鲜明），
+  //   分类色文字=身份色混 text-primary（兜底墨色，任意浅色都拉到可读，仍带一丝色相）。
+  --tag-fg: var(
+    --stitch-text-secondary
+  ); // 身份色：描边 + soft/solid 底的派生基色
+  --tag-ink: var(
+    --stitch-text-primary
+  ); // 文字色（default→主文字墨；语义/分类各自覆盖，见下）
+  --tag-border: var(--stitch-border); // default 描边走结构线（非文字色）
+  --tag-soft-bg: var(--stitch-bg-section); // soft 软底
+}
+
+// ---------- Size ----------
+// 无固定高度：inline-flex + 纵向 padding 让高度随字号自然生成，
+// 不套用 --stitch-height-*（那是表单控件对齐用的，标签套上去过高）。
+.size-small {
+  padding: var(--stitch-spacing-xs) var(--stitch-spacing-sm);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.size-middle {
+  padding: var(--stitch-spacing-xs) var(--stitch-spacing-md);
+  font-size: var(--stitch-font-size-base);
+}
+
+.size-large {
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-lg);
+}
+
+// ---------- Variant ----------
+// 所有变体文字统一走 --tag-ink（保证可读），身份色只出现在描边 / 底的淡色派生上。
+// solid = 「亮填充 + 深字」：淡色底（身份色混 canvas 86%）；不用「饱和填充白字」（白字把 warning 逼暗金、像 Bootstrap alert）。
+.variant-solid {
+  background: color-mix(in srgb, var(--tag-fg), var(--stitch-bg-canvas) 86%);
+  border-color: transparent;
+  color: var(--tag-ink);
+}
+
+.variant-outlined {
+  background: transparent;
+  border-color: var(--tag-border);
+  color: var(--tag-ink);
+}
+
+.variant-dashed {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--tag-border);
+  color: var(--tag-ink);
+}
+
+// soft = 比 solid 更淡的软底（走契约 -bg 软底 token / 分类色派生）。
+.variant-soft {
+  background: var(--tag-soft-bg);
+  border-color: transparent;
+  color: var(--tag-ink);
+}
+
+// ghost 排版标签：无底、无框，只留文字色（刻意 ghost 的排版标签）。
+// 水平 padding 收掉——它是排版标签不是徽章，无视觉重量地分组。
+.variant-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--tag-ink);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// ============================================
+// Color — 语义状态（恒定色够深 → 文字 --tag-ink = 身份色混黑 35%，仍鲜明且 ≥AA）
+// ============================================
+.color-danger {
+  --tag-fg: var(--stitch-danger);
+  --tag-ink: color-mix(in srgb, var(--stitch-danger), black 35%);
+  --tag-border: var(--stitch-danger);
+  --tag-soft-bg: var(--stitch-danger-bg);
+}
+
+.color-success {
+  --tag-fg: var(--stitch-success);
+  --tag-ink: color-mix(in srgb, var(--stitch-success), black 35%);
+  --tag-border: var(--stitch-success);
+  --tag-soft-bg: var(--stitch-success-bg);
+}
+
+.color-warning {
+  --tag-fg: var(--stitch-warning);
+  --tag-ink: color-mix(in srgb, var(--stitch-warning), black 35%);
+  --tag-border: var(--stitch-warning);
+  --tag-soft-bg: var(--stitch-warning-bg);
+}
+
+.color-info {
+  --tag-fg: var(--stitch-info);
+  --tag-ink: color-mix(in srgb, var(--stitch-info), black 35%);
+  --tag-border: var(--stitch-info);
+  --tag-soft-bg: var(--stitch-info-bg);
+}
+
+// ============================================
+// Color — 抽象分类槽（只为互相区分；软底由分类色混 canvas 派生，同契约软底手法）
+// ============================================
+.color-cat-1 {
+  --tag-fg: var(--stitch-cat-1);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-1);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.color-cat-2 {
+  --tag-fg: var(--stitch-cat-2);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-2),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-2);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-2),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.color-cat-3 {
+  --tag-fg: var(--stitch-cat-3);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-3),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-3);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-3),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.color-cat-4 {
+  --tag-fg: var(--stitch-cat-4);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-4),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-4);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-4),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.color-cat-5 {
+  --tag-fg: var(--stitch-cat-5);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-5),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-5);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-5),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+.color-cat-6 {
+  --tag-fg: var(--stitch-cat-6);
+  --tag-ink: color-mix(
+    in srgb,
+    var(--stitch-cat-6),
+    var(--stitch-text-primary) 68%
+  );
+  --tag-border: var(--stitch-cat-6);
+  --tag-soft-bg: color-mix(
+    in srgb,
+    var(--stitch-cat-6),
+    var(--stitch-bg-canvas) 88%
+  );
+}
+
+// ============================================
+// Text / Close
+// ============================================
+// 文字竖向居中：纯 flex 居中对不齐——Latin 小写词（success/danger/info）墨迹落在基线~x-height、
+// 几无降部，font 的 em 盒对称留白使字视觉偏低（上间距看着比下间距大）。text-box 只对「直接生成行盒」
+// 的行内块生效（与 Switch .innerText 同处理）。
+//  · fallback（Firefox/旧版）：line-height:normal，字体自然行距分匀（不写死像素——换肤换字体，魔法数字换字即歪）。
+//  · 渐进增强（Chrome 133+/Safari 18.2+）：text-box 把行盒裁到真实 cap 顶/基线 → 按墨迹居中。
+.text {
+  display: inline-block;
+  color: inherit;
+  line-height: normal;
+  text-box: trim-both cap alphabetic;
+  white-space: nowrap;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--stitch-spacing-xs);
+  margin-right: calc(-1 * var(--stitch-spacing-xs));
+  width: 1.15em;
+  height: 1.15em;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  border-radius: var(--stitch-radius-button); // 圆形关闭键随站点药丸圆角
+  cursor: pointer;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+}
+
+.close:hover:not(:disabled) {
+  // 中性叠色由当前文字色派生，不写死 rgba（H2）
+  background: color-mix(in srgb, currentColor, transparent 85%);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--stitch-focus-ring);
+  outline-offset: 1px;
+}
+
+.close:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+// ============================================
+// Interactive / Disabled states
+// ============================================
+.is-clickable {
+  cursor: pointer;
+}
+
+.is-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--stitch-shadow-sm);
+}
+
+.is-clickable:active {
+  transform: translateY(0);
+}
+
+.is-clickable:focus-visible {
+  outline: 2px solid var(--stitch-focus-ring);
+  outline-offset: 2px;
+}
+
+.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

@@ -1,0 +1,84 @@
+// ============================================
+// Loading
+// 全屏遮罩 + 纯 CSS 环形转圈 + 提示文案；spinning=false 淡出后隐藏。
+// 圆角/色彩/动效全走 var(--stitch-*)（H2）。
+// 只保留可复用行为：覆盖内容的忙碌指示 + 状态收起。转圈复用同源 Table
+// 的纯 CSS 环（中性描边环 + accent 高亮弧），遮罩底走 --stitch-mask-bg。
+// ============================================
+
+// ---------- Overlay（全屏遮罩）----------
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stitch-spacing-md);
+  background: var(--stitch-mask-bg);
+  color: var(--stitch-text-on-dark);
+  opacity: 1;
+  transition: opacity var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+// ---------- State: 淡出 / 隐藏 ----------
+.closing {
+  opacity: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+// ---------- Spinner（纯 CSS 环，无裸 <svg>）----------
+// 中性描边环 + accent 高亮弧旋转；环形靠药丸圆角把方形收成圆（与同源 Table 一致）。
+.spinner {
+  border: 3px solid var(--stitch-border);
+  border-top-color: var(--stitch-accent);
+  border-radius: var(--stitch-radius-button);
+  animation: stitch-loading-spin 0.8s linear infinite;
+}
+
+@keyframes stitch-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ---------- Size ----------
+.spinner-small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.spinner-middle {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.spinner-large {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+
+// ---------- Tip（提示文案）----------
+.tip {
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+}
+
+// 尊重「减少动效」偏好：放慢旋转、去淡出过渡
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.6s;
+  }
+
+  .overlay {
+    transition: none;
+  }
+}

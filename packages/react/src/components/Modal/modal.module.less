@@ -1,0 +1,104 @@
+// ============================================
+// Modal
+// ============================================
+// 值全走角色契约 var(--stitch-*)；无写死 hex/圆角/字体（H2）。
+// 标准矩形浮层，圆角/阴影/字体随站点。
+
+// ---------- Mask overlay ----------
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stitch-mask-bg);
+  animation: stitch-modal-fade-in var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+}
+
+// ---------- Dialog surface ----------
+// 浮起对话框面：bg-elevated 底 + 卡片圆角 + lg 软影（源 clip-path 招牌造型已清）。
+.modal {
+  position: relative;
+  box-sizing: border-box;
+  max-width: calc(100vw - var(--stitch-spacing-xl) * 2);
+  max-height: calc(100vh - var(--stitch-spacing-xl) * 2);
+  display: flex;
+  flex-direction: column;
+  padding: var(--stitch-spacing-xl);
+  background: var(--stitch-bg-elevated);
+  border-radius: var(--stitch-radius-card);
+  // 发丝边：贯彻全站「边框即结构」的面语言（卡片有边、浮层也有边），随站换色。
+  border: 1px solid var(--stitch-border);
+  // 对话框走 base 阴影档；最深的 lg 档是全页唯一深影，留给浮动预览，对话框不占用。
+  box-shadow: var(--stitch-shadow-base);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  overflow: hidden;
+  animation: stitch-modal-zoom-in var(--stitch-motion-duration-base)
+    var(--stitch-motion-ease);
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Header ----------
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--stitch-spacing-lg);
+}
+
+.title {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-lg);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+}
+
+// ---------- Body ----------
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- Footer ----------
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--stitch-spacing-md);
+}
+
+// ---------- Animations ----------
+@keyframes stitch-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes stitch-modal-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,161 @@
+// demo/shell.less —— 换肤外壳样式。
+// 硬规则 H2：只读角色变量 var(--stitch-*)，禁硬编码 hex / 圆角 / 字体。
+// 结构尺寸（栏宽/间距）走 --stitch-spacing-* 或纯布局 px（非主题值）。
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-canvas);
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--stitch-bg-canvas);
+  color: var(--stitch-text-primary);
+}
+
+.shell__sidebar {
+  border-right: var(--stitch-border-width) solid var(--stitch-border);
+  background: var(--stitch-bg-section);
+  padding: var(--stitch-spacing-xl) var(--stitch-spacing-lg);
+  overflow-y: auto;
+}
+
+.shell__brand {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-lg);
+  color: var(--stitch-text-primary);
+  margin-bottom: var(--stitch-spacing-xl);
+}
+
+.shell__group {
+  margin-bottom: var(--stitch-spacing-lg);
+}
+
+.shell__group-title {
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--stitch-spacing-sm);
+}
+
+.shell__member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-xs);
+}
+
+.shell__member {
+  display: block;
+  padding: var(--stitch-spacing-xs) var(--stitch-spacing-sm);
+  border-radius: var(--stitch-radius-input);
+  color: var(--stitch-text-secondary);
+  text-decoration: none;
+  font-size: var(--stitch-font-size-sm);
+
+  &:hover {
+    color: var(--stitch-text-primary);
+    background: var(--stitch-bg-card);
+  }
+
+  &--active {
+    color: var(--stitch-accent-text);
+    background: var(--stitch-accent);
+
+    &:hover {
+      color: var(--stitch-accent-text);
+      background: var(--stitch-accent-hover);
+    }
+  }
+}
+
+.shell__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.shell__topbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--stitch-spacing-lg) var(--stitch-spacing-xl);
+  border-bottom: var(--stitch-border-width) solid var(--stitch-border);
+  background: var(--stitch-bg-elevated);
+}
+
+.shell__topbar-title {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-lg);
+  color: var(--stitch-text-primary);
+}
+
+.shell__switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+}
+
+.shell__switcher-label {
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-muted);
+}
+
+.shell__switcher-select {
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-sm);
+  border: var(--stitch-border-width) solid var(--stitch-border-strong);
+  border-radius: var(--stitch-radius-input);
+  background: var(--stitch-bg-card);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  cursor: pointer;
+}
+
+.shell__content {
+  padding: var(--stitch-spacing-xl);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.shell__empty {
+  color: var(--stitch-text-secondary);
+}
+
+.page__title {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-display);
+  color: var(--stitch-text-primary);
+  margin: 0 0 var(--stitch-spacing-sm);
+}
+
+.page__desc {
+  color: var(--stitch-text-secondary);
+  max-width: 60ch;
+  margin: 0 0 var(--stitch-spacing-xl);
+}
+
+.page__examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-lg);
+}

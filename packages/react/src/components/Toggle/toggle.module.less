@@ -1,0 +1,32 @@
+// ============================================
+// Toggle
+// ============================================
+//
+// 底件 Button 的皮（尺寸 / 圆角 / 边框 / focus ring / 图标插槽）全沿用；
+// 本文件只上「按下选中态」这一扩出来的新样式。token 从角色契约挑、只写 var(--stitch-*)。
+//
+// 特意用 `.toggle.pressed` 复合选择器（2 类特异度）压过底件 Button 的单类型皮
+// （如 .btn-default 单类），保证按下态无关 CSS 加载顺序都稳定生效。
+
+.toggle {
+  // 锚点类：本体外观全由底件 Button 提供，这里只作为 .pressed 复合选择器的落点。
+}
+
+// ---------- 按下选中态（accent 填充，与 Switch/Checkbox/Radio 选中同源）----------
+.toggle.pressed {
+  color: var(--stitch-accent-text);
+  background: var(--stitch-accent);
+  border-color: var(--stitch-accent);
+
+  &:hover:not(:disabled) {
+    color: var(--stitch-accent-text);
+    background: var(--stitch-accent-hover);
+    border-color: var(--stitch-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    color: var(--stitch-accent-text);
+    background: var(--stitch-accent-active);
+    border-color: var(--stitch-accent-active);
+  }
+}

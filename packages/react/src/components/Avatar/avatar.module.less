@@ -1,0 +1,65 @@
+// ============================================
+// Avatar
+// 头像：显图 / 兜底二选一（Radix 判），固定尺寸档 + 圆/方。
+// 皮取角色：兜底面 --stitch-bg-card + 结构边 --stitch-border（令浅底站点的头像仍有轮廓）；
+// 兜底文字 --stitch-text-secondary + body 字体；
+// 方形圆角 --stitch-radius-image（随站换肤）。
+// 尺寸档（24/32/40）与兜底字号为物理控件几何（人机工程量、非主题值，同 Slider/Switch 先例）。
+// ============================================
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  vertical-align: middle;
+  user-select: none;
+  background: var(--stitch-bg-card);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  font-family: var(--stitch-font-body);
+}
+
+// 图片铺满头像框、等比裁切
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// 兜底：居中首字母 / 占位内容
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--stitch-text-secondary);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: 1;
+}
+
+// ── 形状 ─────────────────────────────
+.circle {
+  border-radius: 50%;
+}
+.square {
+  border-radius: var(--stitch-radius-image);
+}
+
+// ── 尺寸档（物理几何，非主题值）───────
+.small {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+.middle {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+.large {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}

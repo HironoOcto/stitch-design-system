@@ -1,0 +1,63 @@
+/* sites/seline/adapter.css —— 只覆盖【每站】槽 */
+:root {
+  /* 背景 / 表面 */
+  --stitch-bg-canvas:      #fafaf9;  /* ① stone-canvas（warm off-white, 读作纸不是屏白）*/
+  --stitch-bg-section:     #fafaf9;  /* ② seline 扁平无独立区块底色 → 区块与 canvas 同底（守暖调,不回落契约冷白 #fafafb）*/
+  --stitch-bg-card:        #ffffff;  /* ① pure-white（卡片/浮层/输入填充, 默认扁平无影）*/
+  --stitch-bg-elevated:    #ffffff;  /* ① pure-white（elevated panels）*/
+  --stitch-bg-accent:      #c1e1f7;  /* ① sky-wash（highlight span 药丸底 / 蓝色点缀背景）*/
+  --stitch-bg-inverted:    #1c1917;  /* ① soot（暗色区块 / 暗色 dashboard tab）*/
+
+  /* 文字（seline 6 档中性 → 收敛到契约 3 档 + on-accent/on-dark）*/
+  --stitch-text-primary:   #0c0a09;  /* ① ink-black（标题/强调正文, 暖调近黑）*/
+  --stitch-text-secondary: #78716c;  /* ① warm-gray（正文/导航链接/次要文案）*/
+  --stitch-text-muted:     #a8a29e;  /* ① ash-gray（弱化 helper / 图标描边 / 禁用）*/
+  --stitch-text-on-accent: #3398e1;  /* ① cyan-edge（sky-wash 面上的 highlight 文字）*/
+  --stitch-text-on-dark:   #ffffff;  /* ① 白字（soot/inverted 面, 见 Tab Pill 激活态）*/
+
+  /* 强调 / 链接（seline 招牌: 全站唯一彩色 = 青）*/
+  --stitch-accent:      #3ba6f1;  /* ① cyan-signal（主 CTA 填充 = 全站唯一彩色声音, 与 steep 黑填充成鲜明对比）*/
+  --stitch-accent-text: #0c0a09;  /* ① ink-black（复核裁决: DESIGN 自相矛盾——Components 写白字 500 / Agent Prompt Guide 示例2 写 #0c0a09 黑字; 采信黑字, 因白字 on #3ba6f1 仅 2.65:1 不达 AA, 黑字 7.44:1 达标且与 Agent Guide 一致）*/
+  --stitch-link:        #3398e1;  /* ① cyan-edge（linked labels / 轻量交互强调; nav 链接走 text-secondary, hover 到 primary）*/
+
+  /* 分类色槽（seline 单色 + 一青 → 全部取自自身调色板, 禁引外部彩虹以守「不新增强调色」）*/
+  --stitch-cat-1: #3ba6f1;  /* ① cyan-signal */
+  --stitch-cat-2: #78716c;  /* ① warm-gray */
+  --stitch-cat-3: #a8a29e;  /* ① ash-gray */
+  --stitch-cat-4: #0c0a09;  /* ① ink-black */
+  --stitch-cat-5: #c1e1f7;  /* ① sky-wash */
+  --stitch-cat-6: #d6d3d1;  /* ① stone-muted */
+
+  /* 字体（substitute 见 DESIGN.md; Roobert=display, Inter=body/UI）*/
+  --stitch-font-display: 'Roobert', 'Inter Tight', 'Satoshi', ui-sans-serif, system-ui, sans-serif;  /* ① 标题几何无衬线 */
+  --stitch-font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;               /* ① 正文/UI/caption */
+
+  /* 控件字重（DESIGN Components: Primary CTA weight 500 / Secondary Ghost weight 400）*/
+  --stitch-font-weight-normal: 400;  /* ① Secondary Ghost / Nav weight 400 */
+  --stitch-font-weight-medium: 500;  /* ① Primary CTA weight 500 */
+
+  /* 圆角（DESIGN.md Border Radius）*/
+  --stitch-radius-button: 9999px;  /* ① buttons（药丸）*/
+  --stitch-radius-card:   10px;    /* ① cards（feature-card 16 见 shadow-lg 场景, 通用卡取 10）*/
+  --stitch-radius-input:  6px;     /* ① inputs */
+  --stitch-radius-image:  16px;    /* ② seline 无独立 image radius → 取浮动 dashboard 预览 / feature-card 的 16px */
+
+  /* 线条 */
+  --stitch-border:        #e8e6e5;  /* ① stone-border（发丝线 = 主结构分隔手段, 非分割块）*/
+  --stitch-border-strong: #d6d3d1;  /* ① stone-muted（次级边框 / 装饰分隔）*/
+  --stitch-icon-stroke-width: 1;    /* ① 1px hairline（编辑感发丝, non-scaling 恒 1px 不随 size 变粗; 对齐 rules.md「装饰图标一律 1px 描边」）*/
+
+  /* 阴影（verbatim from DESIGN.md Shadows/Elevation: subtle / md / xl）*/
+  --stitch-shadow-sm:   rgba(0,0,0,0.05) 0px 1px 2px 0px;                    /* ① --shadow-subtle（导航/按钮发丝影）*/
+  --stitch-shadow-base: rgba(0,0,0,0.05) 0px 4px 16px 0px;                   /* ① --shadow-md（内容卡片, 有升起感不压重）*/
+  --stitch-shadow-lg:   rgba(17,12,46,0.12) 0px 12px 45px 0px;              /* ① --shadow-xl（浮动 dashboard 预览, 全页唯一深影）*/
+
+  /* 字阶（可选; seline 招牌是 14 正文(freq 最高) + 52 display, 与 steep 90 display 成对比）*/
+  --stitch-font-size-base:    14px;  /* ② seline dominant body（14/400/1.64）*/
+  --stitch-font-size-display: 52px;  /* ② seline display（weight-400 whisper 招牌）*/
+
+  /* 未列: text-on-dark 之外的派生 / font-mono / 反馈色 / focus-ring / 恒定 / 间距 → 不写,用 contract 定义
+     · focus-ring 是【派生】= var(--stitch-accent) → 自动 = 青(与 steep 黑聚焦环成对比; DESIGN 明写 Focus ring 2px cyan-signal, 与派生一致)
+     · 间距 4/8/12/16/24 与契约默认一致(seline base 4px/compact) → 不覆盖
+     · 反馈色 danger/success/warning: seline 无 → 走契约稳定默认层, 不在本站编造 */
+}

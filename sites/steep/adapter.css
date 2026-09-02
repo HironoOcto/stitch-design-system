@@ -1,0 +1,63 @@
+/* sites/steep/adapter.css —— 只覆盖【每站】槽 */
+:root {
+  /* 背景 / 表面 */
+  --stitch-bg-canvas:      #ffffff;  /* ① canvas / paper-white */
+  --stitch-bg-section:     #fafafb;  /* ① section-fog / fog-white */
+  --stitch-bg-card:        #f2f2f3;  /* ① card-mist / mist-gray */
+  --stitch-bg-elevated:    #ffffff;  /* ① elevated-white */
+  --stitch-bg-accent:      #fbe1d1;  /* ① accent-blush / blush-peach */
+  --stitch-bg-inverted:    #17191c;  /* ② steep 无暗区 → 用 ink-black 兜底 */
+
+  /* 文字（steep 4 档灰 → 收敛到契约 3 档）*/
+  --stitch-text-primary:   #17191c;  /* ① ink-black（Quick Ref: text）*/
+  --stitch-text-secondary: #777b86;  /* ① slate-gray（secondary/helper）*/
+  --stitch-text-muted:     #979799;  /* ② 多选一: 取 ash-gray 作更弱的 muted（smoke #a3a6af 归 disabled）*/
+  --stitch-text-on-accent: #5d2a1a;  /* ① sienna-brown（桃色面上的字/描边）*/
+
+  /* 强调 / 链接 */
+  --stitch-accent:      #17191c;  /* ③ 需确认: Quick Ref「primary action: #17191c (filled action)」可抽取此值;待复核的是角色判断——steep 无彩色品牌强调色,由「黑填充药丸」担当 accent 角色(桃色 blush 只是 surface,不是 accent)*/
+  --stitch-accent-text: #ffffff;  /* ① 填充按钮文字 */
+  --stitch-link:        #777b86;  /* ① slate-gray（Role: link color）*/
+
+  /* 分类色槽（steep 近单色 → 全部取自它自己的调色板 + 从中 color-mix 派生,不外部手挑;禁鲜艳彩虹以守 97% achromatic）*/
+  --stitch-cat-1: #fbe1d1;  /* ① blush-peach（bundle）*/
+  --stitch-cat-2: #5d2a1a;  /* ① sienna-brown（bundle）*/
+  --stitch-cat-3: #777b86;  /* ① slate-gray（bundle）*/
+  --stitch-cat-4: #a3a6af;  /* ① smoke-gray（bundle）*/
+  --stitch-cat-5: color-mix(in srgb, #fbe1d1, #5d2a1a 45%);  /* ② 派生: peach↔sienna 混 */
+  --stitch-cat-6: color-mix(in srgb, #777b86, #ffffff 45%);   /* ② 派生: slate 提亮 */
+
+  /* 字体（substitute 见 DESIGN.md）*/
+  --stitch-font-display: 'Signifier', ui-serif, Georgia, serif;          /* ① 标题衬线 */
+  --stitch-font-body:    'Sohne', ui-sans-serif, system-ui, sans-serif;  /* ① 正文/UI */
+
+  /* 控件字重（DESIGN Components: 填充黑药丸 CTA + Secondary 皆 Sohne 16px weight 400——"components feel quiet and weightless",不为填充态加重 → 覆盖默认 medium 500 为 400）*/
+  --stitch-font-weight-normal: 400;  /* ① Secondary/Nav Sohne 400 */
+  --stitch-font-weight-medium: 400;  /* ① 填充 CTA 也 Sohne 400（招牌"无重量感"，不加粗）*/
+
+  /* 圆角（DESIGN.md Border Radius）*/
+  --stitch-radius-button: 9999px;  /* ① buttons */
+  --stitch-radius-card:   24px;    /* ① cards */
+  --stitch-radius-input:  16px;    /* ① inputs */
+  --stitch-radius-image:  12px;    /* ① images */
+
+  /* 线条 */
+  --stitch-border: #ececec;  /* ① Input 规格 / Quick Ref: border #ececec */
+  --stitch-icon-stroke-width: 2;  /* ② 判断: DESIGN 未列装饰图标描边 → 取稳重 2（= 契约默认, 与 seline 1px 发丝成对比; non-scaling 恒 2px）*/
+
+  /* 阴影（verbatim from variables.css: subtle / subtle-2 / subtle-3）*/
+  --stitch-shadow-sm:   oklab(0 0 0 / 0.05) 0px 0px 0px 1px, rgba(0,0,0,0.08) 0px 4px 24px 0px;   /* ① --shadow-subtle */
+  --stitch-shadow-base: oklab(0 0 0 / 0.05) 0px 0px 0px 1px, rgba(0,0,0,0.1) 0px 8px 40px 0px;    /* ① --shadow-subtle-2 */
+  --stitch-shadow-lg:   rgba(4,23,43,0.05) 0px 0px 0px 1px, rgba(0,0,0,0.1) 0px 20px 25px -5px, rgba(0,0,0,0.1) 0px 8px 10px -6px;  /* ① --shadow-subtle-3 */
+
+  /* 字阶（可选; steep 招牌是 17 正文 + 90 display）*/
+  --stitch-font-size-base:    17px;  /* ② steep body */
+  --stitch-font-size-display: 90px;  /* ② steep display（招牌尺寸）*/
+
+  /* 未列(不写,用 contract 定义):
+     · text-on-dark: 契约默认 #ffffff 正好适配 ink-black 暗面 → 不覆盖;border-strong / font-mono: steep DESIGN 未提供 → 用契约默认
+     · 间距 4/8/12/16/24: steep base unit 4px + comfortable 与契约默认一致(区块留白节奏属构图 → 归 rules.md Layout,不在 token 层)→ 不覆盖
+     · font-size-sm 14 / -lg 20: 与契约默认一致(steep caption 15 / body-lg 20)→ 只覆盖 base 17 / display 90 两个真实风格杠杆
+     · 反馈色 danger/success/warning/info: steep 无(97% achromatic)→ 走契约稳定默认层,不在本站编造
+     · 派生(accent-hover/active、focus-ring、text-disabled)/ 恒定(height/motion/mask/border-width): 契约活表达式/常量,自动跟随 */
+}

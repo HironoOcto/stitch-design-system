@@ -1,0 +1,158 @@
+// ============================================
+// Form —— 表单容器
+// 只读角色变量 var(--stitch-*)：颜色/圆角/字体/间距/动效随换肤变化。
+// 结构性微距（1px 边、2px 冒号间距等）保留字面像素，非品牌值。
+// ============================================
+
+.form {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+  list-style: none;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-sm);
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-sm);
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--stitch-spacing-sm);
+
+  .item {
+    flex: 0 0 auto;
+  }
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// ============================================
+// Form.Item —— 单个字段
+// ============================================
+
+.item {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+}
+
+// 横排：24 列栅格，label 与 wrapper 相邻（不设 column-gap，否则撑爆）
+.item-horizontal {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  align-items: baseline;
+  row-gap: var(--stitch-spacing-sm);
+}
+
+// 竖排：label 独占一行
+.item-vertical {
+  display: block;
+
+  .item-label {
+    display: block;
+    margin-bottom: var(--stitch-spacing-sm);
+  }
+}
+
+// 尺寸（small/middle/large）只驱动控件高度/内距——经 Form.Item 把 size 透传给
+// 子控件（Input/Select…按 --stitch-height-{sm,base,lg} 取不同高）。label 字号保持
+// 统一（不随 size 变）：站点可把 font-size-sm 与 -base 设为同值，若让 label 跟随
+// size 会出现 small 与 middle 视觉无差异的坍缩，故 label 恒定、由控件高度承载尺寸信号。
+.item-label {
+  display: inline-block;
+  flex: 0 0 auto;
+  line-height: var(--stitch-line-height-base);
+  color: var(--stitch-text-primary);
+  font-weight: var(--stitch-font-weight-normal);
+  white-space: nowrap;
+}
+
+.item-label-required {
+  &::before {
+    content: '*';
+    color: var(--stitch-danger);
+    margin-right: var(--stitch-spacing-xs);
+  }
+}
+
+.item-label-colon {
+  &::after {
+    content: ':';
+    margin: 0 var(--stitch-spacing-xs) 0 2px;
+  }
+}
+
+.item-control {
+  min-width: 0;
+}
+
+.item-control-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--stitch-height-sm);
+
+  // 块级表单控件（Input/Select）填满控件区；Radio/Checkbox 组容器虽填满但选项
+  // 靠左自然排列，视觉不受影响。
+  > * {
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+
+  // Switch 是单一开关，不能被拉成整行（否则像进度条）；保持自身尺寸、靠左。
+  > [role='switch'] {
+    flex: 0 0 auto;
+  }
+}
+
+.item-explain {
+  min-height: var(--stitch-spacing-xl);
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  margin-top: var(--stitch-spacing-xs);
+}
+
+.item-explain-error {
+  color: var(--stitch-danger);
+}
+
+.item-feedback-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--stitch-spacing-xs);
+  color: var(--stitch-danger);
+}
+
+.item-has-error .item-explain {
+  color: var(--stitch-danger);
+}
+
+.item-has-warning .item-explain {
+  color: var(--stitch-warning);
+}
+
+.item-has-success .item-explain {
+  color: var(--stitch-success);
+}
+
+.item-is-validating .item-explain {
+  color: var(--stitch-accent);
+}

@@ -1,0 +1,251 @@
+// ============================================
+// Button
+// ============================================
+
+// ---------- Wrapper ----------
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stitch-spacing-sm);
+  font-family: var(--stitch-font-body);
+  // 非填充态取 normal（组件定语义、站定数值）；填充态 .btn-primary 覆盖为 medium。
+  font-weight: var(--stitch-font-weight-normal);
+  white-space: nowrap;
+  cursor: pointer;
+  border: var(--stitch-border-width) solid transparent;
+  border-radius: var(--stitch-radius-button);
+  transition:
+    color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    background var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    transform var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+  user-select: none;
+  outline: none;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: var(--stitch-shadow-sm);
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+  }
+}
+
+// ---------- Size ----------
+.btn-small {
+  height: var(--stitch-height-sm);
+  padding: 0 var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.btn-middle {
+  height: var(--stitch-height-base);
+  padding: 0 var(--stitch-spacing-lg);
+  font-size: var(--stitch-font-size-base);
+}
+
+.btn-large {
+  height: var(--stitch-height-lg);
+  padding: 0 var(--stitch-spacing-xl);
+  font-size: var(--stitch-font-size-lg);
+}
+
+// ---------- Type: default ----------
+.btn-default {
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-elevated);
+  border-color: var(--stitch-border);
+
+  &:hover:not(:disabled) {
+    color: var(--stitch-accent);
+    border-color: var(--stitch-accent);
+    box-shadow: var(--stitch-shadow-base);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    color: var(--stitch-accent-active);
+    border-color: var(--stitch-accent-active);
+    transform: translateY(0);
+    box-shadow: var(--stitch-shadow-sm);
+  }
+}
+
+// ---------- Type: primary（accent 填充 CTA；不带任何品牌 3D 像素影）----------
+.btn-primary {
+  color: var(--stitch-accent-text);
+  background: var(--stitch-accent);
+  border-color: var(--stitch-accent);
+  // 填充态取 medium（danger-primary 走 .btn-primary 级联自动继承）。
+  font-weight: var(--stitch-font-weight-medium);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-accent-hover);
+    border-color: var(--stitch-accent-hover);
+    box-shadow: var(--stitch-shadow-base);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--stitch-accent-active);
+    border-color: var(--stitch-accent-active);
+    transform: translateY(0);
+    box-shadow: var(--stitch-shadow-sm);
+  }
+
+  // 规则 7：accent 填充上 focus-ring 与填充同色会隐没 → 叠内圈 bg-elevated 间隔环把环与填充隔开
+  // （任意站 ≥3:1）。ghost-primary 是透明填充、非同色隐没 → 排除，沿用基类 outline。
+  &:not(.btn-ghost):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--stitch-bg-elevated),
+      0 0 0 4px var(--stitch-focus-ring);
+  }
+}
+
+// ---------- Type: dashed ----------
+.btn-dashed {
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-elevated);
+  border-color: var(--stitch-border);
+  border-style: dashed;
+
+  &:hover:not(:disabled) {
+    color: var(--stitch-accent);
+    border-color: var(--stitch-accent);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    color: var(--stitch-accent-active);
+    border-color: var(--stitch-accent-active);
+    transform: translateY(0);
+  }
+}
+
+// ---------- Type: text ----------
+.btn-text {
+  color: var(--stitch-text-primary);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-section);
+  }
+
+  &:active:not(:disabled) {
+    background: color-mix(in srgb, var(--stitch-bg-section), black 5%);
+  }
+}
+
+// ---------- Type: link ----------
+.btn-link {
+  color: var(--stitch-link);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    color: var(--stitch-accent);
+  }
+
+  &:active:not(:disabled) {
+    color: var(--stitch-accent-active);
+  }
+}
+
+// ---------- Danger ----------
+.btn-danger {
+  &.btn-primary {
+    color: var(--stitch-text-on-dark);
+    background: var(--stitch-danger);
+    border-color: var(--stitch-danger);
+
+    &:hover:not(:disabled) {
+      background: var(--stitch-danger-hover);
+      border-color: var(--stitch-danger-hover);
+    }
+
+    &:active:not(:disabled) {
+      background: var(--stitch-danger-active);
+      border-color: var(--stitch-danger-active);
+    }
+  }
+
+  &.btn-default,
+  &.btn-dashed {
+    color: var(--stitch-danger);
+    border-color: var(--stitch-danger);
+
+    &:hover:not(:disabled) {
+      color: var(--stitch-danger-hover);
+      border-color: var(--stitch-danger-hover);
+    }
+
+    &:active:not(:disabled) {
+      color: var(--stitch-danger-active);
+      border-color: var(--stitch-danger-active);
+    }
+  }
+
+  &.btn-text,
+  &.btn-link {
+    color: var(--stitch-danger);
+
+    &:hover:not(:disabled) {
+      color: var(--stitch-danger-hover);
+    }
+
+    &:active:not(:disabled) {
+      color: var(--stitch-danger-active);
+    }
+  }
+}
+
+// ---------- Ghost（透明填充，去 3D 影）----------
+.btn-ghost {
+  background: transparent;
+  box-shadow: none;
+
+  &.btn-primary {
+    color: var(--stitch-accent);
+    background: transparent;
+    border-color: var(--stitch-accent);
+    box-shadow: none;
+
+    &:hover:not(:disabled) {
+      color: var(--stitch-accent-hover);
+      border-color: var(--stitch-accent-hover);
+      background: color-mix(in srgb, var(--stitch-accent), transparent 92%);
+    }
+  }
+}
+
+// ---------- Block ----------
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+// ---------- Loading（aria-busy + 暗淡非交互；不带品牌加载动画）----------
+.btn-loading {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+// ---------- Icon slot（消费者传入的 <Icon>）----------
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+}

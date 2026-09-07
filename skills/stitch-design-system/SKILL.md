@@ -52,7 +52,7 @@ generated verbatim from source):
 | navigation | DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toolbar | [navigation.md](references/components/navigation.md) |
 | feedback | Loading, Progress, Skeleton | [feedback.md](references/components/feedback.md) |
 | data-display | Table, CodeBlock, Tag, Avatar | [data-display.md](references/components/data-display.md) |
-| data-viz | LineChart, BarChart, PieChart | [data-viz.md](references/components/data-viz.md) |
+| data-viz | LineChart, BarChart, PieChart, Stat | [data-viz.md](references/components/data-viz.md) |
 | Form | Form | [Form.md](references/components/Form.md) |
 | Notification | Notification | [Notification.md](references/components/Notification.md) |
 <!-- /SLOT:catalog -->

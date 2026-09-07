@@ -1,0 +1,109 @@
+// ============================================
+// Stat / StatGroup — 主状态 / 指标块（data-viz 族）
+// 纯结构 + 角色变量；趋势色只走语义 var(--stitch-success) / var(--stitch-danger)，
+// 状态点色走角色变量，分隔线走 var(--stitch-border)（H2：只读 var(--stitch-*)、零硬编码绿红）。
+// ============================================
+
+// ---------- Stat wrapper ----------
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stitch-spacing-xs);
+  font-family: var(--stitch-font-body);
+  color: var(--stitch-text-primary);
+}
+
+// ---------- Title（标签）----------
+.stat-title {
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- Value row（大值 + 趋势同排）----------
+.stat-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--stitch-spacing-sm);
+}
+
+.stat-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--stitch-spacing-xs);
+  font-size: var(--stitch-font-size-display);
+  font-weight: var(--stitch-font-weight-medium);
+  line-height: var(--stitch-line-height-base);
+}
+
+.stat-prefix,
+.stat-suffix {
+  font-size: var(--stitch-font-size-lg);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- Trend（涨/跌）----------
+// 方向由 <Icon> 箭头出；好/坏语义色只走 success / danger 角色变量（非硬编码绿红）。
+.stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-medium);
+}
+
+.stat-trend-positive {
+  color: var(--stitch-success);
+}
+
+.stat-trend-negative {
+  color: var(--stitch-danger);
+}
+
+// ---------- Caption（副说明）----------
+.stat-caption {
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- Status dot（状态点 + 文案）----------
+.stat-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-secondary);
+}
+
+// 点色走角色变量——按语义色调切换，默认弱化中性。
+.stat-dot-neutral {
+  color: var(--stitch-text-muted);
+}
+.stat-dot-success {
+  color: var(--stitch-success);
+}
+.stat-dot-danger {
+  color: var(--stitch-danger);
+}
+.stat-dot-warning {
+  color: var(--stitch-warning);
+}
+.stat-dot-info {
+  color: var(--stitch-info);
+}
+
+// ---------- StatGroup（一排指标 + 发丝线分隔）----------
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.group-item {
+  display: flex;
+  padding: 0 var(--stitch-spacing-xl);
+}
+
+// 发丝线分隔——相邻项之间一道 var(--stitch-border) 竖线（首项不带）。
+.group-item + .group-item {
+  border-left: var(--stitch-border-width) solid var(--stitch-border);
+}

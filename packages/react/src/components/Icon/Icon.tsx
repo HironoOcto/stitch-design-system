@@ -45,6 +45,12 @@ const ICON_PATHS = {
   'align-center': ['M4 6h16', 'M7 12h10', 'M6 18h12'],
   // 右对齐：整行 + 短行靠右。
   'align-right': ['M4 6h16', 'M10 12h10', 'M7 18h13'],
+  // ---- 趋势箭头（data-viz 指标趋势用；描边对角箭头，品牌中立自绘）----
+  // 上升趋势：对角线指向右上 + 右上角箭头（涨）。方向表「值往哪走」，颜色（success/danger）
+  // 才表「好不好」——由消费方 Stat 决定，图标本身只画方向。
+  'arrow-up-right': ['M7 17L17 7', 'M8 7h9v9'],
+  // 下降趋势：对角线指向右下 + 右下角箭头（跌）。
+  'arrow-down-right': ['M7 7L17 17', 'M17 8v9H8'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type IconName = keyof typeof ICON_PATHS;
@@ -163,4 +169,6 @@ export const ICON_LIST = [
   { name: 'dot', label: 'Dot' },
   { name: 'eye', label: 'Eye' },
   { name: 'eye-off', label: 'Eye off' },
+  { name: 'arrow-up-right', label: 'Trend up' },
+  { name: 'arrow-down-right', label: 'Trend down' },
 ] as const satisfies ReadonlyArray<{ name: IconName; label: string }>;

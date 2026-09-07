@@ -355,24 +355,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/4
 
 ## #5（AFK）：Stat + StatGroup（主状态 / 指标块）
 
-> 归 data-viz 族、不用 recharts（纯 markup + CSS + Icon）。Ant Statistic props + trend（success/danger 角色色，可反转）+ caption + 状态点 + StatGroup；往 Icon 加趋势箭头 path。仅依赖 #1「族已建」，可与图表并行。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 5 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
-
-目标：做端到端 Stat + StatGroup。Stat 借 Ant Statistic props（title/value/precision/prefix/suffix/formatter/groupSeparator）+ 加 trend{value,direction} 配 <Icon> 箭头 + 涨/跌语义色 var(--stitch-success)/var(--stitch-danger)（角色变量、非硬编码绿红）+ 反转开关（跌是好事的指标）+ caption 副说明 + 状态点（<Icon name="dot"> + 文案）；StatGroup 一排指标用发丝线 --stitch-border 分隔。往 Icon 内置图标集加趋势箭头 path（受认证 <Icon> 路径，不内联 svg）。照 component-authoring.md 四件套惯例，本段不复述步骤。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（趋势走 success/danger、零硬编码绿红）；无 emoji/裸 svg/Unicode（箭头经 <Icon>）；H5 CI 齐备。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. Stat 四件套 + StatGroup；trend 走 success/danger 且可反转；caption + 状态点就位；Icon 新增趋势箭头 path。
-2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## Stat（含 StatGroup）条目。
-3. 过 #29 skill-acceptance.md 相关节。
-4. 执行报告两块表：① 结构 Hook（H2 + 无 emoji/裸 svg/Unicode + H5）全 🟢；② 真实 case dry_run（一个含趋势+状态点的指标块真实 render）🟢。
-
-收尾门：用户验收通过后才 commit(#5) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `c0aa987`，2026-09-07）。在 #1 地基上新增对外组件 **Stat + StatGroup**（主状态 / 指标块），归 `data-viz` 族、**不走 recharts**（纯 markup + CSS + `<Icon>`，族内首个非图表引擎件）。端到端垂直切片（TDD tracer→增量）：四件套（[Stat.tsx](../packages/react/src/components/Stat/Stat.tsx) / [StatGroup.tsx](../packages/react/src/components/Stat/StatGroup.tsx) / [stat.module.less](../packages/react/src/components/Stat/stat.module.less) / test / a11y.test / index）+ demo + `build:refs` 生成 [references/components/data-viz.md](../skills/stitch-design-system/references/components/data-viz.md) 的 `## Stat`（含 `StatGroupProps`）。**展示 props** 借 Ant `Statistic`、命名遵 Ant v5（`title`/`value`/`precision`/`prefix`/`suffix`/`formatter`/`groupSeparator`，覆盖 `$695,432.50`/`9m 13s`/`42%`）。**趋势 `trend`**：方向经 `<Icon>` 对角箭头（本件往内置图标集加 `arrow-up-right`/`arrow-down-right` 两枚 path，受认证 `<Icon>` 路径、不内联 svg），涨/跌好坏色**只走语义角色变量** `var(--stitch-success)`/`var(--stitch-danger)`（非硬编码绿红）；**`trendReversed` 反转开关**给「跌是好事」指标（Bounce Rate）翻转好坏配色、方向不变；方向缺省按 `value` 正负推断。**`caption`** 副说明 + **`status`** 状态点（`<Icon name="dot">` 点色走 5 语义色调角色变量 + 文案，非 Unicode `○`）。**StatGroup** 一排指标用发丝线 `var(--stitch-border)` 分隔。**原创长相取舍**（指标块独有、#2–#4 图表先例未覆盖的 5 项：大值排版档 / 前后缀降级 / 发丝线分隔+内距 / 趋势语义色通道 / 状态点色调）经用户**逐条拍板通过**，已登记 `预建笔记.md`（#5 段 ✅ 已定夺）。**验收中补两项**（reviewer demo-acceptance 建议）：① demo 补 `status` 的 `warning`/`info` 两色调例（现覆盖全 5 色调）；② `预建笔记.md` 补 #5 原创取舍条目（与 #4 记账先例一致）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（趋势走 success/danger、状态点/发丝线走角色变量、源零 hex/零硬编码绿红）🟢、无 emoji/裸 svg/Unicode（箭头/点经 `<Icon>`；`→` 仅在中文注释，同 #2–#4 惯例）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**（seline 站浏览器实测）：trend computed color 涨 `rgb(46,125,50)`=success / 跌 `rgb(192,57,43)`=danger、`trendReversed` 的 Bounce Rate = success 绿 + `arrow-down-right`（反转生效）🟢、status 五色调各解析到角色变量（warning `#b8860b` / info `#2b7fd8` / success / danger / neutral=text-muted）🟢、StatGroup 分隔 `border-left`=`1px solid rgb(232,230,229)`=`--stitch-border`🟢、demo 上架 data-viz 族 console 无 warn 🟢；过 #29 skill-acceptance §1/§5 相关节（`check:skill` **41/41**，`props==源` + catalog 派生含 Stat）🟢。两块表见 GH #5 评论。**给后续**：data-viz 族图表 4 件（#2–#4）+ 指标块（#5）齐；#6 Calendar 走 form-controls 族。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/5
 依赖：#1（仅 data-viz 族已建；与图表无代码耦合）。

@@ -152,6 +152,16 @@ export type { BarChartProps, BarChartSeries } from './components/BarChart';
 export { PieChart } from './components/PieChart';
 export type { PieChartProps } from './components/PieChart';
 
+export { Stat, StatGroup } from './components/Stat';
+export type {
+  StatProps,
+  StatTrend,
+  StatTrendDirection,
+  StatStatus,
+  StatStatusTone,
+  StatGroupProps,
+} from './components/Stat';
+
 // ============================================
 // 反馈（feedback）
 // ============================================

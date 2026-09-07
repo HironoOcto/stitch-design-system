@@ -201,3 +201,76 @@ export interface PieChartProps {
 中心即成环形（donut），此时可用 `centerLabel` 在中心放一个值；默认出图例（`Legend`）把
 分类名列出，不只靠颜色区分（守 a11y）。整图作一张图对外——`role="img"` + `aria-label`
 （缺省兜底非空名）。
+
+## Stat
+
+```ts
+export interface StatProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'title' | 'prefix'
+> {
+  /** 指标标签（如 Unique Visitors） */
+  title?: React.ReactNode;
+  /** 指标值。number 走内置格式化；string 原样展示 */
+  value: string | number;
+  /** 小数精度（仅 number 值、未给 formatter 时生效） */
+  precision?: number;
+  /** 值前缀（如 `$`） */
+  prefix?: React.ReactNode;
+  /** 值后缀（如 `%`） */
+  suffix?: React.ReactNode;
+  /** 自定义格式化；给出时接管数值格式化，precision / groupSeparator 失效 */
+  formatter?: (value: string | number) => React.ReactNode;
+  /**
+   * 千分位分隔符（仅 number 值、未给 formatter 时生效）
+   * @default ','
+   */
+  groupSeparator?: string;
+  /** 趋势涨/跌 */
+  trend?: StatTrend;
+  /**
+   * 反转趋势好坏（「跌是好事」的指标，如 Bounce Rate）
+   * @default false
+   */
+  trendReversed?: boolean;
+  /** 副说明（如 vs previous 30 days） */
+  caption?: React.ReactNode;
+  /** 状态点 + 文案 */
+  status?: StatStatus;
+}
+```
+
+```ts
+export interface StatGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** 一排指标子项（通常是 `<Stat>`） */
+  children?: React.ReactNode;
+}
+```
+
+```tsx
+<Stat title="Total Visits" value={124573} />
+
+<Stat title="Views per Visit" value={3.4} precision={1} />
+
+<Stat
+            title="Bounce Rate"
+            value={42}
+            suffix="%"
+            trend={{ value: 5, direction: 'down' }}
+            trendReversed
+          />
+```
+
+单个指标块：标签 + 大值（可带 prefix/suffix/精度/千分位/自定义 formatter）+ 可选趋势 /
+副说明 / 状态点。展示 props 借 Ant `Statistic` 语义。
+
+跨-prop 注意事项：
+- **只读角色变量**：趋势好/坏色只走 `var(--stitch-success)` / `var(--stitch-danger)`，
+  状态点色 / 分隔线走 `var(--stitch-*)`——组件内零硬编码绿红、零主题值。
+- **趋势方向经 `<Icon>`**（内置 `arrow-up-right` / `arrow-down-right`），**禁**内联 svg /
+  emoji / Unicode 箭头。方向（箭头形状）是不依赖颜色的区分通道，配色只叠加好/坏语义。
+- **`trendReversed`**：给「跌是好事」的指标（Bounce Rate 等）翻转好/坏配色——方向不变、
+  语义色对调。
+- **`formatter` 优先**：给出时接管全部数值格式化，`precision` / `groupSeparator` 不再生效。
+- **Accessibility**：有 `title` 时整块为 `role="group"` + `aria-labelledby`（可访问名 =
+  标签文案）；趋势箭头为装饰（`aria-hidden`），语义由数值文案与箭头形状承载。

@@ -145,4 +145,14 @@ describe('Icon', () => {
     const svg = container.querySelector('svg') as SVGElement;
     expect(svg.style.strokeWidth).toBe('1');
   });
+
+  // 趋势箭头：Stat 的涨/跌趋势经 <Icon> 出，两枚方向图标各渲染出对应 path（非内联 svg）。
+  it('趋势箭头 arrow-up-right / arrow-down-right 各渲染对应 svg path', () => {
+    for (const name of ['arrow-up-right', 'arrow-down-right'] as const) {
+      const { container } = render(<Icon name={name} />);
+      const root = container.firstChild as HTMLElement;
+      expect(root).toHaveAttribute('data-icon', name);
+      expect(root.querySelector('svg path')).toBeTruthy();
+    }
+  });
 });

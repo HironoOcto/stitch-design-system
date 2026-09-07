@@ -29,7 +29,8 @@
   },
   "dependencies": {
     "radix-ui": "^1.6.7",
-    "clsx": "^2"
+    "clsx": "^2",
+    "recharts": "^3.10.1"
   },
   "publishConfig": {
     "access": "public"

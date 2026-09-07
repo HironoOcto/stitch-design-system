@@ -1,0 +1,44 @@
+// ============================================
+// ChartTooltip — 图表统一 tooltip 内容
+// 表面走 Card（elevated）；此处只排内部行版式，颜色一律 var(--stitch-*)（H2）。
+// 内边距收紧：Card 默认 padding 偏大，tooltip 要紧凑。
+// ============================================
+
+.tooltip {
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  line-height: var(--stitch-line-height-base);
+  pointer-events: none;
+}
+
+// ---------- x 轴标签（表头）----------
+.label {
+  margin-bottom: var(--stitch-spacing-xs);
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- 单系列行：色块 · 名 · 值 ----------
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  color: var(--stitch-text-primary);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.name {
+  color: var(--stitch-text-secondary);
+}
+
+// 值靠右、稍强调
+.value {
+  margin-left: auto;
+  color: var(--stitch-text-primary);
+}

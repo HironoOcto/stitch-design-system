@@ -20,9 +20,13 @@ export default defineConfig({
       cssFileName: 'style', // → dist/style.css（对应 exports["./style"]）
     },
     rollupOptions: {
-      // react/react-dom 是 peer；radix-ui/clsx 是 deps——连同各自子路径
-      //（react-dom/client、react/jsx-runtime、radix-ui/* 等）都不打进 dist。
-      external: (id) => /^(react|react-dom|radix-ui|clsx)(\/|$)/.test(id),
+      // react/react-dom 是 peer；radix-ui/clsx/recharts + 日历用的 react-day-picker/date-fns
+      // 是显式例外 deps（见 ADR 0002）——连同各自子路径（react-dom/client、react/jsx-runtime、
+      // radix-ui/*、recharts/* 等）都 external 掉、不打进 dist（消费者随 dependencies 自动装、去重）。
+      external: (id) =>
+        /^(react|react-dom|radix-ui|clsx|recharts|react-day-picker|date-fns)(\/|$)/.test(
+          id,
+        ),
       output: {
         preserveModules: true,
         preserveModulesRoot: 'src',

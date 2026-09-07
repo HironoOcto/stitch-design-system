@@ -16,6 +16,7 @@
 3. 图标用 `<Icon>`；不用 emoji、不内联 `<svg>`、不写 Unicode 符号
    - ❌ `<span>🌊 Beach</span>` / 裸 `✓ ✕ →` / 手写 `<svg>` / 第三方图标库
    - ✅ `<Icon name="..." />`；纯装饰用 CSS/HTML
+   - 例外（数据可视化）：图表经 `recharts` 输出的 SVG 数据几何（线/柱/扇/坐标轴）属**受认证例外**——它画的是数据，不是图标；但**图标仍走 `<Icon>`、颜色只读 `var(--stitch-*)`**（系列色接 `--stitch-cat-*`，见 ADR 0002 例外依赖）。
 
 4. 动效缓动统一
    - ❌ `transition:all .3s ease;` / 时长 >0.35s 或 <0.15s

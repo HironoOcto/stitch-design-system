@@ -8,7 +8,7 @@
 
 1. **`exports` 必须声明 `types` 子路径** —— skill 的"从 `package.json` 的 `types`/`exports` 定位 `.d.ts`"（见 [skill 构建流程](./skill-build-pipeline.md) 的 react-project.md、[组件源代码规范](./component-authoring.md) 的 `.d.ts` 权威）才落得了地；漏了 AI 就读不到真实类型。
 2. **`preserveModules: true`（一组件一文件）** —— 按组件 tree-shaking，消费者只为用到的组件付体积；对应"只从包根导入"。
-3. **`external` 掉 `react`/`react-dom`/`radix-ui`/`clsx`** —— 不打进 dist：react/react-dom 是 **peer**（用宿主唯一那份，避免两份 React 崩）；radix-ui/clsx 是普通 **dependencies**（随包自动装，见 [组件源代码规范](./component-authoring.md) 依赖约定）。
+3. **`external` 掉 `react`/`react-dom`/`radix-ui`/`clsx` + 例外依赖 `recharts`/`react-day-picker`/`date-fns`** —— 都不打进 dist：react/react-dom 是 **peer**（用宿主唯一那份，避免两份 React 崩）；radix-ui/clsx 及三个显式例外依赖是普通 **dependencies**（随包自动装、去重，见 [ADR 0002 显式例外依赖](../adr/0002-runtime-deps.md) 与 [组件源代码规范](./component-authoring.md) 依赖约定）。
 
 ```ts
 // packages/react/vite.config.ts
@@ -24,7 +24,9 @@ export default defineConfig({
     build: {
         lib: { entry: 'src/index.ts', formats: ['es'] }, // 只出 ESM，现代库够用
         rollupOptions: {
-            external: ['react', 'react-dom', 'react/jsx-runtime', 'radix-ui', 'clsx'],
+            // 前缀匹配连子路径一并 external（radix-ui/*、recharts/* 等）。
+            external: (id) =>
+                /^(react|react-dom|radix-ui|clsx|recharts|react-day-picker|date-fns)(\/|$)/.test(id),
             output: {
                 preserveModules: true,        // 一组件一文件 → 按组件 tree-shaking
                 preserveModulesRoot: 'src',
@@ -59,12 +61,14 @@ export default defineConfig({
         "./style": "./dist/style.css"       // ← 对应 skill 里的 import '@octohirono/stitch-design-system/style'
     },
     "peerDependencies": { "react": ">=18", "react-dom": ">=18" },
-    "dependencies": { "radix-ui": "^1.6.7", "clsx": "^2" }
+    // 例外依赖随「需要真引擎」的组件落地才进 dependencies：recharts 随图表族（#1）入；
+    // react-day-picker + date-fns 随日历（#6）入。external 清单已一次性预登记三库（见上）。
+    "dependencies": { "radix-ui": "^1.6.7", "clsx": "^2", "recharts": "^3.10.1" }
 }
 ```
 
 - **`./style` 是"当前主题"的产物**：`contract.css` + 当前 `adapter.css` + 各组件编译样式，**主题在构建时烤进这一份**（换主题重新 `build`，与 [多站换肤架构](../design-system/multi-site-theming.md) 的"构建时切"一致）。
-- 版本：`radix-ui@^1.6.7`、`clsx@^2`、`react`/`react-dom >=18`（依赖决策见 [组件源代码规范](./component-authoring.md) 依赖约定）。
+- 版本：`radix-ui@^1.6.7`、`clsx@^2`、`recharts@^3.10.1`、`react`/`react-dom >=18`；例外依赖决策见 [ADR 0002 显式例外依赖](../adr/0002-runtime-deps.md)，通用依赖约定见 [组件源代码规范](./component-authoring.md)。
 
 ## `./style` 的主题 `:root` 怎么进来（Vite 虚拟模块）
 

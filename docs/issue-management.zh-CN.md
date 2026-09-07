@@ -1,6 +1,6 @@
 # Issue 执行与验收（[stitch]）
 
-本文件装 **[stitch] issue** 的执行 prompt / 完成小结 + **结构 Hook 登记表**。stitch = 独立设计系统自身的工作（组件、契约、换肤、文档、后期 skill）。**在 `stitch-design-system/` 目录内执行**。GitHub issues 与主仓库共用一个列表，本类标 `[stitch]` 前缀。
+本文件装 **[stitch] issue** 的执行 prompt / 完成小结 + **结构 Hook 登记表**。stitch = 独立设计系统自身的工作（组件、契约、换肤、文档、后期 skill）。**在 `stitch-design-system/` 目录内执行**。**追踪器**：#1–#63（含）在旧 study 仓 `linling9025/design-system-study`；**#63「摘 repo」后**，项目已成独立 repo，此后组件构建 issue 建在**新仓 `HironoOcto/stitch-design-system`**（编号自 #1 重启，见下方「组件构建 issue（新仓）」区块）。两仓靠各段 `Issue:` URL 区分；gh 账号统一 `linling9025`（对两仓皆有写权限），本类一律标 `[stitch]` 前缀。
 
 ---
 
@@ -306,6 +306,151 @@ Issue: https://github.com/linling9025/design-system-study/issues/62
 
 Issue: https://github.com/linling9025/design-system-study/issues/63
 依赖：#56–#62，且用户先完成 repo 摘取。非 AFK、无 ready-for-agent 标签。
+
+---
+
+# 组件构建 issue（新仓 `HironoOcto/stitch-design-system`，编号自 #1 重启）
+
+> 项目已摘出为独立 repo **`HironoOcto/stitch-design-system`**（见旧仓 #63）；此后组件构建 issue 建在**新仓**、编号自 **#1** 重启（与上方旧 study 仓 `linling9025/design-system-study` 的 #1–#63 撞号，靠 `Issue:` URL 区分）。gh 账号仍 `linling9025`（对新仓有 admin/push），`gh` 命令须带 `--repo HironoOcto/stitch-design-system`。
+>
+> **本批规划**（参考 seline dashboard 长相，`/grill-with-docs` 对齐）：日历 · 主状态 · 折线 · 柱状 · 饼。锚点决策——图表引擎 **recharts**、日历引擎 **react-day-picker + date-fns**（均按 [add-new-component §3.3](./contributing/add-new-component.md) 显式例外依赖）；**零新增契约 token**（复用 `--stitch-cat-*` + `color-mix()`）；趋势色走 `--stitch-success`/`--stitch-danger` 角色变量；图表 svg 由 recharts 出、**零手写内联 svg**；族归属 = 图表 + Stat 归新族 **data-viz**、日历归 **form-controls**、地基住 `_internal`。依赖：**#1 地基**先行，#2–#5 可在 #1 merge 后并行。
+
+## #1（已完成 ✅）：data-viz 基建 —— recharts 换肤地基 + 依赖政策落地 + 立族
+
+> ✅ 已完成并 close（2026-09-07）。引入 **recharts** 作图表引擎，在 `packages/react/src/components/_internal/dataviz/` 立起「图表换肤地基」三件套（私有原语，`_` 前缀 → 不进桶导出/族表/demo，供 #2–#5 复用）：**换肤桥** [`chartColors`](../packages/react/src/components/_internal/dataviz/chartColors.ts)（`catColor`/`seriesColors` → `var(--stitch-cat-1..6)`，超 6 循环，杜绝 recharts 落默认 hex）、**响应式 + a11y 壳** [`ChartFrame`](../packages/react/src/components/_internal/dataviz/ChartFrame.tsx)（`ResponsiveContainer` + `role="img"`/`aria-label` 兜底）、**统一 tooltip** [`ChartTooltip`](../packages/react/src/components/_internal/dataviz/ChartTooltip.tsx)（内容改由现有 `Card`（elevated）承载、复用其边/影/圆角/底角色变量；系列色块只吃传入的 `var(--stitch-cat-*)`）。**零新增契约 token**（复用 `--stitch-cat-*` + Card 角色变量 + `color-mix()`）。**四处宪法级文档一次做完**：[ADR 0002](adr/0002-runtime-deps.md) 补「显式例外依赖」段点名 recharts + react-day-picker + date-fns；[packaging.md](./contributing/packaging.md) external 前缀匹配加三库、recharts 入 `dependencies`（后两者随日历 #6 入）；[design-rules §3](./design-system/design-rules.md) 加「svg 数据几何受认证例外、图标仍走 `<Icon>`、颜色只读 `var(--stitch-*)`」一行；[component-families.md](../scripts/component-families.md) 新增 `data-viz` 族行（成员留 #2–#5）。**① 结构 Hook**：H1 自包含（`check:boundary ✓ 三层零越界`；dataviz 源零 hex/站名/animal）🟢、H2 只读角色变量（系列色接 `--stitch-cat-*`、tooltip 复用 Card、tooltip less 11× `var(--stitch-*)`）🟢、H4 契约不动（`contract.css` 零 diff、零新 token）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**）🟢。**② 真实 case dry_run**：三件地基各一最小样例（`chartColors.test` / `ChartFrame.test` / `ChartTooltip.test`，**3 文件 8 例全过**，开篇+结尾达预期）🟢；打包核验 recharts external（**无 `.js` 打入 recharts**）、dataviz 未进 dist 的 `.js`（未被入口引用，正确——它是 #2–#5 地基）🟢；浏览器一次性预览实测双系列折线读 cat 色、tooltip 为 Card 表面、切 seline→steep 换肤整图重着色（看后即删）🟢。两块表见 GH #1 评论。**给后续**：#2–#5 从 `_internal/dataviz` 复用三件地基（`seriesColors` 取系列色、`ChartFrame` 包响应式/a11y、`content={<ChartTooltip/>}` 接 tooltip），填 `data-viz` 族成员；#6 日历落地时把 react-day-picker + date-fns 入 `dependencies`（external 已预登记）。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/1
+依赖：无，可立即领取。
+
+---
+
+## #2（AFK）：LineChart（折线 / 面积图）
+
+> 在 #1 地基上新增对外组件 LineChart，归 data-viz 族。四件套 + demo + references + 测试；系列色读 --stitch-cat-*、面积 color-mix、tooltip 走地基。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 2 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
+
+目标：基于 recharts 折线做端到端 LineChart（含面积），系列色经 #1 换肤桥读 --stitch-cat-*、面积 color-mix 派生、复用 #1 tooltip 与响应式/a11y 壳。props 照 add-new-component「参考步骤·Ant」借能力项、命名遵 Ant v5。照 component-authoring.md 四件套惯例，本段不复述步骤。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（系列色接 --stitch-cat-*，零硬编码主题值）；无 emoji/裸 svg/Unicode（svg 由 recharts 出，源码零手写 svg）；H5 CI 齐备。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. 四件套齐、只读角色变量；切站换肤整图跟随。
+2. demo 上架（data-viz 族、console 无 warn）；build:refs 后 references/components/data-viz.md 有 ## LineChart 条目。
+3. 过 #29 skill-acceptance.md 相关节。
+4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个折线样例真实 render，开篇+结尾达预期，含 role="img"+aria-label）🟢。
+
+收尾门：用户验收通过后才 commit(#2) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/2
+依赖：#1（图表地基 + data-viz 族）。
+
+---
+
+## #3（AFK）：BarChart（柱状图）
+
+> 在 #1 地基上新增对外组件 BarChart，归 data-viz 族。四件套 + demo + references + 测试；系列色读 --stitch-cat-*、tooltip 走地基。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 3 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
+
+目标：基于 recharts 柱状做端到端 BarChart（单/多系列），系列色经 #1 换肤桥读 --stitch-cat-*、复用 #1 tooltip 与响应式/a11y 壳。props 照「参考步骤·Ant」借、命名遵 Ant v5。照 component-authoring.md 惯例，本段不复述步骤。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（系列色接 --stitch-cat-*，零硬编码）；无 emoji/裸 svg/Unicode（svg 由 recharts 出）；H5 CI 齐备。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. 四件套齐、只读角色变量；切站换肤整图跟随。
+2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## BarChart 条目。
+3. 过 #29 skill-acceptance.md 相关节。
+4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个柱状样例真实 render）🟢。
+
+收尾门：用户验收通过后才 commit(#3) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/3
+依赖：#1（图表地基 + data-viz 族）。可与 #2/#4 并行。
+
+---
+
+## #4（AFK）：PieChart（饼 / 环图）
+
+> 在 #1 地基上新增对外组件 PieChart，归 data-viz 族。四件套 + demo + references + 测试；扇区色读 --stitch-cat-*，支持环形 + 图例 + 中心值。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 4 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
+
+目标：基于 recharts Pie 做端到端 PieChart，扇区色经 #1 换肤桥读 --stitch-cat-*（多扇区循环取槽），支持环形 donut + 图例 + 中心值，复用 #1 tooltip 与响应式/a11y 壳。props 照「参考步骤·Ant」借、命名遵 Ant v5。照 component-authoring.md 惯例，本段不复述步骤。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（扇区色接 --stitch-cat-*，零硬编码）；无 emoji/裸 svg/Unicode（svg 由 recharts 出）；H5 CI 齐备。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. 四件套齐、只读角色变量；环形 + 图例 + 中心值就位；切站换肤整图跟随。
+2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## PieChart 条目。
+3. 过 #29 skill-acceptance.md 相关节。
+4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个环形+图例样例真实 render）🟢。
+
+收尾门：用户验收通过后才 commit(#4) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/4
+依赖：#1（图表地基 + data-viz 族）。可与 #2/#3 并行。
+
+---
+
+## #5（AFK）：Stat + StatGroup（主状态 / 指标块）
+
+> 归 data-viz 族、不用 recharts（纯 markup + CSS + Icon）。Ant Statistic props + trend（success/danger 角色色，可反转）+ caption + 状态点 + StatGroup；往 Icon 加趋势箭头 path。仅依赖 #1「族已建」，可与图表并行。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 5 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
+
+目标：做端到端 Stat + StatGroup。Stat 借 Ant Statistic props（title/value/precision/prefix/suffix/formatter/groupSeparator）+ 加 trend{value,direction} 配 <Icon> 箭头 + 涨/跌语义色 var(--stitch-success)/var(--stitch-danger)（角色变量、非硬编码绿红）+ 反转开关（跌是好事的指标）+ caption 副说明 + 状态点（<Icon name="dot"> + 文案）；StatGroup 一排指标用发丝线 --stitch-border 分隔。往 Icon 内置图标集加趋势箭头 path（受认证 <Icon> 路径，不内联 svg）。照 component-authoring.md 四件套惯例，本段不复述步骤。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（趋势走 success/danger、零硬编码绿红）；无 emoji/裸 svg/Unicode（箭头经 <Icon>）；H5 CI 齐备。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. Stat 四件套 + StatGroup；trend 走 success/danger 且可反转；caption + 状态点就位；Icon 新增趋势箭头 path。
+2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## Stat（含 StatGroup）条目。
+3. 过 #29 skill-acceptance.md 相关节。
+4. 执行报告两块表：① 结构 Hook（H2 + 无 emoji/裸 svg/Unicode + H5）全 🟢；② 真实 case dry_run（一个含趋势+状态点的指标块真实 render）🟢。
+
+收尾门：用户验收通过后才 commit(#5) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/5
+依赖：#1（仅 data-viz 族已建；与图表无代码耦合）。
+
+---
+
+## #6（AFK）：Calendar + DatePicker（日历）
+
+> 归 form-controls 族、引擎 react-day-picker + date-fns（依赖政策已由 #1 覆盖，本 issue 实际安装）。Calendar 内联网格支持单选 + 范围；DatePicker = 触发器 + 复用现有 Popover 装 Calendar。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 6 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
+
+目标：做端到端 Calendar + DatePicker。Calendar 用 react-day-picker，一次支持 mode=single + mode=range，键盘导航 + ARIA grid（库 + 补齐），上皮只读 var(--stitch-*)（选中日 --stitch-accent + --stitch-accent-text、范围中段 --stitch-bg-accent、今天/hover/禁用走 border-strong/bg-card/text-disabled、翻月箭头走 <Icon>）；DatePicker = 触发器 + 复用现有 Popover 组件装 Calendar（不另造浮层），props 照「参考步骤·Ant」从 Ant DatePicker/RangePicker 借、命名遵 Ant v5。照 add-new-component.md §3.3（引擎件）+ component-authoring.md 惯例，本段不复述步骤。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（零硬编码主题值）；无 emoji/裸 svg/Unicode（翻月箭头经 <Icon>）；react-day-picker + date-fns 沿 #1 政策 external 不进 dist；H5 CI 齐备。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. react-day-picker + date-fns 入 dependencies 且 external；Calendar 支持单选 + 范围两 mode、键盘可导航；DatePicker 复用现有 Popover 打通触发器 + 弹出日历。
+2. demo 上架（form-controls 族、无 warn）；build:refs 后 references/components/form-controls.md 有 ## Calendar / ## DatePicker 条目。
+3. 过 #29 skill-acceptance.md 相关节；受控/非受控双模式。
+4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个范围选择真实 render + 选一段区间，覆盖键盘 + 可及名）🟢。
+
+收尾门：用户验收通过后才 commit(#6) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/6
+依赖：#1（仅依赖政策已落；与图表无代码耦合）。
 
 ---
 

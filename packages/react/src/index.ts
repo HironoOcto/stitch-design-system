@@ -141,6 +141,12 @@ export { CodeBlock } from './components/CodeBlock';
 export type { CodeBlockProps } from './components/CodeBlock';
 
 // ============================================
+// 数据可视化（data-viz）
+// ============================================
+export { LineChart } from './components/LineChart';
+export type { LineChartProps, LineChartSeries } from './components/LineChart';
+
+// ============================================
 // 反馈（feedback）
 // ============================================
 export { Loading } from './components/Loading';

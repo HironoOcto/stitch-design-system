@@ -1,0 +1,18 @@
+// ============================================
+// LineChart — 折线 / 面积图
+// 纯结构 + 字体角色变量；系列色 / 面积填充由组件按 var(--stitch-cat-*) 逐系列传给 recharts，
+// 不在此写死。此处只让 recharts 出的坐标轴文字继承库内字体角色变量（H2：只读 var(--stitch-*)）。
+// ============================================
+
+.chart {
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+}
+
+// ---------- 末端系列标名 ----------
+// 贴在每条线末点旁的系列名。它是文字不是线——用可读墨色（text-primary），不吃系列色；
+// 系列与标签的对应靠「贴在该线末点的位置」，不靠颜色。svg <text> 用 fill 上色。
+.endLabel {
+  fill: var(--stitch-text-primary);
+  font-size: var(--stitch-font-size-sm);
+}

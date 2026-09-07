@@ -328,22 +328,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/1
 
 > 在 #1 地基上新增对外组件 LineChart，归 data-viz 族。四件套 + demo + references + 测试；系列色读 --stitch-cat-*、面积 color-mix、tooltip 走地基。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 2 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
-
-目标：基于 recharts 折线做端到端 LineChart（含面积），系列色经 #1 换肤桥读 --stitch-cat-*、面积 color-mix 派生、复用 #1 tooltip 与响应式/a11y 壳。props 照 add-new-component「参考步骤·Ant」借能力项、命名遵 Ant v5。照 component-authoring.md 四件套惯例，本段不复述步骤。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（系列色接 --stitch-cat-*，零硬编码主题值）；无 emoji/裸 svg/Unicode（svg 由 recharts 出，源码零手写 svg）；H5 CI 齐备。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 四件套齐、只读角色变量；切站换肤整图跟随。
-2. demo 上架（data-viz 族、console 无 warn）；build:refs 后 references/components/data-viz.md 有 ## LineChart 条目。
-3. 过 #29 skill-acceptance.md 相关节。
-4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个折线样例真实 render，开篇+结尾达预期，含 role="img"+aria-label）🟢。
-
-收尾门：用户验收通过后才 commit(#2) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `c6c8b12`，2026-09-07）。在 #1 地基上新增对外组件 **LineChart**（折线 / 面积图），归 `data-viz` 族。端到端垂直切片（TDD tracer→增量）：四件套（[LineChart.tsx](../packages/react/src/components/LineChart/LineChart.tsx) / less / test / a11y.test / index）+ demo + `build:refs` 生成 [references/components/data-viz.md](../skills/stitch-design-system/references/components/data-viz.md) 的 `## LineChart`。**系列色**一律走 #1 换肤桥 `catColor`/`seriesColors` 读 `var(--stitch-cat-*)`（零硬编码、切站整图跟随）；**面积软填充**由同系列色经 `color-mix()` 派生；**复用** #1 `ChartFrame`（`ResponsiveContainer` + `role="img"`/`aria-label`）与 `ChartTooltip`（Card 表面，值经 `valueFormatter`）。props 借 Ant charts 能力项、命名遵 Ant v5（`data`/`xField`/`series`/`smooth`/`area`/`valueFormatter`/`height`/`ariaLabel`）。**验收中加固两项**：① 关掉 recharts 越窗 JS 入场动画（`isAnimationActive={false}`，接不到 `--stitch-motion-*` 且超 design-rules 动效窗）；② **方案 X**——多系列区分补两条**不依赖颜色**的通道（守 WCAG 1.4.1）：线型 `strokeDasharray` 按序循环（单系列恒实线、外观零变化）+ 末端标名（末点旁标系列名，文字走 `var(--stitch-text-primary)`）。**steep 淡线定调**：`--stitch-cat-1` 近白作单线偏淡 = 接受为主题固有质感、非 bug（颜色源/色板不动，多系列靠线型+标名分）；「每主题线都醒目」的方案 Y（线色源换 `accent`）另立、不在 #2 内。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（系列色接 `--stitch-cat-*`、面积 `color-mix`、源零 hex）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**（浏览器实测）：`role="img"`+`aria-label`（「上半年月度营收面积图」）🟢、Y 轴/tooltip 货币格式化（`$36,400`）🟢、切 seline→steep 换肤整图跟随 🟢、tooltip 为 Card 表面 🟢、方案 X 在 steep 淡色板下仍凭实线/虚线+末端标名分得开 🟢、demo 上架 data-viz 族 console 无 warn 🟢；过 #29 skill-acceptance §5 相关节 🟢。两块表见 GH #2 评论。**给后续**：#3–#5 沿同法复用 `_internal/dataviz` 三件地基 + 本件的线型/末端标名区分范式填 data-viz 族；原创长相取舍已录本地 `预建笔记.md`（构建期台账、不入库）并经人拍板。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/2
 依赖：#1（图表地基 + data-viz 族）。

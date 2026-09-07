@@ -9,3 +9,7 @@ packages/react/dist/
 
 # demo 站构建产物（vite build，非 ci 步骤）
 /dist/
+
+# 构建期本地台账（从不入库、绝不删除、逐条清账；见 issue-management.zh-CN.md）
+/预建笔记.md
+/迁移笔记.md

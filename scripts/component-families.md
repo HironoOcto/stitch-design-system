@@ -11,6 +11,6 @@
 | navigation | menus & nav bars | DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toolbar |
 | feedback | status & progress | Loading, Progress, Skeleton |
 | data-display | presenting data | Table, CodeBlock, Tag, Avatar |
-| data-viz | charts & metrics (recharts engine) | LineChart, BarChart |
+| data-viz | charts & metrics (recharts engine) | LineChart, BarChart, PieChart |
 | Form | form container (has a hook) | Form |
 | Notification | imperative (static-method) API | Notification |

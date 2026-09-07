@@ -137,3 +137,67 @@ export interface BarChartProps {
 组件内零硬编码主题值、零手写内联 svg（svg 全由 recharts 出），无 emoji。多系列默认分组并排，
 `stack` 开启则堆叠成一柱；多系列另出图例（`Legend`）把系列名列出，不只靠颜色区分（守 a11y）。
 整图作一张图对外——`role="img"` + `aria-label`（缺省兜底非空名）。
+
+## PieChart
+
+```ts
+export interface PieChartProps {
+  /** 数据源，每项一扇区（Ant charts `data` 语义） */
+  data: Record<string, unknown>[];
+  /** 扇区数值字段——决定扇区角度大小（Ant charts `angleField` 语义） */
+  angleField: string;
+  /** 扇区分类字段——作图例名与 tooltip 名（Ant charts `colorField` 语义） */
+  colorField: string;
+  /**
+   * 环形内半径占比 0–1（Ant charts `innerRadius` 语义）；0 = 实心饼，>0 = 环形 donut
+   * @default 0
+   */
+  innerRadius?: number;
+  /** 环形中心值（仅 `innerRadius` > 0 挖空后有空间显示；扇区数值的汇总等） */
+  centerLabel?: string | number;
+  /**
+   * 是否显示图例（把分类名 → 色块显式列出，作不依赖颜色的区分通道）
+   * @default true
+   */
+  legend?: boolean;
+  /**
+   * 图表高度（px）；宽度恒铺满容器
+   * @default 300
+   */
+  height?: number;
+  /** 扇区值格式化（如货币 / 百分比）；作用于 tooltip 值 */
+  valueFormatter?: (value: number) => string;
+  /** 图表整体可访问名（`role="img"` 的文本替代）；缺省兜底非空名 */
+  ariaLabel?: string;
+  /** 透传外层容器类名 */
+  className?: string;
+}
+```
+
+```tsx
+<PieChart
+          data={browsers}
+          angleField="visitors"
+          colorField="browser"
+          height={300}
+          valueFormatter={compact}
+          ariaLabel="浏览器访客占比饼图"
+        />
+
+<PieChart
+          data={browsers}
+          angleField="visitors"
+          colorField="browser"
+          innerRadius={0.6}
+          centerLabel={compact(total)}
+          height={300}
+          valueFormatter={compact}
+          ariaLabel="浏览器访客占比环形图"
+        />
+```
+
+饼 / 环图。扇区色只从契约分类色槽 `var(--stitch-cat-*)` 取、按序号循环，随站换肤整图跟随；
+组件内零硬编码主题值、零手写内联 svg（svg 全由 recharts 出），无 emoji。`innerRadius` 挖空
+中心即成环形（donut），此时可用 `centerLabel` 在中心放一个值；默认出图例（`Legend`）把
+分类名列出，不只靠颜色区分（守 a11y）。整图作一张图对外——`role="img"` + `aria-label`
+（缺省兜底非空名）。

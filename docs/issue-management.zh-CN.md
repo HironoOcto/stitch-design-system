@@ -346,24 +346,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/3
 
 ## #4（AFK）：PieChart（饼 / 环图）
 
-> 在 #1 地基上新增对外组件 PieChart，归 data-viz 族。四件套 + demo + references + 测试；扇区色读 --stitch-cat-*，支持环形 + 图例 + 中心值。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 4 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
-
-目标：基于 recharts Pie 做端到端 PieChart，扇区色经 #1 换肤桥读 --stitch-cat-*（多扇区循环取槽），支持环形 donut + 图例 + 中心值，复用 #1 tooltip 与响应式/a11y 壳。props 照「参考步骤·Ant」借、命名遵 Ant v5。照 component-authoring.md 惯例，本段不复述步骤。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（扇区色接 --stitch-cat-*，零硬编码）；无 emoji/裸 svg/Unicode（svg 由 recharts 出）；H5 CI 齐备。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 四件套齐、只读角色变量；环形 + 图例 + 中心值就位；切站换肤整图跟随。
-2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## PieChart 条目。
-3. 过 #29 skill-acceptance.md 相关节。
-4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个环形+图例样例真实 render）🟢。
-
-收尾门：用户验收通过后才 commit(#4) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `455e525`，2026-09-07）。在 #1 地基上新增对外组件 **PieChart**（饼 / 环图），归 `data-viz` 族。端到端垂直切片（TDD tracer→增量）：四件套（[PieChart.tsx](../packages/react/src/components/PieChart/PieChart.tsx) / less / test / a11y.test / index）+ demo + `build:refs` 生成 [references/components/data-viz.md](../skills/stitch-design-system/references/components/data-viz.md) 的 `## PieChart`。**扇区色**一律走 #1 换肤桥 `catColor` 读 `var(--stitch-cat-*)`、按序号循环（多扇区循环取槽，零硬编码、切站整图跟随）；**复用** #1 `ChartFrame`（`ResponsiveContainer` + `role="img"`/`aria-label` 兜底）与 `ChartTooltip`（Card 表面，值经 `valueFormatter`）。props 借 Ant charts 能力项、命名遵 Ant v5（`data`/`angleField`/`colorField`/`innerRadius`/`centerLabel`/`legend`/`height`/`valueFormatter`/`ariaLabel`）——`innerRadius` 取 Ant charts 语义（对外 0–1 占比→内部转 `%`，`0`=实心饼、`>0`=环形 donut）。**环形中心值** `centerLabel` 由 recharts `<Label position="center">` 出（svg 由库出、**非手写**，守裸 svg 红线），排版走角色变量 `.center`（`font-size-lg` + `weight-medium` + `text-primary`）；**扇区间细缝**取 `var(--stitch-bg-elevated)`（随换肤跟随、不落 hex）；**图例**默认恒出（与 #3「仅多系列出」分歧——饼每扇区即一分类），作**不依赖颜色**的区分通道（守 WCAG 1.4.1）；**同 #2/#3 加固**：关掉 recharts 越窗 JS 入场动画（`isAnimationActive={false}`）。**原创长相取舍**（饼独有、#2/#3 先例未覆盖的 5 项：扇区缝 / 外半径档 / donut 语义 / 中心值排版·范围 / 图例默认策略）经用户**逐条拍板通过**，已登记 `预建笔记.md`（#4 段 ✅ 已定夺）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（扇区色接 `--stitch-cat-*`、源零 hex）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出；`→` 仅在中文注释，同 #2/#3 惯例）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**（seline 站浏览器实测）：扇区 `fill="var(--stitch-cat-1)"` 实解析 `rgb(59,166,241)`（换肤桥成立、切站整图跟随）🟢、donut 中心 `<text>`=`12,300`（computed `fill=#0c0a09`=text-primary / `20px`=font-size-lg / `weight 500`=medium，三项全走角色变量）🟢、图例 5 项（Chrome/Edge/Firefox/Safari/其他）🟢、demo 上架 data-viz 族 console 无 warn 🟢；过 #29 skill-acceptance §1/§5 相关节（`check:skill` 全绿，`props==源码` + catalog 派生含 PieChart）🟢。两块表见 GH #4 评论。**给后续**：#5 沿同法复用 `_internal/dataviz` 三件地基 + 本件的 donut/中心值/图例恒出范式填 data-viz 族。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/4
 依赖：#1（图表地基 + data-viz 族）。可与 #2/#3 并行。

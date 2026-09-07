@@ -149,6 +149,9 @@ export type { LineChartProps, LineChartSeries } from './components/LineChart';
 export { BarChart } from './components/BarChart';
 export type { BarChartProps, BarChartSeries } from './components/BarChart';
 
+export { PieChart } from './components/PieChart';
+export type { PieChartProps } from './components/PieChart';
+
 // ============================================
 // 反馈（feedback）
 // ============================================

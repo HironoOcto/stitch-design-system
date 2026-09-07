@@ -1,0 +1,18 @@
+// ============================================
+// PieChart — 饼 / 环图
+// 纯结构 + 字体角色变量；扇区色 / 扇区间细缝由组件按 var(--stitch-cat-*) / 表面色逐扇区传给
+// recharts，不在此写死。此处只让 recharts 出的图例文字继承库内字体角色变量，并给环形中心值
+// 一套字体 / 色角色变量（H2：只读 var(--stitch-*)）。
+// ============================================
+
+.chart {
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+}
+
+// 环形中心值：recharts 的 <Label> 出 <text>，这里给它角色变量的字号 / 字重 / 色（不落 hex）。
+.center {
+  fill: var(--stitch-text-primary);
+  font-size: var(--stitch-font-size-lg);
+  font-weight: var(--stitch-font-weight-medium);
+}

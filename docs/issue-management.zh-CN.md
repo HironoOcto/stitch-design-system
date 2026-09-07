@@ -364,24 +364,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/5
 
 ## #6（AFK）：Calendar + DatePicker（日历）
 
-> 归 form-controls 族、引擎 react-day-picker + date-fns（依赖政策已由 #1 覆盖，本 issue 实际安装）。Calendar 内联网格支持单选 + 范围；DatePicker = 触发器 + 复用现有 Popover 装 Calendar。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 6 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
-
-目标：做端到端 Calendar + DatePicker。Calendar 用 react-day-picker，一次支持 mode=single + mode=range，键盘导航 + ARIA grid（库 + 补齐），上皮只读 var(--stitch-*)（选中日 --stitch-accent + --stitch-accent-text、范围中段 --stitch-bg-accent、今天/hover/禁用走 border-strong/bg-card/text-disabled、翻月箭头走 <Icon>）；DatePicker = 触发器 + 复用现有 Popover 组件装 Calendar（不另造浮层），props 照「参考步骤·Ant」从 Ant DatePicker/RangePicker 借、命名遵 Ant v5。照 add-new-component.md §3.3（引擎件）+ component-authoring.md 惯例，本段不复述步骤。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（零硬编码主题值）；无 emoji/裸 svg/Unicode（翻月箭头经 <Icon>）；react-day-picker + date-fns 沿 #1 政策 external 不进 dist；H5 CI 齐备。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. react-day-picker + date-fns 入 dependencies 且 external；Calendar 支持单选 + 范围两 mode、键盘可导航；DatePicker 复用现有 Popover 打通触发器 + 弹出日历。
-2. demo 上架（form-controls 族、无 warn）；build:refs 后 references/components/form-controls.md 有 ## Calendar / ## DatePicker 条目。
-3. 过 #29 skill-acceptance.md 相关节；受控/非受控双模式。
-4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个范围选择真实 render + 选一段区间，覆盖键盘 + 可及名）🟢。
-
-收尾门：用户验收通过后才 commit(#6) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `6898853`，2026-09-07）。在 #1 依赖政策上新增 **form-controls 族首个「包三方引擎」件 Calendar + DatePicker**（日历），引擎 `react-day-picker@10` + `date-fns@4`（类比 #2–#5 的 recharts 包装件）。端到端垂直切片（TDD tracer→增量）：两组四件套（[Calendar](../packages/react/src/components/Calendar/) / [DatePicker](../packages/react/src/components/DatePicker/)）+ demo + `build:refs` 生成 [references/components/form-controls.md](../skills/stitch-design-system/references/components/form-controls.md) 的 `## Calendar` / `## DatePicker`。**Calendar**：react-day-picker 引擎，`mode="single"` + `mode="range"` 一套支持、键盘导航 + ARIA grid（库兜底 + 补齐）；上皮只读 `var(--stitch-*)`（选中日 `--stitch-accent` + `--stitch-accent-text`、range 中段 `--stitch-bg-accent`、今天 `--stitch-border-strong` 描环、hover `--stitch-bg-card`、禁用 `--stitch-text-disabled`）；日按钮铺满整格使 range 底色与端点框边到边对齐（端点只圆外侧角）；翻月/下拉箭头经 `<Icon>`（往内置集加 `chevron-left`/`calendar` 两枚 path）；`captionLayout` 默认 `dropdown`，月/年**复用 `Select`**（换肤一致、非原生弹窗），年份范围今年 ±(100/10)。**DatePicker**：字段触发器 + **复用现有 `Popover`** 装 Calendar（不另造浮层），props 借 Ant DatePicker/RangePicker、命名遵 Ant v5（`value`/`defaultValue`/`onChange`/`disabled`/`allowClear`/`placeholder`/`format`/`status`/`size`/`open`/`onOpenChange`/`defaultPickerValue`）；range 数点击第二下收浮层、`from – to` 展示串、`allowClear` 走 `<Icon name="close">`。`react-day-picker` + `date-fns` 入 dependencies 且打包 external（沿 #1 ADR 0002，不进 dist）。**原创长相取舍**（日历独有、无规格可依：日格铺满+range 边到边 / 今天描环非填充 / 年月复用 Select 下拉+年份范围 / 箭头经 Icon / 引擎 external）经用户**逐条拍板通过**，已登记 `预建笔记.md`（#6 段 ✅ 已定夺）。**验收中三轮修订**（用户反馈）：① range 底色与端点框改「铺满整格」边到边对齐（早期按钮内缩 32/格 36 → 出头）；② 顶部年月改**复用 Select** 下拉（非系统原生弹窗）+ 年份含未来（今年 +10）；③ demo 补 Calendar 整块 `disabled` / `captionLayout="label"` + DatePicker `status="warning"`，`预建笔记.md` 补 #6 原创取舍段（与 #4/#5 记账先例一致）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（源零 hex/零硬编码主题值）🟢、无 emoji/裸 svg/Unicode（箭头经 `<Icon>`、rdp 自带 `rdp-chevron` 已覆盖；`–` 为范围展示标点非图标替身）🟢、`react-day-picker`+`date-fns` external 不进 dist（dist 内裸 import、无内联引擎源）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**）🟢。**② 真实 case dry_run**（seline 站浏览器实测）：range 10–16 端点 `rgb(59,166,241)`=accent / 中段 `rgb(193,225,247)`=bg-accent、格与按钮均 36×36 边到边对齐（`buttonFillsCell:true`）🟢、年/月 Select 弹层为主题面（白底 + `--stitch-border` 1px + `--stitch-radius-card` 10px + 主题阴影）非原生、年份 1926–2036 含未来 🟢、DatePicker 实点 range 触发器 → `role="dialog"`（有可及名）内含 `role="grid"`（复用 Popover）、日按钮全日期可及名 + 翻月可及名 🟢、demo 上架 form-controls 族 console 无 warn 🟢；过 #29 skill-acceptance §1/§5（`check:skill` **41/41**、`props==源` + catalog 派生含 Calendar/DatePicker）🟢、受控/非受控双模式（取值 `value`/`defaultValue` + 浮层 `open`/`defaultOpen` 各双模式）🟢。两块表见 GH #6 评论。**给后续**：form-controls 族日历件齐；引擎件（含 external 例外依赖）第二类落地（recharts 之后 react-day-picker + date-fns）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/6
 依赖：#1（仅依赖政策已落；与图表无代码耦合）。

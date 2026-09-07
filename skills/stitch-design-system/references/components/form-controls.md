@@ -519,3 +519,164 @@ export interface PasswordInputProps extends Omit<
 - **切换钮图标走 `<Icon name="eye"/"eye-off">`**（描边、随 `--stitch-*` 换肤）——**Do NOT** 传
   emoji / Unicode / 裸 `<svg>`。可访问名由 `showAriaLabel` / `hideAriaLabel` 定。
 - `visibilityToggle={false}` 时不渲染切换钮、恒遮蔽（`suffix` 留空，值仍可键入）。
+
+## Calendar
+
+```ts
+export interface CalendarProps {
+  /** 选择模式：单日或范围 @default 'single' */
+  mode?: CalendarMode;
+  /** 受控选中值（`single`→`Date`，`range`→`DateRange`） */
+  value?: Date | DateRange;
+  /** 非受控初始选中值（`single`→`Date`，`range`→`DateRange`） */
+  defaultValue?: Date | DateRange;
+  /** 选中变化回调（`single`→`Date | undefined`，`range`→`DateRange | undefined`） */
+  onChange?: (value: Date | DateRange | undefined) => void;
+  /** 逐日禁用判定：返回 `true` 的日期不可选 */
+  disabledDate?: (date: Date) => boolean;
+  /** 整块禁用（所有日期不可选） @default false */
+  disabled?: boolean;
+  /** 首屏展示的月份（不给则据选中值 / 当月） */
+  defaultMonth?: Date;
+  /** 顶部年月区形态：`'dropdown'` 可点选月 / 年，`'label'` 静态标题 @default 'dropdown' */
+  captionLayout?: CalendarCaptionLayout;
+  /** dropdown 年份下限（不给默认今年往前 100 年） */
+  startMonth?: Date;
+  /** dropdown 年份上限（不给默认今年年底） */
+  endMonth?: Date;
+  /** 日历网格的可访问名 */
+  'aria-label'?: string;
+  /** 自定义类名（挂到日历根节点） */
+  className?: string;
+}
+```
+
+```tsx
+<Calendar
+        mode="range"
+        defaultMonth={SEP}
+        value={range}
+        onChange={(v) => setRange(v as DateRange | undefined)}
+        aria-label="受控范围日历"
+      />
+
+<Calendar
+            defaultMonth={SEP}
+            defaultValue={new Date(2026, 8, 12)}
+            aria-label="单选日历"
+          />
+
+<Calendar
+            defaultMonth={SEP}
+            disabledDate={(d) => d.getDay() === 0 || d.getDay() === 6}
+            aria-label="禁用周末"
+          />
+```
+
+内联日历网格（react-day-picker 引擎）：一次支持 `mode="single"`（单选）与 `mode="range"`
+（范围）；月份网格、方向键导航、ARIA grid（`role="grid"`、日按钮可及名、翻月按钮可及名）
+全由引擎兜底，上皮只读角色变量随换肤变化。
+
+跨-prop 注意事项：
+- **取值随 `mode` 变形**：`single` 下 `value`/`defaultValue` 是 `Date`、`onChange` 收
+  `Date | undefined`；`range` 下它们是 {@link DateRange}（`{from,to}`）、`onChange` 收
+  `DateRange | undefined`。切 mode 时同步换掉取值形态。
+- **受控/非受控双模式**：给 `value` 由父管（配 `onChange` 回写），只给 `defaultValue`
+  组件自管；两者互斥优先取 `value`。
+- **禁用某些日期**用 `disabledDate(date) => boolean`（Ant 语义），命中的日按钮 `disabled`、
+  键盘与点击都跳过；整块只读用 `disabled`（把所有日期禁掉）。
+- **面 = 角色变量**：选中日 `--stitch-accent` + `--stitch-accent-text`，范围中段
+  `--stitch-bg-accent`（日按钮铺满整格，底色与端点框边到边对齐、不出头），今天描
+  `--stitch-border-strong`、hover 落 `--stitch-bg-card`、禁用走 `--stitch-text-disabled`；
+  翻月箭头一律经 `<Icon>`（`chevron-left`/`chevron-right`），无裸 svg / Unicode 符号。
+- **`captionLayout="dropdown"`（默认）** 顶部月/年为可点下拉，快速跳月跳年（原生 `<select>`
+  兜键盘与可及名）；传 `'label'` 退回静态标题。年份范围默认「今年往前 100 年」，用
+  `startMonth`/`endMonth` 收窄。
+
+## DatePicker
+
+```ts
+export interface DatePickerProps {
+  /** 选择模式：单日或范围 @default 'single' */
+  mode?: CalendarMode;
+  /** 受控选中值（`single`→`Date`，`range`→`DateRange`） */
+  value?: Date | DateRange;
+  /** 非受控初始选中值（`single`→`Date`，`range`→`DateRange`） */
+  defaultValue?: Date | DateRange;
+  /** 选中变化回调（含清除时的 `undefined`） */
+  onChange?: (value: Date | DateRange | undefined) => void;
+  /** 逐日禁用判定：返回 `true` 的日期不可选 */
+  disabledDate?: (date: Date) => boolean;
+  /** 首屏展示的月份（Ant `defaultPickerValue`）；不给则据选中值 / 当月 */
+  defaultPickerValue?: Date;
+  /** 弹出日历顶部年月区形态：`'dropdown'` 可点选月 / 年，`'label'` 静态标题 @default 'dropdown' */
+  captionLayout?: CalendarCaptionLayout;
+  /** 禁用整个触发器 @default false */
+  disabled?: boolean;
+  /** 允许一键清除 @default true */
+  allowClear?: boolean;
+  /** 清除按钮的无障碍标签 @default '清除' */
+  clearAriaLabel?: string;
+  /** 占位符（`range` 可传 `[起, 止]` 两段） */
+  placeholder?: string | [string, string];
+  /** 日期展示格式（date-fns 格式串） @default 'yyyy-MM-dd' */
+  format?: string;
+  /** 触发器尺寸 @default 'middle' */
+  size?: DatePickerSize;
+  /** 校验态（error 同时置 `aria-invalid`） */
+  status?: 'error' | 'warning';
+  /** 受控浮层显隐（Ant v5 `open`） */
+  open?: boolean;
+  /** 非受控初始显隐 @default false */
+  defaultOpen?: boolean;
+  /** 显隐变化回调（Ant v5 `onOpenChange`） */
+  onOpenChange?: (open: boolean) => void;
+  /** 触发器的可访问名 */
+  'aria-label'?: string;
+  /** 自定义类名（挂到字段包裹上） */
+  className?: string;
+}
+```
+
+```tsx
+<DatePicker
+        value={value}
+        onChange={(v) => setValue(v as Date | undefined)}
+        defaultPickerValue={SEP}
+        aria-label="受控日期"
+      />
+
+<DatePicker
+            defaultPickerValue={SEP}
+            placeholder="选择日期"
+            aria-label="单日选择"
+          />
+
+<DatePicker
+            mode="range"
+            defaultPickerValue={SEP}
+            defaultValue={
+              {
+                from: new Date(2026, 8, 10),
+                to: new Date(2026, 8, 16),
+              } as DateRange
+            }
+            placeholder={['开始日期', '结束日期']}
+            aria-label="日期范围"
+          />
+```
+
+日期选择器（Ant `DatePicker` / `RangePicker` 语义）：字段触发器 + 复用现有
+{@link Popover} 弹出内联 {@link Calendar}（不另造浮层）。`mode="single"` 单日、
+`mode="range"` 范围（`Jul 28 – Aug 26` 的范围触发器）。
+
+跨-prop 注意事项：
+- **取值随 `mode` 变形**（同 Calendar）：`single`→`Date`；`range`→{@link DateRange}
+  （`{from,to}`）。`onChange` 同步收对应形态或 `undefined`（清除时）。
+- **受控/非受控双开关**：取值 `value`/`defaultValue`/`onChange`（Ant v5 取值约定）与浮层
+  `open`/`onOpenChange`（Ant v5 气泡约定）各自独立支持受控与非受控。
+- **`allowClear`（默认开）** 有值且未禁用时在字段尾部显示清除按钮（走 `<Icon name="close">`、
+  原生 `<button>`、`clearAriaLabel` 定可及名）；点击清空且不冒泡打开浮层。
+- **`disabledDate(date)`** 透传给内层 Calendar 逐日禁用；`disabled` 禁用整个触发器。
+- **面 = 角色变量**：字段结构靠 `--stitch-border` + `--stitch-radius-input`，选中态与范围底色
+  由 Calendar 上皮（accent / bg-accent）承载；日历图标与翻月箭头一律经 `<Icon>`，无裸 svg。

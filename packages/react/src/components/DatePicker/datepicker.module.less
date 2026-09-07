@@ -1,0 +1,125 @@
+// ============================================
+// DatePicker
+// ============================================
+
+// ---------- Field wrapper ----------
+.field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 220px;
+}
+
+// ---------- Trigger（字段：结构靠 1px 边框，不发明浮层）----------
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  width: 100%;
+  height: var(--stitch-height-base);
+  padding: 0 var(--stitch-spacing-xl) 0 var(--stitch-spacing-md);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-input);
+  background: var(--stitch-bg-elevated);
+  color: var(--stitch-text-primary);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover:not(:disabled) {
+    border-color: var(--stitch-border-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--stitch-accent);
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+
+  &:disabled {
+    background: var(--stitch-bg-disabled);
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.calendarIcon {
+  flex-shrink: 0;
+  color: var(--stitch-text-muted);
+}
+
+.text {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.placeholder {
+  color: var(--stitch-text-muted);
+}
+
+// ---------- Size ----------
+.small .trigger {
+  height: var(--stitch-height-sm);
+  font-size: var(--stitch-font-size-sm);
+}
+
+.middle .trigger {
+  height: var(--stitch-height-base);
+}
+
+.large .trigger {
+  height: var(--stitch-height-lg);
+  font-size: var(--stitch-font-size-lg);
+}
+
+// ---------- Status ----------
+.status-error .trigger {
+  border-color: var(--stitch-danger);
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--stitch-danger-bg);
+  }
+}
+
+.status-warning .trigger {
+  border-color: var(--stitch-warning);
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--stitch-warning-bg);
+  }
+}
+
+// ---------- Clear button ----------
+.clear {
+  position: absolute;
+  right: var(--stitch-spacing-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  border-radius: var(--stitch-radius-button);
+  background: transparent;
+  color: var(--stitch-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--stitch-text-primary);
+    background: var(--stitch-bg-card);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+}
+
+// ---------- Popover panel（复用 Popover 面，仅收紧内边距装日历）----------
+.panel {
+  padding: var(--stitch-spacing-xs);
+}

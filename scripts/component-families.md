@@ -6,7 +6,7 @@
 |---|---|---|
 | general | base atoms & actions | Button, Icon, Image, Toggle, ToggleGroup |
 | layout | containers & structure | Card, Divider, Collapse, Tabs, Accordion, AspectRatio, ScrollArea |
-| form-controls | value entry & selection | Input, Switch, Checkbox, Radio, Select, Slider, Label, OtpField, PasswordInput |
+| form-controls | value entry & selection | Input, Switch, Checkbox, Radio, Select, Slider, Label, OtpField, PasswordInput, Calendar, DatePicker |
 | overlays | transient floating layers | Modal, Drawer, Tooltip, Popover, HoverCard, AlertDialog |
 | navigation | menus & nav bars | DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toolbar |
 | feedback | status & progress | Loading, Progress, Skeleton |

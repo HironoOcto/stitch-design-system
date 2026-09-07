@@ -1,0 +1,221 @@
+// ============================================
+// Calendar
+// ============================================
+
+// ---------- Root ----------
+.root {
+  display: inline-block;
+  padding: var(--stitch-spacing-md);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-primary);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-card);
+}
+
+.months {
+  position: relative;
+}
+
+// ---------- Caption + Nav ----------
+// nav 在 DOM 里排在 month 之前——用绝对定位铺满顶栏，把上一月 / 下一月按钮推到两端，
+// 月份标题居中，还原「‹ September 2026 ›」的翻月条。
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin-bottom: var(--stitch-spacing-sm);
+}
+
+.captionLabel {
+  font-weight: var(--stitch-font-weight-medium);
+  color: var(--stitch-text-primary);
+}
+
+.nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: var(--stitch-border-width) solid transparent;
+  border-radius: var(--stitch-radius-button);
+  background: transparent;
+  color: var(--stitch-text-secondary);
+  cursor: pointer;
+  transition: background var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-card);
+    color: var(--stitch-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+// ---------- Caption dropdowns（点顶部年月 → 直接选月 / 选年）----------
+// 月 / 年各复用设计系统的 <Select>（换肤一致、非系统原生弹窗）；容器排成一行、居中。
+.dropdowns {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stitch-spacing-sm);
+}
+
+// 收窄复用 Select 的字段宽度（默认 min-width 160 太宽）：贴内容尺寸。
+.captionSelect button {
+  min-width: 0;
+}
+
+.captionYear button {
+  min-width: 0;
+}
+
+// ---------- Grid ----------
+.grid {
+  border-collapse: collapse;
+}
+
+.weekday {
+  width: 36px;
+  height: 32px;
+  font-size: var(--stitch-font-size-sm);
+  font-weight: var(--stitch-font-weight-normal);
+  color: var(--stitch-text-muted);
+  text-align: center;
+}
+
+// ---------- Day cell ----------
+// 关键：日按钮铺满整格（36×36、无内缩），使范围底色与选中端点框「同宽同高、边到边对齐」，
+// 底色随格连成一条不出头。
+.day {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.dayButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: var(--stitch-border-width) solid transparent;
+  border-radius: var(--stitch-radius-input);
+  background: transparent;
+  color: var(--stitch-text-primary);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-card);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// ---------- State: today ----------
+// 今天：描 border-strong 一圈，不抢选中态的 accent 底。
+.today:not(.selected):not(.rangeStart):not(.rangeEnd) .dayButton {
+  border-color: var(--stitch-border-strong);
+  font-weight: var(--stitch-font-weight-medium);
+}
+
+// ---------- State: outside / disabled ----------
+.outside .dayButton {
+  color: var(--stitch-text-disabled);
+}
+
+.disabled .dayButton {
+  color: var(--stitch-text-disabled);
+  cursor: not-allowed;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+// ---------- State: selected（单选）----------
+.selected .dayButton {
+  background: var(--stitch-accent);
+  color: var(--stitch-accent-text);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-accent);
+  }
+}
+
+// ---------- State: range 中段（淡强调底，边到边铺满、与端点框等高）----------
+.rangeMiddle .dayButton {
+  background: var(--stitch-bg-accent);
+  color: var(--stitch-text-primary);
+  border-radius: 0;
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-accent);
+  }
+}
+
+// ---------- State: range 端点（实心 accent；只圆外侧角，内侧平接中段带）----------
+.rangeStart .dayButton,
+.rangeEnd .dayButton {
+  background: var(--stitch-accent);
+  color: var(--stitch-accent-text);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-accent);
+  }
+}
+
+.rangeStart .dayButton {
+  border-radius: var(--stitch-radius-input) 0 0 var(--stitch-radius-input);
+}
+
+.rangeEnd .dayButton {
+  border-radius: 0 var(--stitch-radius-input) var(--stitch-radius-input) 0;
+}
+
+// 单端点（起止同一天）复位为四角全圆。
+.rangeStart.rangeEnd .dayButton {
+  border-radius: var(--stitch-radius-input);
+}

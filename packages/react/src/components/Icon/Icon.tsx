@@ -12,6 +12,14 @@ const ICON_PATHS = {
   close: ['M6 6l12 12', 'M18 6L6 18'],
   'chevron-down': ['M5 9l7 7 7-7'],
   'chevron-right': ['M9 5l7 7-7 7'],
+  'chevron-left': ['M15 5l-7 7 7 7'],
+  // 日历：外框 + 顶部两个挂环 + 表头分隔线（描边，品牌中立自绘；日期字段触发器用）。
+  calendar: [
+    'M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z',
+    'M8 3v4',
+    'M16 3v4',
+    'M4 10h16',
+  ],
   search: ['M4 11a7 7 0 1 0 14 0a7 7 0 1 0 -14 0z', 'M16.5 16.5L21 21'],
   menu: ['M4 7h16', 'M4 12h16', 'M4 17h16'],
   info: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0z', 'M12 11v5', 'M12 7.5h0.01'],
@@ -160,6 +168,8 @@ export const ICON_LIST = [
   { name: 'close', label: 'Close' },
   { name: 'chevron-down', label: 'Chevron down' },
   { name: 'chevron-right', label: 'Chevron right' },
+  { name: 'chevron-left', label: 'Chevron left' },
+  { name: 'calendar', label: 'Calendar' },
   { name: 'search', label: 'Search' },
   { name: 'menu', label: 'Menu' },
   { name: 'info', label: 'Info' },

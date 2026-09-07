@@ -30,7 +30,9 @@
   "dependencies": {
     "radix-ui": "^1.6.7",
     "clsx": "^2",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "react-day-picker": "^10.0.1",
+    "date-fns": "^4.4.0"
   },
   "publishConfig": {
     "access": "public"

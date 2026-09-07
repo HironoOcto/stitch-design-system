@@ -63,7 +63,7 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 | --- | --- | --- |
 | general | Button, Icon, Image, Toggle, ToggleGroup | [general.md](references/components/general.md) |
 | layout | Card, Divider, Collapse, Tabs, Accordion, AspectRatio, ScrollArea | [layout.md](references/components/layout.md) |
-| form-controls | Input, Switch, Checkbox, Radio, Select, Slider, Label, OtpField, PasswordInput | [form-controls.md](references/components/form-controls.md) |
+| form-controls | Input, Switch, Checkbox, Radio, Select, Slider, Label, OtpField, PasswordInput, Calendar, DatePicker | [form-controls.md](references/components/form-controls.md) |
 | overlays | Modal, Drawer, Tooltip, Popover, HoverCard, AlertDialog | [overlays.md](references/components/overlays.md) |
 | navigation | DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toolbar | [navigation.md](references/components/navigation.md) |
 | feedback | Loading, Progress, Skeleton | [feedback.md](references/components/feedback.md) |

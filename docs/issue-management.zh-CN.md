@@ -337,24 +337,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/2
 
 ## #3（AFK）：BarChart（柱状图）
 
-> 在 #1 地基上新增对外组件 BarChart，归 data-viz 族。四件套 + demo + references + 测试；系列色读 --stitch-cat-*、tooltip 走地基。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 3 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，issue 在新仓 → 带 --repo HironoOcto/stitch-design-system。
-
-目标：基于 recharts 柱状做端到端 BarChart（单/多系列），系列色经 #1 换肤桥读 --stitch-cat-*、复用 #1 tooltip 与响应式/a11y 壳。props 照「参考步骤·Ant」借、命名遵 Ant v5。照 component-authoring.md 惯例，本段不复述步骤。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)（系列色接 --stitch-cat-*，零硬编码）；无 emoji/裸 svg/Unicode（svg 由 recharts 出）；H5 CI 齐备。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 四件套齐、只读角色变量；切站换肤整图跟随。
-2. demo 上架（data-viz 族、无 warn）；build:refs 后 data-viz.md 有 ## BarChart 条目。
-3. 过 #29 skill-acceptance.md 相关节。
-4. 执行报告两块表：① 结构 Hook（H2/H5 + 无 emoji/裸 svg）全 🟢；② 真实 case dry_run（一个柱状样例真实 render）🟢。
-
-收尾门：用户验收通过后才 commit(#3) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `6642184`，2026-09-07）。在 #1 地基上新增对外组件 **BarChart**（柱状图），归 `data-viz` 族。端到端垂直切片（TDD tracer→增量五循环）：四件套（[BarChart.tsx](../packages/react/src/components/BarChart/BarChart.tsx) / less / test / a11y.test / index）+ demo + `build:refs` 生成 [references/components/data-viz.md](../skills/stitch-design-system/references/components/data-viz.md) 的 `## BarChart`。**系列色**一律走 #1 换肤桥 `catColor` 读 `var(--stitch-cat-*)`（零硬编码、切站整图跟随）；**复用** #1 `ChartFrame`（`ResponsiveContainer` + `role="img"`/`aria-label` 兜底）与 `ChartTooltip`（Card 表面，值经 `valueFormatter`）。props 借 Ant charts 能力项、命名遵 Ant v5（`data`/`xField`/`series`/`stack`/`valueFormatter`/`height`/`ariaLabel`）——`stack` 取 Ant `isStack` 语义（关=多系列**默认分组并排**、开=堆叠成一柱）。**长相**取扁平实心矩形（`radius=0`、不描边，克制），hover 柱背景由墨色 `color-mix()` 派生（不落 hex）。**多系列区分**补一条**不依赖颜色**的通道（守 WCAG 1.4.1）：`Legend` 只在多系列时出，把「系列名 → 色块」显式列出。**同 #2 加固**：关掉 recharts 越窗 JS 入场动画（`isAnimationActive={false}`）。**验收中补例**：用户逐条抽查 demo「示例够全」判不通过——缺 `stack=false 且 series>1` 的默认分组分支（docstring 核心路径），已在 [demo](../demo/components/BarChart/index.tsx) 补「多系列分组并排」例（单系列 → 分组 → 堆叠三例齐），`build:refs` 重跑后 data-viz.md 含 3 个 tsx 用例。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（系列色接 `--stitch-cat-*`、hover 柱背景 `color-mix`、源零 hex）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出；`→` 仅在中文注释，同 LineChart 惯例）🟢、H5 CI 齐备（`npm run ci` 八步 **EXIT 0**，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**（浏览器实测）：`fill="var(--stitch-cat-1)"` 实解析 seline `#3ba6f1`、切 steep 同属性重解析 `#fbe1d1`（换肤整图跟随、组件零改动）🟢、分组例两系列首柱 x `75≠120`（并排）/ 堆叠例 `75=75`（同柱）🟢、Legend 出系列名（`独立访客`/`页面浏览`）🟢、demo 上架 data-viz 族 console 无 warn 🟢；过 #29 skill-acceptance §5 相关节（`check:skill` 41/41）🟢。两块表见 GH #3 评论。**给后续**：#4/#5 沿同法复用 `_internal/dataviz` 三件地基 + 本件的 `stack` 分组/堆叠 + Legend 区分范式填 data-viz 族。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/3
 依赖：#1（图表地基 + data-viz 族）。可与 #2/#4 并行。

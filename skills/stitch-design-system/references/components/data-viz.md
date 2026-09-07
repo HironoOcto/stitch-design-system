@@ -67,3 +67,73 @@ export interface LineChartProps {
 循环线型（`strokeDasharray`），并在末点旁直接标出系列名（文字走 `var(--stitch-text-primary)`），
 故主题线色偏淡时也能分辨（不依赖颜色，守 a11y）。svg 全由 recharts 出、源码零手写 svg，无 emoji。
 整图作一张图对外——`role="img"` + `aria-label`（缺省兜底非空名）。
+
+## BarChart
+
+```ts
+export interface BarChartProps {
+  /** 数据源，每项一行记录（Ant charts `data` 语义） */
+  data: Record<string, unknown>[];
+  /** x 轴取值字段名（Ant charts `xField` 语义） */
+  xField: string;
+  /** 一条或多条系列（各取一个 y 字段） */
+  series: BarChartSeries[];
+  /**
+   * 多系列堆叠成一柱（Ant charts `isStack` 语义）；关闭时多系列分组并排
+   * @default false
+   */
+  stack?: boolean;
+  /**
+   * 图表高度（px）；宽度恒铺满容器
+   * @default 300
+   */
+  height?: number;
+  /** y 值格式化（如货币）；作用于坐标轴刻度与 tooltip 值 */
+  valueFormatter?: (value: number) => string;
+  /** 图表整体可访问名（`role="img"` 的文本替代）；缺省兜底非空名 */
+  ariaLabel?: string;
+  /** 透传外层容器类名 */
+  className?: string;
+}
+```
+
+```tsx
+<BarChart
+          data={visitors}
+          xField="month"
+          series={[{ dataKey: 'visitors', name: '独立访客' }]}
+          height={260}
+          valueFormatter={compact}
+          ariaLabel="上半年月度独立访客柱状图"
+        />
+
+<BarChart
+          data={traffic}
+          xField="month"
+          series={[
+            { dataKey: 'visitors', name: '独立访客' },
+            { dataKey: 'views', name: '页面浏览' },
+          ]}
+          height={260}
+          valueFormatter={compact}
+          ariaLabel="上半年访客与浏览分组柱状图"
+        />
+
+<BarChart
+          data={traffic}
+          xField="month"
+          series={[
+            { dataKey: 'visitors', name: '独立访客' },
+            { dataKey: 'views', name: '页面浏览' },
+          ]}
+          stack
+          height={260}
+          valueFormatter={compact}
+          ariaLabel="上半年访客与浏览堆叠柱状图"
+        />
+```
+
+柱状图。系列色只从契约分类色槽 `var(--stitch-cat-*)` 取、按序号循环，随站换肤整图跟随；
+组件内零硬编码主题值、零手写内联 svg（svg 全由 recharts 出），无 emoji。多系列默认分组并排，
+`stack` 开启则堆叠成一柱；多系列另出图例（`Legend`）把系列名列出，不只靠颜色区分（守 a11y）。
+整图作一张图对外——`role="img"` + `aria-label`（缺省兜底非空名）。

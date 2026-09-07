@@ -146,6 +146,9 @@ export type { CodeBlockProps } from './components/CodeBlock';
 export { LineChart } from './components/LineChart';
 export type { LineChartProps, LineChartSeries } from './components/LineChart';
 
+export { BarChart } from './components/BarChart';
+export type { BarChartProps, BarChartSeries } from './components/BarChart';
+
 // ============================================
 // 反馈（feedback）
 // ============================================

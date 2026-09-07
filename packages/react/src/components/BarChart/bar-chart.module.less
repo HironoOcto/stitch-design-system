@@ -1,0 +1,10 @@
+// ============================================
+// BarChart — 柱状图
+// 纯结构 + 字体角色变量；系列色 / hover 柱背景由组件按 var(--stitch-cat-*) 逐系列传给 recharts，
+// 不在此写死。此处只让 recharts 出的坐标轴 / 图例文字继承库内字体角色变量（H2：只读 var(--stitch-*)）。
+// ============================================
+
+.chart {
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-sm);
+}

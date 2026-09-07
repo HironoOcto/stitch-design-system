@@ -25,6 +25,17 @@
 
 ---
 
+## 切换当前生效主题
+
+一次只有一个 `activeSite` 生效（**构建时切**，见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)）。换主题只重算主题产物，**组件产物不变**：
+
+1. **改 activeSite**：把 `stitch.config.json` 的 `activeSite` 改成目标站。该站须已有 `sites/<site>/adapter.css` + `rules.md` + `skill-blurb.md`（还没有就先按上面「新增一个主题 site」加站——`skill-blurb.md` 是该站接入时 `build:blurb` 冻结的产物，缺它 `build:skill` 会直接报错）。
+2. **重建 skill 主题**：`npm run build:skill` —— 重算 `skills/stitch-design-system/references/theme/*`（`tokens.css` / `rules.md`）并注入该站的 blurb 两槽；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。
+3. **重建发布产物**：执行 `npm run build`。构建时虚拟模块**自动**读 `activeSite`，把新主题的 `:root` 写进 `dist/style.css`——你不用手动改任何样式（原理见 [packaging.md](./docs/contributing/packaging.md)）；组件 JS 产物不变。
+4. **验收**：执行 `npm run ci`，须全绿（其中 `check:skill` 会断言「换主题只有 theme 产物变，其余 diff 为空」）。
+
+---
+
 ## 新增 / 修改组件
 
 组件**只读角色变量** `var(--stitch-*)`，长相由 adapter 灌值、自动换肤。正本：[手写新增一个组件](./docs/contributing/add-new-component.md)、[组件源代码规范](./docs/contributing/component-authoring.md)、[同步机制与 CI](./docs/contributing/sync-and-ci.md)。
@@ -49,17 +60,6 @@
 4. `npm run ci` 全绿。
 
 > 验收基线：每个组件对照 [add-new-component.md《每个组件必备清单》](./docs/contributing/add-new-component.md)（源码 / demo / skill 三侧）逐条勾，再照 [demo 平台验收清单](./docs/contributing/demo-acceptance.md) 在 demo 上核。
-
----
-
-## 切换当前生效主题
-
-一次只有一个 `activeSite` 生效（**构建时切**，见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)）。换主题只重算主题产物，**组件产物不变**：
-
-1. **改 activeSite**：把 `stitch.config.json` 的 `activeSite` 改成目标站。该站须已有 `sites/<site>/adapter.css` + `rules.md`（还没有就先按上面「新增一个主题 site」加站）。
-2. **重建 skill 主题**：`npm run build:skill` —— 重算 `skills/stitch-design-system/references/theme/*`（`tokens.css` / `rules.md`）并注入该站的 blurb 两槽；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。
-3. **重建发布产物**：执行 `npm run build`。构建时虚拟模块**自动**读 `activeSite`，把新主题的 `:root` 写进 `dist/style.css`——你不用手动改任何样式（原理见 [packaging.md](./docs/contributing/packaging.md)）；组件 JS 产物不变。
-4. **验收**：执行 `npm run ci`，须全绿（其中 `check:skill` 会断言「换主题只有 theme 产物变，其余 diff 为空」）。
 
 ---
 

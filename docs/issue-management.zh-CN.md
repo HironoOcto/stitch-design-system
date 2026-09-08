@@ -377,22 +377,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/6
 
 > 落共享 helper：扫 `sites/` 收「三件套齐全」（adapter.css + rules.md + skill-blurb.md）的站、零写死站名，作 A(#8 themes/*)/B1(#9 skill presets) 的**同一集合来源**。纯 prefactor，不改发布产物。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 7 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：新增 scripts/lib/ 下的 listPublishableSites()——动态扫 sites/、只收三件套 {adapter.css, rules.md, skill-blurb.md} 齐全的站、稳定排序、零写死站名（延续 resolveSite/check-boundary 风格）。现状返回 {seline, steep}，排除只有 {README.md, source/} 的 phantom/saybriefly。这是「可发布站」唯一判据，#8/#9 都调它保证两发布面同集合。本 issue 不改任何发布产物。
-
-红线（结构 Hook，须全绿，可 grep）：H1 自包含（脚本零写死站名，check:boundary 三层零越界）；H5 npm run ci 八步 EXIT 0。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. listPublishableSites() 实跑返回 {seline, steep}、稳定排序；phantom/saybriefly 被排除。
-2. 单测：三件套齐全→收 / 临时造缺件站→排除（测后清理），缺任一件即排除。
-3. helper 零写死站名（grep 自证）。
-4. 执行报告两块表：① 结构 Hook（H1/H5）全 🟢；② 真实 case dry_run（实跑输出 + 造缺件站被排除）🟢。
-
-收尾门：用户验收通过后才 commit(#7) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `7017d01`，2026-09-08，用户验收通过）。落共享 helper [scripts/lib/publishable-sites.mjs](../scripts/lib/publishable-sites.mjs) `listPublishableSites(root)`：`readdirSync(sites)` 动态扫、`TRIAD.every(existsSync)` 判「三件套齐全」（`{adapter.css, rules.md, skill-blurb.md}`）、`.sort()` 稳定字典序、**零写死站名**（`TRIAD` 只列文件名，延续 `resolveSite`/`check-boundary` 动态解析风格）。作 A(#8 `themes/*` emit)/B1(#9 skill presets) 的**同一「可发布站」集合来源** —— 更严的「三件套齐全」而非「有 adapter.css 就算」，正是为让两发布面收录同一集合、能预览必能开发。纯 prefactor，**零发布产物改动**（`git status` 仅两个新文件）。TDD 三轮 vertical red→green：tracer 真实 `sites/`→`[seline,steep]`、缺件矩阵（throwaway `mkdtemp` fixture、`finally` 清理，不碰真 `sites/`）、乱序建目录→稳定排序。**① 结构 Hook**：**H1** 自包含（helper grep `seline|steep|phantom|saybriefly` 零命中；`check:boundary ✓ 三层零越界`）🟢、**H5** `npm run ci` 八步 EXIT 0（format:check→check:docs→check:skill→check:boundary→lint→test:run→test:a11y→build，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**：`listPublishableSites(realRoot)` 实跑 `["seline","steep"]`、on-disk `[phantom,saybriefly,seline,steep]`→excluded `[phantom,saybriefly]` 🟢；活跑 throwaway root 造 `missing-blurb`/`bare` 缺件站→kept `[full]`、cleanup ok 🟢；`node --test` 3/3 绿。两块表见 GH #7 评论。下游解锁：#8 `themes/*` 预览导出、#9 skill presets 均调此单判据。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/7
 依赖：无，可立即领取（#8/#9 的前置）。

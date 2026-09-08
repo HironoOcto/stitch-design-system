@@ -18,7 +18,7 @@
 2. **抽两个产物**：按 [onboard-site playbook](./docs/contributing/onboard-site.md) 从 `DESIGN.md` 生成 `sites/<site>/adapter.css`（值·单段静态 `:root`，只填 `--stitch-*` 角色名）+ `sites/<site>/rules.md`（Do/Don't + 长相规则）。**AI 生成 + 人复核**，非确定脚本；复核清单见 [onboard-site-review.md](./docs/contributing/onboard-site-review.md)。
 3. **demo 肉眼验证**：`npm run demo`，顶栏切到 `<site>` 看整站换肤。demo **动态发现**——凡 `sites/*/adapter.css` 存在即自动上架，无需改配置、不受 `activeSite` 限制（见 [demo-site.md](./docs/contributing/demo-site.md)）。
 4. **设为生效主题**（仅当要把它嵌进 skill / 发布时）：把 `stitch.config.json` 的 `activeSite` 改成 `<site>`。用 `npm run build:tokens` 自证 `contract + 该站 adapter` 合并结果（产物 gitignore，只作核对）。
-5. **嵌进 skill**：按 [skill 构建流程 §4.5](./docs/contributing/skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（合并 `tokens.css`、拷 `rules.md`/`design-rules.md` 进 `references/theme/`、注入 blurb 两槽）。换主题只重跑 `build:skill`，其余产物 diff 为空。
+5. **嵌进 skill**：按 [skill 构建流程 §4.5](./docs/contributing/skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（为**每个可发布站**各备一套预置 `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `references/theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`）。「哪套生效」由消费项目 `stitch.config.json` 指针读时解析（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)）；本仓库 `activeSite` 定发布默认。
 6. **验收**：按 [skill 结构验收标准](./docs/contributing/skill-acceptance.md) 核当前生效主题的 skill（9 产物节；`tokens.css == mergeTokens`、`rules.md == 源逐字`、无他站风格残留）。
 
 > 硬红线：`adapter.css` 只写 `--stitch-*` 角色名、绝不引原始 `--color-*`；`:root → [data-site=x]` 的作用域化只发生在 demo 内存里，源文件永远是纯 `:root`。
@@ -30,7 +30,7 @@
 一次只有一个 `activeSite` 生效（**构建时切**，见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)）。换主题只重算主题产物，**组件产物不变**：
 
 1. **改 activeSite**：把 `stitch.config.json` 的 `activeSite` 改成目标站。该站须已有 `sites/<site>/adapter.css` + `rules.md` + `skill-blurb.md`（还没有就先按上面「新增一个主题 site」加站——`skill-blurb.md` 是该站接入时 `build:blurb` 冻结的产物，缺它 `build:skill` 会直接报错）。
-2. **重建 skill 主题**：`npm run build:skill` —— 重算 `skills/stitch-design-system/references/theme/*`（`tokens.css` / `rules.md`）并注入该站的 blurb 两槽；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。
+2. **重建 skill 主题**：`npm run build:skill` —— 为每个可发布站重算预置 `references/theme-presets/<站>/*` 并把 SKILL.md 的 `SLOT:default-site` 更新成新默认；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。**注意**：这里换的是**发布默认**；**消费方**换开发主题不必动本仓库——改各自项目 `stitch.config.json` 指针即可（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)，配合 reset-theme skill）。
 3. **重建发布产物**：执行 `npm run build`。构建时虚拟模块**自动**读 `activeSite`，把新主题的 `:root` 写进 `dist/style.css`——你不用手动改任何样式（原理见 [packaging.md](./docs/contributing/packaging.md)）；组件 JS 产物不变。
 4. **验收**：执行 `npm run ci`，须全绿（其中 `check:skill` 会断言「换主题只有 theme 产物变，其余 diff 为空」）。
 
@@ -149,7 +149,7 @@ claude plugins list | grep -i stitch     # 应显示当前 plugin.json 版本、
 | --- | --- | --- |
 | `npm run build:tokens` | 改了 `contract.css` / 某站 `adapter.css` 的值，想**肉眼核对**「合并出的变量表」对不对 | 把契约占位 + 当前 `activeSite` 的 adapter 值合并成一份最终 `:root`，写到 `packages/tokens/dist/tokens.css`。**纯派生、谁都不 import**（发布靠 `build`、skill 靠 `build:skill` 各自当场重算），所以 gitignore、不发布、看完可删 |
 | `npm run build:blurb <site>` | **加 / 换一个站**，要给它写风格招牌（每站一次；该站 `DESIGN.md` 变了也重跑） | **读** `sites/<site>/source/DESIGN.md` 抽三段 → 组固定 prompt → **调 LLM**（`claude -p`，非确定）**生成** `sites/<site>/skill-blurb.md` 草稿（description + style-paragraph 两段），等人复核签字冻盘。整条链唯一「非确定 / LLM」的一步就隔离在这，下游 `build:skill` 只**读**这份冻结草稿、不再 re-roll（保幂等）——**注意方向：本命令产出 `skill-blurb.md`，不是读它** |
-| `npm run build:skill` | **切了 `activeSite`**（换当前生效主题），或该站 token/rules/blurb 变了 | 纯确定编排（无 LLM）：`mergeTokens` **算出** `references/theme/tokens.css`、**逐字拷** `rules.md` + 全局 `design-rules.md` 进 `references/theme/`、**读**该站 `skill-blurb.md` 两段注入 `SKILL.md` 两槽 → 重建当前主题的 skill。（消费 `build:blurb` + `build:refs` 的产物，故这俩要先备好） |
+| `npm run build:skill` | **切了 `activeSite`**（换发布默认），或任一可发布站的 token/rules/blurb 变了 | 纯确定编排（无 LLM）：对**每个可发布站** `mergeTokens` **算出** `theme-presets/<站>/tokens.css`、**逐字拷** `rules.md`、**读** `skill-blurb.md` 两段写 `style.md`；**逐字拷**全局 `design-rules.md` 进 `references/theme/`；把发布默认站名注入 `SKILL.md` 的 `SLOT:default-site`（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)）。（消费 `build:blurb` + `build:refs` 的产物，故这俩要先备好） |
 
 **C. 出发布产物**（组件维度 + 主题维度都会烤进 `dist/`）
 

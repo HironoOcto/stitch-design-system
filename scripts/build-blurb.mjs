@@ -138,8 +138,9 @@ export function renderBlurbFile(site, { description, styleParagraph }) {
   return `<!-- sites/${site}/skill-blurb.md — generated once from source/DESIGN.md by build:blurb.
      Draft — pending human sign-off; a maintainer replaces this line with the approval
      marker once the blurb is reviewed for fidelity to DESIGN.md.
-     build:skill injects these two sections into SKILL.md's SLOT markers. Do not hand-edit
-     the SKILL.md copies — edit here and re-inject. -->
+     build:skill copies these two sections verbatim into the site's preset style.md
+     (references/theme-presets/<site>/style.md). Do not hand-edit the preset copy —
+     edit here and re-run build:skill. -->
 
 ## description
 ${description}

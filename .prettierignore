@@ -11,8 +11,8 @@ templates
 # 角色契约与 token 源（手写、单行 color-mix 是 H4 不变量，禁 prettier 改版式）
 packages/tokens
 
-# 生成的 skill 主题快照（build:skill 产物；单行 color-mix 是 H4 不变量，禁 prettier 改版式）
-skills/*/references/theme/tokens.css
+# 生成的 skill 主题预置 tokens（build:skill 产物；单行 color-mix 是 H4 不变量，禁 prettier 改版式）
+skills/*/references/theme-presets/*/tokens.css
 
 # 文档与散文（Markdown 由 check:docs 管行数，不交给 prettier 改版式）
 **/*.md

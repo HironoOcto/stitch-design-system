@@ -506,20 +506,21 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
      ┌──────────────┼───────────────────────┐
      ▼              ▼                        ▼
   Vite 虚拟模块   build:skill              demo (dev)
-  virtual:        → references/theme/       扫 sites/*/adapter.css（动态）
-   stitch-theme      tokens.css             每份 :root→[data-site=x]（demo 侧转）
-     │               + design-rules.md      多站切换器
-     ▼               + rules.md               │
-  dist/style.css       │                      ▼
- 【运行时·终端app用】  skill【编写时·AI 用】  本地多站预览
+  virtual:        → theme-presets/<站>/     扫 sites/*/adapter.css（动态）
+   stitch-theme      tokens.css+rules.md    每份 :root→[data-site=x]（demo 侧转）
+     │               +style.md（每可发布站） 多站切换器
+     │               + theme/design-rules.md   │
+     ▼               + SKILL.md default-site    ▼
+  dist/style.css       │                      本地多站预览
+ 【运行时·终端app用】  skill【编写时·AI 用】
 ```
 
 | 消费方 | 构建 | 产物 | 谁读产物 | 何时 | 取哪些站 |
 |---|---|---|---|---|---|
-| **npm 包** | `vite build`（虚拟模块插件） | `dist/style.css`（= `@octohirono/stitch-design-system/style`） | React 组件（`var()` 求值） | **运行时** | 仅 `activeSite` 一份 |
-| **skill** | `build:skill` | `references/theme/tokens.css` + `design-rules.md` + `rules.md` | AI 生成页面 | **编写时** | 仅 `activeSite` 一份 |
+| **npm 包** | `vite build`（虚拟模块插件） | `dist/style.css`（= `@octohirono/stitch-design-system/style`） | React 组件（`var()` 求值） | **运行时** | 默认 `activeSite` 一份 + `themes/*` 每可发布站 opt-in（[ADR 0009](../adr/0009-themes-preview-export.md)） |
+| **skill** | `build:skill` | `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` 全备 + 全局 `theme/design-rules.md` + SKILL.md `SLOT:default-site` | AI 生成页面（读时按消费指针解析一套） | **编写时** | **全部可发布站**（#7）；发布默认 = `activeSite` |
 | **demo** | dev（`import.meta.glob`） | 本地预览（不落盘产物） | 维护者肉眼 | **dev** | **全部**（有 adapter 的站） |
 
-**开关**：`stitch.config.json { "activeSite": "steep" }` 是"当前生效哪个站"的唯一真相，前两条构建都读它——翻一个字段，`style.css` 与 skill 两份产物一起重烤。demo 不受此开关限制（动态扫 `sites/*/adapter.css` 全挂，源保持纯 `:root`、作用域化只在 demo 侧做）。合并语义（adapter 覆盖 contract、派生自动跟随）由 `mergeTokens` 一份实现，包与 skill 共用。详见 [ADR 0007](../adr/0007-active-site-single-switch.md)、[打包发布](../contributing/packaging.md)、[skill 构建流程](../contributing/skill-build-pipeline.md)。
+**开关（两层同名指针）**：本仓库 `stitch.config.json { "activeSite": … }` 定**发布默认**——`vite build` 的 `style.css` 与 `build:skill` 注入 SKILL.md 的 `SLOT:default-site` 都读它。**消费项目**同名 `activeSite` 是**消费侧指针**，skill 读时解析选一套预置（无则回落发布默认）；与预览侧 `data-site` 填同名即对齐。合并语义（adapter 覆盖 contract、派生自动跟随）由 `mergeTokens` 一份实现，包与 skill 共用。demo 不受开关限制（动态扫 `sites/*/adapter.css` 全挂）。详见 [ADR 0007](../adr/0007-active-site-single-switch.md)（发布默认）、[ADR 0010](../adr/0010-consume-time-theme-choice.md)（消费侧指针 + 读时解析）、[打包发布](../contributing/packaging.md)、[skill 构建流程](../contributing/skill-build-pipeline.md)。
 
 > **一句话**：`multi-site-theming` 的产出就是 `adapter.css`（值）+ `rules.md`（规则）两份**源**；它们不搬家，由三条构建按 `activeSite` 各烤各的——运行时那份是 `dist/style.css`，skill 那份是 `tokens.css`，demo 那份不落盘。

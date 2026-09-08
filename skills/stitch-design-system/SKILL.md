@@ -1,46 +1,65 @@
 ---
 name: stitch-design-system
 description: >
-    <!-- SLOT:description -->
-    Build React UIs in the Seline style — editorial analytics on warm stone paper: a near-monochrome canvas with a single vivid cyan accent used once per headline, geometric 400-weight Roobert sans headlines with tight negative tracking, flat white cards over 1px hairline stone borders, pill controls, and a single soft 16px-blur shadow reserved for product previews.
-    <!-- /SLOT:description -->
+    Build or restyle web UIs with stitch-design-system, a React + TypeScript component library
+    with themeable `--stitch-*` design tokens. Use whenever writing or editing web UI — a page,
+    dashboard, landing/marketing section, form, React component, or a single standalone HTML
+    file — that should use stitch-design-system's components or match its themed look. Works
+    both in a React project (the `@octohirono/stitch-design-system` npm package) and in plain
+    standalone HTML via CDN — the npm package is NOT required. Gives exact component props, the
+    active theme's `--stitch-*` token values, and the theme's do/don't rules, so you build with
+    real components and correct tokens instead of guessing a component API, color, font, or shadow.
 ---
 
-# stitch-design-system style
+# stitch-design-system
 
-stitch-design-system is a React + TypeScript component library. Components and any
-custom UI use role variables `var(--stitch-*)`; their values live in
-`references/theme/tokens.css`. This skill is self-contained: every value it needs is
-embedded under `references/` — never fetch anything, never guess a value.
+A React + TypeScript component library for building web UIs. Every visual value comes from
+CSS role variables (`--stitch-*`) supplied by the active theme. Two rules hold everywhere:
+never hardcode a color, font, radius, or shadow — use a `--stitch-*` variable; and never
+invent a component prop — the component references are the ground truth. Everything you need
+is bundled under `references/`; do not fetch anything or guess a value.
 
-## The style in one paragraph
+## Choose your setup
 
-<!-- SLOT:style-paragraph -->
-Seline presents analytics as a quiet analyst's desk — geometric 400-weight Roobert headlines with tight negative tracking sit unhurried over a warm-stone, near-monochrome canvas, never bumping to heavier weights for emphasis. A single vivid cyan is the only chromatic surface and appears at most once per headline, marking the one value-proposition keyword while everything else stays neutral stone. Body copy runs in a small, steady sans at a relaxed line-height, the dominant UI rhythm that carries hierarchy before color ever enters. Surfaces are flat white cards floating over the warm background, structured by 1px stone hairline borders used generously as the primary separator rather than heavy panels or dividers. Elevation is rationed to a single soft 16px-blur shadow reserved for one product-preview artifact per page; controls are pill-shaped. The layout breathes on centered, generous vertical rhythm, and the cyan call-to-action stays the loudest thing on the page precisely because everything around it is restrained.
-<!-- /SLOT:style-paragraph -->
-
-## Pick your scenario first
-
-| Scenario | Entry |
+| Setup | Read |
 | --- | --- |
-| React project — `@octohirono/stitch-design-system` is (or can be) installed | [references/react-project.md](references/react-project.md) |
-| Single self-contained HTML file — no npm, React via CDN | [references/standalone-html.md](references/standalone-html.md) |
+| React project using (or able to install) `@octohirono/stitch-design-system` | [references/react-project.md](references/react-project.md) |
+| Single self-contained HTML file — no build, React via CDN | [references/standalone-html.md](references/standalone-html.md) |
 
-## Design tokens
+## Active theme
 
-Components and any custom UI use role variables `var(--stitch-*)` — never raw hex.
-The complete, paste-ready `:root` with this theme's exact values is
-[references/theme/tokens.css](references/theme/tokens.css). Groups: backgrounds
-(`--stitch-bg-*`), text (`--stitch-text-*`), accent/link (`--stitch-accent*`,
-`--stitch-link`), borders, radii (`--stitch-radius-*`), shadows, fonts
-(`--stitch-font-*`), spacing, motion, control heights, feedback colors
-(`danger/success/warning/info`), category slots (`--stitch-cat-1…6`). Exact values
-are not restated here — read `tokens.css`.
+Exactly one theme is active for a project. Never pick, mix, or guess a theme, and never
+browse `references/theme-presets/` to choose one — the active theme is determined, not
+selected:
 
-## Component catalog
+1. If the project root has a `stitch.config.json` with an `activeSite`, that value is the
+   active theme.
+2. Otherwise the active theme is the default:
 
-Props references under `references/components/` (props, legal values, defaults —
-generated verbatim from source):
+   <!-- SLOT:default-site -->
+   seline
+   <!-- /SLOT:default-site -->
+
+If this is still ambiguous — e.g. `activeSite` names a theme that has no folder under
+`references/theme-presets/` — do not guess or substitute another; ask the user which theme
+to use.
+
+Use only that one theme. Read its folder — `references/theme-presets/<active-theme>/` (with
+`<active-theme>` substituted from the step above) — and use exactly these three files:
+
+- `style.md` — how this theme looks and composes, in one paragraph. Read it first.
+- `tokens.css` — the complete `:root` of `--stitch-*` values. Use these exact values (via
+  `var(--stitch-*)`), never raw hex. Groups: backgrounds (`--stitch-bg-*`), text
+  (`--stitch-text-*`), accent/link (`--stitch-accent*`, `--stitch-link`), borders, radii
+  (`--stitch-radius-*`), shadows, fonts (`--stitch-font-*`), spacing, motion, control
+  heights, feedback (`danger/success/warning/info`), category slots (`--stitch-cat-1…6`).
+- `rules.md` — this theme's do/don't look rules (shapes, colors, when to use the accent).
+
+## Components
+
+Props, legal values, and defaults for every component live under `references/components/`,
+generated verbatim from source — the ground truth. Read the relevant file before using a
+component; never guess or invent props.
 
 <!-- SLOT:catalog (build:refs generates from component-families.md — do not hand-edit) -->
 | Category | Components | Reference |
@@ -57,12 +76,12 @@ generated verbatim from source):
 | Notification | Notification | [Notification.md](references/components/Notification.md) |
 <!-- /SLOT:catalog -->
 
-## Hard rules (violations are bugs)
+## Rules (violations are bugs)
 
-- **Global rules** (no-hardcode, icons, motion, accessibility, color proportion): [references/theme/design-rules.md](references/theme/design-rules.md)
-- **This style's look rules** (Do/Don't, shapes, colors, when to use the accent):
-  [references/theme/rules.md](references/theme/rules.md)
+- **Global engineering rules** — no hardcoded values, icons, motion, accessibility, color
+  proportion: [references/theme/design-rules.md](references/theme/design-rules.md).
+- **The active theme's look rules** — the `rules.md` in the theme folder above.
 
-Both apply. Never invent props (component references are ground truth). Import the
-stylesheet once at app entry. Icons come from `<Icon name="…" />` — never emoji /
-Unicode / hand-rolled SVG. Prefer library components over raw HTML controls.
+Both apply. Icons come only from `<Icon name="…" />` — never emoji, Unicode symbols, or
+hand-drawn SVG. Import the stylesheet once at app entry. Prefer library components over raw
+HTML controls.

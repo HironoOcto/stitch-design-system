@@ -39,9 +39,12 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 | `references/react-project.md` | 场景一：React 项目里用组件库 |
 | `references/standalone-html.md` | 场景二：单文件 HTML、无构建、React 走 CDN |
 | `references/components/` | 逐族组件参考（props、合法值、默认值，从源码逐字生成） |
-| `references/theme/tokens.css` | 当前主题的完整 `:root`（`--stitch-*` 角色变量的确切值） |
-| `references/theme/rules.md` | 当前主题的长相规则（字体、阴影、形状、强调色用法） |
-| `references/theme/design-rules.md` | 全局设计法则（禁写死、图标、动效、无障碍、配色比例） |
+| `references/theme-presets/<站>/tokens.css` | 该主题预置的完整 `:root`（`--stitch-*` 角色变量的确切值） |
+| `references/theme-presets/<站>/rules.md` | 该主题预置的长相规则（字体、阴影、形状、强调色用法） |
+| `references/theme-presets/<站>/style.md` | 该主题预置的招牌风格散文（一段话视觉心智模型） |
+| `references/theme/design-rules.md` | 全局设计法则（禁写死、图标、动效、无障碍、配色比例；跨主题单份） |
+
+主题**预置全备**：每个可发布站各一套 `theme-presets/<站>/`。「哪套生效」由消费项目 `stitch.config.json` 的 `activeSite` 指针在读时决定（无则回落发布默认）——见 `SKILL.md` 的「Current style」节。
 
 ## 两种使用场景
 
@@ -50,11 +53,11 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 - **React 项目**——`stitch-design-system` 已装或可装：装包、入口 import 一次样式、以 `.d.ts`
   为准写代码。见 [references/react-project.md](references/react-project.md)。
 - **单文件 HTML**——无 npm、React 经 CDN：内联手搓与真实导出同名的组件，值全取自
-  `references/theme/*`。见 [references/standalone-html.md](references/standalone-html.md)。
+  当前生效的 `references/theme-presets/<active>/*`。见 [references/standalone-html.md](references/standalone-html.md)。
 
 > 生成/构建逻辑记在源仓库 `docs/contributing/skill-build-pipeline.md`；此 skill 摘出后为自包含
-> 产物，不外链源仓库。`SKILL.md`、`references/theme/*`、`references/components/*` 与下方组件表
-> 均由流水线生成，勿手改。
+> 产物，不外链源仓库。`SKILL.md`、`references/theme-presets/*`、`references/theme/design-rules.md`、
+> `references/components/*` 与下方组件表均由流水线生成，勿手改。
 
 ## 组件
 

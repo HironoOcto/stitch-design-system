@@ -66,7 +66,7 @@ test('renderBlurbFile emits the frozen header + exactly the two sections', () =>
   // header comment names the source + build:skill contract, marks it a pending draft
   assert.match(out, /^<!--/);
   assert.match(out, /source\/DESIGN\.md/);
-  assert.match(out, /build:skill injects/i);
+  assert.match(out, /build:skill copies these two sections/i);
   assert.match(out, /pending human sign-off/i);
   // a fresh draft must NOT already carry the approval marker (that is the human gate)
   assert.doesNotMatch(out, /human-approved/);

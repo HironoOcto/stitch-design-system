@@ -329,6 +329,8 @@ stitch-design-system/
 
 ## 四、`build:skill` 生成逻辑（换主题重跑）
 
+> **⚠ [ADR 0010](../adr/0010-consume-time-theme-choice.md) 起产物结构已改（本节 §4.0–4.2/§4.4 为历史草稿）**：`build:skill` 不再只烤发布默认那**单套** `references/theme/{tokens.css,rules.md}` + 注入 SKILL.md 的 description/style-paragraph 两槽。现改为**预置全备**——为**每个可发布站**（#7）各生成 `references/theme-presets/<站>/{tokens.css, rules.md, style.md}`，全局 `design-rules.md` 单份留在 `references/theme/`，SKILL.md 只注入 `SLOT:default-site`（发布默认站名）；招牌散文下沉各预置 `style.md`、`description` 转主题中性、「哪套生效」由消费项目指针**读时解析**（[resolve-preset.mjs](../../scripts/lib/resolve-preset.mjs)）。合并/拷贝/注入的**确定性、幂等**性质不变。权威落点以 [ADR 0010](../adr/0010-consume-time-theme-choice.md) + [check-skill.mjs](../../scripts/check-skill.mjs) + [skill-acceptance.md](./skill-acceptance.md) 为准；下面单套描述保留作背景。
+
 `scripts/build-skill.mjs`，挂 `npm run build:skill`。**要点：把"非确定的 LLM 摘要"和"确定的纯文件操作"分开**——摘要每站**一次性**生成并存进 `sites/<站>/`，build:skill 本身只做**确定的合并/拷贝/注入**。这样重跑幂等,"换主题后其余文件 diff 为空"才立得住。
 
 ### 4.0 前置：当前主题 + 槽标记
@@ -572,7 +574,7 @@ content never crowds the edges.
 |---|---|---|---|
 | **`build:blurb <site>`** | 自动抽 DESIGN.md 三段 → LLM → 写 `sites/<site>/skill-blurb.md`（§4.4①） | ❌ 非确定（含 LLM） | 每站一次 / DESIGN.md 变更时 |
 | **`build:refs`** | 组件源码 + FAMILIES 表 → `references/components/*.md` + 注入 catalog 片段到 SKILL.md/README 的 `<!-- SLOT:catalog -->`（§4.3） | ✅ 确定 | 组件 / 族增改时（主题无关） |
-| **`build:skill <site>`** | tokens.css（§4.1）+ 拷 design-rules/rules（§4.2）+ 注入 blurb 到 SKILL.md 两槽（§4.4②） | ✅ 确定，纯文件操作 | 换主题 / 发布前 |
+| **`build:skill`** | 为每个可发布站备预置 `theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`（[ADR 0010](../adr/0010-consume-time-theme-choice.md)；旧版单套见 §4.1–4.4） | ✅ 确定，纯文件操作 | 改可发布站源 / 换发布默认 / 发布前 |
 
 **依赖关系**：`build:skill` 消费前两者的产物（`skill-blurb.md` 已存在、`references/components/` 已生成）。典型顺序——首次 `build:blurb` + `build:refs` 备好料 → 之后换主题只跑 `build:skill`。
 
@@ -580,7 +582,7 @@ content never crowds the edges.
 
 **保证**（针对 `build:skill`）：
 - **幂等**：同 site + 同源重跑，产物逐字节相同（用存盘 blurb 而非现调 LLM 是关键）。
-- **换主题 diff 收敛**：换 `activeSite` 重跑，只有 `references/theme/*` + SKILL.md 2 槽变化；`references/components/*`、固定模板、README **diff 为空**（[skill 结构验收标准](./skill-acceptance.md) 流程级节）。
+- **换主题隔离（[ADR 0010](../adr/0010-consume-time-theme-choice.md) 起为读时语义）**：所有预置共存于 skill，切**消费项目指针**只改「AI 读哪套预置」，skill 文件本身零变化；全局 `design-rules.md` 单份、不随主题。换**发布默认**（本仓库 `activeSite`）重跑，则只 SKILL.md `SLOT:default-site` 变，预置内容/`references/components/*`/固定模板/README **diff 为空**（[skill 结构验收标准](./skill-acceptance.md)）。
 - **源真相不变**：contract/adapter/rules/组件源码/DESIGN.md 是源；`skills/**/references/` 全是生成物，**永不手改**（顶部 DO NOT EDIT 标记 + 验收 grep 兜底）。
 
 ---

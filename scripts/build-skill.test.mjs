@@ -31,8 +31,13 @@ function seedSkillDir() {
 }
 
 test('resolveSite: --site overrides, else stitch.config.json activeSite', () => {
+  // Read the repo's current activeSite instead of hardcoding it — this test
+  // guards "resolveSite reads the config", not which site happens to be active.
+  const activeSite = JSON.parse(
+    readFileSync(resolve(root, 'stitch.config.json'), 'utf8'),
+  ).activeSite;
   assert.equal(resolveSite(root, ['--site', 'seline']), 'seline');
-  assert.equal(resolveSite(root, []), 'steep'); // repo's current activeSite
+  assert.equal(resolveSite(root, []), activeSite);
 });
 
 test('products land in references/theme/ for the active site', () => {

@@ -13,6 +13,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { mergeTokens } from '../../scripts/lib/merge-tokens.mjs';
+import { listPublishableSites } from '../../scripts/lib/publishable-sites.mjs';
+import { scopeAdapter } from '../../scripts/lib/scope-theme.mjs';
 
 const VID = 'virtual:stitch-theme';
 const RESOLVED = '\0' + VID + '.css'; // 带 .css → 走 Vite CSS 管线
@@ -37,6 +39,21 @@ export function stitchTheme() {
         repoRoot + `sites/${activeSite}/adapter.css`,
         activeSite,
       );
+    },
+    // themes/* 导出（issue #8 / ADR 0009）——与 style.css 原子产出。让使用方
+    // 零重发布就能自选/运行时切主题。每个「可发布站」（#7 listPublishableSites，
+    // 三件套齐全）emit 一份 dist/themes/<站>.css：该站 adapter 的每站值作用域化成
+    // [data-site="<站>"]。opt-in 覆盖层：不 import themes/*、不设 data-site 的
+    // 消费者拿到的仍是 style.css 里烤死的 activeSite 那套（零配置默认单套）。
+    // 站名零写死——集合由磁盘动态解析，故永不劈叉、无越界。
+    generateBundle() {
+      for (const site of listPublishableSites(repoRoot)) {
+        this.emitFile({
+          type: 'asset',
+          fileName: `themes/${site}.css`,
+          source: scopeAdapter(repoRoot + `sites/${site}/adapter.css`, site),
+        });
+      }
     },
   };
 }

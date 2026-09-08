@@ -36,6 +36,29 @@
 
 ---
 
+## 用 npm 包灵活切换主题
+
+上面的「切换当前生效主题」是**改仓库、重发布**（换 `activeSite` 里烤定的那套默认皮）。使用方 app **零重发布**就想自己选主题、甚至运行时切，用包的 `themes/*` 导出（原理见 [ADR 0009](./docs/adr/0009-themes-preview-export.md)）。
+
+`npm run build` 会为每个[可发布站](./scripts/lib/publishable-sites.mjs)额外 emit 一份 `dist/themes/<site>.css`（该站 `adapter.css` 的每站值作用域化成 `[data-site="<site>"]`；恒定/派生仍留在 `dist/style.css` 的 `:root`，靠 `var()` 自动跟随）。使用方按需引入要用的站、翻 `data-site` 即整站换肤：
+
+```ts
+// app entry —— style 必装；themes/* 引入你要提供给用户选的那几套
+import '@octohirono/stitch-design-system/style';
+import '@octohirono/stitch-design-system/themes/seline';
+import '@octohirono/stitch-design-system/themes/steep';
+```
+
+```ts
+// 运行时翻 data-site 即整站换肤（可做成给终端用户的主题选择器）
+document.documentElement.dataset.site = 'steep'; // 或 'seline'
+document.documentElement.removeAttribute('data-site'); // 回默认皮
+```
+
+> **零配置默认**：只 `import '.../style'`、不引 `themes/*`、不设 `data-site` 的消费方，拿到的就是 `dist/style.css` 里烤死的 `activeSite` 那一套单主题（[ADR 0007](./docs/adr/0007-active-site-single-switch.md)）——不想管多主题的 app 什么都不用做。想让用户灵活选主题，再按上面 opt-in 引入 `themes/*`：一站一份、只搬每站值到 `[data-site]`，不引就不存在、零膨胀。
+
+---
+
 ## 新增 / 修改组件
 
 组件**只读角色变量** `var(--stitch-*)`，长相由 adapter 灌值、自动换肤。正本：[手写新增一个组件](./docs/contributing/add-new-component.md)、[组件源代码规范](./docs/contributing/component-authoring.md)、[同步机制与 CI](./docs/contributing/sync-and-ci.md)。

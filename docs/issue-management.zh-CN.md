@@ -410,22 +410,13 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/9
 
 > 新增 reset-theme skill（并入 plugin.json skills 数组）：从可发布站挑一套 → 只写使用方项目 stitch.config.json 指针（幂等、不改已装插件、per-project）；与 #9 读时解析对齐。含改根 README 讲 reset-theme 切主题用法。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 10 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：新增 skill reset-theme，并入 .claude-plugin/plugin.json 的 skills 数组（与 stitch-design-system 并列，同插件便于定位彼此）。功能：列出可发布站（#7 判据 / 或 stitch-design-system skill 的 theme-presets/ 目录动态取，零写死站名），使用方挑一套 → 只往使用方项目根写/更新 stitch.config.json 的 activeSite 指针。性质：幂等（再选同一套同结果）、不改任何已装插件内脏（升级不丢）、per-project。选定后 #9 skill 读时解析 + #8 预览默认站都对齐同一站名——预览(data-site) 与 开发(指针) 同名即对齐。改根 README 补「reset-theme 切换开发主题」节，与 #8「npm 预览切换」节呼应、点明对齐。
-
-红线（结构 Hook）：H1 自包含（reset-theme 零外链、零写死站名·动态取）；H3 不破 stitch-design-system skill 自包含；无 emoji/裸 svg/Unicode；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. reset-theme skill 就位、并入 plugin.json skills；claude plugin validate 两清单通过。
-2. 选 steep → 使用方项目 stitch.config.json.activeSite=steep（幂等：再跑同结果）；不写任何已装插件目录（stitch-design-system skill 文件零改动）。
-3. 与 #9 联动：写指针后 stitch-design-system skill 读时解析得 steep presets（串一次开篇+结尾）。
-4. 执行报告两块表：① Hook（H1/H3/H5）全 🟢；② 真实 case dry_run（选站→指针写入→skill 解析到位）🟢。
-
-收尾门：用户验收通过后才 commit(#10) + close + GH 评论登记两块表 + README 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `8233b90`，2026-09-09，用户验收通过）。新增并列 skill **reset-theme**（并入 [.claude-plugin/plugin.json](../.claude-plugin/plugin.json) skills 数组）：自包含 helper [scripts/theme-pointer.mjs](../skills/reset-theme/scripts/theme-pointer.mjs) —— `--list` 从并列的 stitch-design-system skill `references/theme-presets/*` **动态枚举**可选主题（零写死站名，跟 [listPublishableSites](../scripts/lib/publishable-sites.mjs) 判据同一集合）；`--site <theme> --root <project>` **幂等**写/更新使用方项目指针，**只碰这一个文件、绝不改任何已装插件内脏**（升级不丢）、per-project。**仅用户触发**：frontmatter `disable-model-invocation: true`（agent 不主动调用，避免误切主题）；`compatibility` 声明 Node.js 前置；结构符合 **agentskills 规范**（`SKILL.md` + `scripts/`（运行时）+ `tests/`（测试））；`--root` **必填**——写目标永远显式、与 cwd 无关，杜绝误写进 skill/plugin。
+>
+> **消费侧指针经用户评审从「项目根 `stitch.config.json`」迁到「项目 `.agent/stitch.theme.json`」**——刻意区别于本仓库自己开发用的构建配置 `stitch.config.json`（不同名/不同位/不同角色，消除混淆；`.agent/` 是通用 agent 目录也是插件安装所在）。**写读成对**：#9 读取端同步（[resolve-preset.mjs](../scripts/lib/resolve-preset.mjs) + stitch-design-system SKILL.md「Active theme」节 + 其 README + [check-skill.mjs](../scripts/check-skill.mjs) 消费者模拟），文档同步（[ADR 0010](./adr/0010-consume-time-theme-choice.md) 修订「两层同名指针」→「两层·两个不同文件·对齐 `activeSite` 的值(站名)」+ [ADR 0005](./adr/0005-single-skill.md)、[CONTEXT.md](../CONTEXT.md) `activeSite` 词条、[skill-acceptance.md](./contributing/skill-acceptance.md)、[multi-site-theming.md](./design-system/multi-site-theming.md)、根 README「用 reset-theme 切换开发主题」节）。本仓库根 `stitch.config.json` 引用一律不动。
+>
+> **① 结构 Hook**：**H1** 自包含·零外链·零写死站名（`--list` 动态枚举；`check:boundary ✓ 三层零越界`，agnostic 扫 reset-theme SKILL.md 无越界）🟢、**H3** 不破 stitch-design-system 自包含（`check:skill 57/57`，单向只读兄弟）🟢、无 emoji/裸 svg/Unicode 🟢、**H5** `npm run ci` EXIT 0（57/57 + 615 unit + 132 a11y + build）🟢。**② 真实 case dry_run**：`--list` 动态得 `{seline,steep}`；选 steep → `<project>/.agent/stitch.theme.json` `activeSite=steep`（幂等 byte-identical、插件快照零增删改、`--root` 缺失报错 exit 1 拒 cwd）→ #9 `resolveActiveSite` 读回 `steep` 且预置就位；`claude plugin validate` 两清单通过；`node --test` 16/16 🟢。两块表见 [GH #10 评论](https://github.com/HironoOcto/stitch-design-system/issues/10#issuecomment-5588677667)。
+>
+> **备注**：`disable-model-invocation` 是 Claude Code 专有字段（不在 agentskills 开放 spec，故仓库锁定的 skills-ref@0.1.5 会提示该字段——不进 CI、不 gate 任何闸；skills-ref 无更新版）。本 issue 顺带对 #9 消费指针位置作了一次有意修订（root → `.agent/stitch.theme.json`）。无迁移/预建笔记。下游：本件是本批（#7/#8/#9/#10）主题切换双向可切的收尾。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/10
 依赖：#9（预置 + 读时解析就位，指针要有被解析的一端）。

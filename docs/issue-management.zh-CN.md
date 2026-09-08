@@ -388,22 +388,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/7
 
 > 给包加预览专用导出：build emit dist/themes/<站>.css（各站 adapter :root→[data-site]，用 #7 判据）+ package.json "./themes/*" 通配导出；生产仍只 /style 兜 activeSite。含改根 README + react-project.md 讲 npm 切主题用法 + 新 ADR。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 8 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：npm run build 为每个可发布站（#7 listPublishableSites）emit dist/themes/<站>.css（该站 adapter.css 的 :root 作用域化成 [data-site="<站>"]、只含每站值；恒定/派生留 style.css :root 靠 var() 跟随），emit 挂进现有 vite-plugin-stitch-theme 的 generateBundle/emitFile；package.json 加 "./themes/*": "./dist/themes/*.css"。生产默认路径不变（不 import themes/*、不设 data-site → 拿 style.css 烤的 activeSite 默认皮，B 方案不破）。改根 README 补「npm 切换预览主题」节（import themes/<站> + 翻 data-site；点明生产仍只 /style），react-project.md 顺带提。新增 ADR「themes/* 预览导出」（一站一文件/opt-in/生产单套/dev 预览非生产 A 方案）。
-
-红线（结构 Hook）：H2 只读 var(--stitch-*)（themes/* 只搬每站值到角色名、无越界）；H4 style.css :root 单份不变量不破；H1 emit 脚本零写死站名（check:boundary 绿）；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. npm run build 产 dist/themes/{seline,steep}.css（[data-site] 块、只含每站值），站集合==#7；phantom/saybriefly 不产。
-2. npm pack --dry-run 含 dist/themes/*.css；生产不变——dist/style.css :root 仍 seline、组件产物 diff（除 themes/*）空。
-3. 真实切站：装 tarball 探针 app import style + themes/seline + themes/steep，翻 data-site 时同一 --stitch-* 的 computed 值在两套间实际切换（浏览器/getComputedStyle 开篇+结尾）。
-4. 执行报告两块表：① Hook（H2/H4/H1/H5）全 🟢；② 真实切站 dry_run 🟢。
-
-收尾门：用户验收通过后才 commit(#8) + close + GH 评论登记两块表 + ADR/README/react-project.md 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `c5897e9`，用户验收通过）。`npm run build` 为每个可发布站（#7 [listPublishableSites](../scripts/lib/publishable-sites.mjs)）额外 emit `dist/themes/<站>.css`：该站 `adapter.css` 每站值作用域化成 `[data-site="<站>"]`（新 [scope-theme.mjs](../scripts/lib/scope-theme.mjs) 纯函数 seam、TDD 4/4；恒定/派生留 `style.css` 的 `:root` 靠 `var()` 跟随），emit 挂进既有 `vite-plugin-stitch-theme` 的 `generateBundle`/`emitFile`、与 `style.css` 原子产出；`package.json` 加 `"./themes/*": "./dist/themes/*.css"`。**定位（用户验收裁定，修订了原 prompt 的「dev 预览、非生产 A 方案」表述）**：`themes/* + data-site` 是**使用方灵活选主题的一等常规用法**（可做用户主题选择器），不引 `themes/*`/不设 `data-site` = 零配置默认单套（烤定 `activeSite`，B 方案不破）。新增 [ADR 0009](./adr/0009-themes-preview-export.md)（一站一文件 / opt-in / 零配置默认单套 / 与 [ADR 0001](./adr/0001-multi-site-reskin.md) B 方案关系）；README 新增「用 npm 包灵活切换主题」节；`react-project.md` 顺带提（`<site>` 占位、boundary-safe）。**① 结构 Hook**：**H2** themes 全 `--stitch-*`（seline 36/36、steep 34/34、`:root {` 选择器 0）、**H4** `style.css` 首行仍 seline / 单 `:root` / `color-mix` ×68 未求值 / 生产 diff（除 themes/）空、**H1** emit 走 `listPublishableSites` 零写死站名（`check:boundary ✓`）、**H5** `npm run ci` EXIT 0（pre-commit）🟢。**② 真实切站 dry_run**：build 产 `{seline,steep}.css`、站集合 `==#7`（phantom/saybriefly 不产）；`npm pack --dry-run` 含 `dist/themes/*.css`、`import.meta.resolve` 三路解析；真实浏览器装 tarball 探针经公开 exports import，翻 `data-site` 时 `--stitch-accent` 在 `#3ba6f1`↔`#17191c` 实际切换（flips true）、派生 `--stitch-accent-hover` 靠 `var()` 跟随 🟢。两块表见 GH #8 评论。顺带修既存 `node --test` 腐化（不在 ci）：families 族数硬编码 9→动态族名清单、build-skill/build-tokens 三个 stale `activeSite` 断言改为动态读 `stitch.config.json`。下游：#9 skill presets 与本导出同调 #7 判据、同一站名对齐。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/8
 依赖：#7（判据就位）。

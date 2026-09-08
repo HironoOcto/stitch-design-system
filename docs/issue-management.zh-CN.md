@@ -399,23 +399,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/8
 
 > build:skill 出全部可发布站 presets（#7 判据）+ SKILL.md 读消费项目 stitch.config.json.activeSite 读时解析 presets/<active> + description 转主题中性、seline 散文下沉 body。默认（无指针）= npm 默认。新 ADR（修订 0005/0007）+ CONTEXT 新词 + 随之更新 check:skill/skill-acceptance。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 9 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：把 skill 主题从「发布时 activeSite 烤死单套」改为「发布时定默认、消费时可切、任一时刻仍单套」（不变式不破）。三处：① build:skill 为全部可发布站（#7）生成 references/theme-presets/<站>/{tokens.css==mergeTokens, rules.md 逐字节, 风格散文}，默认套=activeSite=npm 默认；② SKILL.md 读时解析——先读消费项目 stitch.config.json.activeSite（无则回落发布默认）→ 读 presets/<active>/*；③ description 转主题中性（讲系统不讲皮），seline 招牌散文下沉 body 的「当前风格」节随 active 解析。design-rules.md 不动。同步更新 check-skill.mjs / skill-acceptance.md 对应机器档（从「单套 references/theme/*」→「presets/<站>/* 全备 + 读时解析 + 换主题散文隔离」）。新增 ADR「消费时选主题」修订 0005/0007；CONTEXT 补 主题预置(preset) / activeSite（消费侧指针）；#7 单判据不变式在此 ADR 收录。
-
-红线（结构 Hook）：H3 skill self-contained（预置全在 references/、零外链、换主题散文隔离，check:skill 更新后全绿）；H4 每份 preset tokens 不变量（单 :root + DO NOT EDIT + 派生 color-mix 未求值）；H1 自包含·零写死站名；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. build:skill 产 references/theme-presets/{seline,steep}/*（tokens==mergeTokens、rules 逐字节、散文两段），站集合==#7。
-2. SKILL.md 读时解析：消费项目 activeSite=steep → 解析到 steep presets；无该文件 → 回落发布默认(=npm 默认)。
-3. description 主题中性（grep 无 seline 招牌词/站名）；seline 风格散文在 body、随 active。
-4. 换主题隔离：切消费侧指针 seline↔steep，AI 得对应 presets、其余 diff 收敛。
-5. 执行报告两块表：① Hook（H3/H4/H1/H5）全 🟢；② 真实 case dry_run（读时解析 + 换主题 diff 收敛）🟢。
-
-收尾门：用户验收通过后才 commit(#9) + close + GH 评论登记两块表 + ADR/CONTEXT/check:skill 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `4ed76d5`，用户验收通过）。把 skill 主题从「发布时 `activeSite` 烤死单套」改为「**发布时定默认、消费时可切、任一时刻仍单套**」——不变式不破（[ADR 0005](./adr/0005-single-skill.md)）：仍唯一 skill、任一时刻单套，只「哪套」的决定权从发布时搬到消费时。**① 预置全备**：`build:skill`（[build-skill.mjs](../scripts/build-skill.mjs)）为**每个可发布站**（#7 [listPublishableSites](../scripts/lib/publishable-sites.mjs)）生成 `references/theme-presets/<站>/{tokens.css==mergeTokens, rules.md 逐字节, style.md=blurb 两段}`；全局 `design-rules.md` **单份**留 `references/theme/`（**不动**，贴合 issue 字面）；SKILL.md 只注入 `SLOT:default-site`（发布默认 = 本仓库 `activeSite`）。**② 读时解析**：新 seam [resolve-preset.mjs](../scripts/lib/resolve-preset.mjs) + SKILL.md「Active theme」节——读消费项目 `stitch.config.json.activeSite`，无则回落发布默认；**确定式、绝不挑选、对不上就问用户**（不 browse 目录乱定）。**③ description 主题中性**：讲设计系统本身、触发落在「做/改 web UI」、明写 **npm 包非必需**（standalone 也走），招牌散文下沉各 preset `style.md` 随 active 呈现。**机器档同步**：[check-skill.mjs](../scripts/check-skill.mjs)（§Presets 站集合==#7、§6/§8/§9 逐 preset、`default-site` 槽、description 中性、读时解析/换主题隔离，**57/57**）、[skill-acceptance.md](./contributing/skill-acceptance.md) 对应节改写、[check-boundary.mjs](../scripts/check-boundary.mjs) ds-surface 纳入 `theme-presets/**`、`.prettierignore` 跟到新 tokens 路径。**新增 [ADR 0010](./adr/0010-consume-time-theme-choice.md)**（修订 0005/0007、收录 #7 单判据不变式）；**CONTEXT** 补「主题预置(preset)」+「activeSite 消费侧指针」；README/skill README/pipeline/multi-site-theming 同步。**期间按用户反馈重写 SKILL.md**（`/skill-creator` 对齐 agentskills 最佳实践）：面向消费 agent、不暴露构建行话、去掉 `<active>` 装完打不开的占位路径。**① 结构 Hook**：**H3** self-contained（预置全在 `references/`、零外链、换主题隔离，`check:skill` 57/57）🟢、**H4** 每份 preset tokens 不变量（单 `:root`+`DO NOT EDIT`+派生 `color-mix` 逐项未求值；seline/steep 各核）🟢、**H1** 自包含·零写死站名（新逻辑走 `listPublishableSites`/`resolveActiveSite`；`check:boundary ✓ 三层零越界`）🟢、**H5** `npm run ci` EXIT 0（format→check:docs→check:skill 57/57→check:boundary→lint→615 unit→132 a11y→build）🟢。**② 真实 case dry_run**：消费 `activeSite=steep`→解析 steep preset（accent `#17191c`）、翻 `seline`→seline preset（`#3ba6f1`）、无 config→回落发布默认 seline(=npm 默认)；换主题隔离——steep≠seline 三件 `[tokens,rules,style]` 全不同、`design-rules.md` 全局单份不进 preset；门闩真咬（注站名入 description→`✗[§1]`、改 preset tokens→`✗[§6]`、删 preset 目录→`✗[§Presets]`）🟢。两块表见 GH #9 评论。下游解锁：#10 reset-theme 写指针（被解析的那一端就位）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/9
 依赖：#7（presets 站集合以判据为准）。与 #8 可并行。

@@ -15,6 +15,7 @@ import {
   writeFileSync,
   existsSync,
   readdirSync,
+  mkdirSync,
   mkdtempSync,
   copyFileSync,
 } from 'node:fs';
@@ -571,7 +572,7 @@ check(
 );
 
 // The switch moved to READ time (ADR 0010): all presets coexist in the built skill; the
-// consumer's stitch.config.json pointer picks which one the AI reads. Exercise that the
+// consumer's .agent/stitch.theme.json pointer picks which one the AI reads. Exercise that the
 // pointer resolves each publishable site (fallback = published default) and that switching
 // it yields a DISTINCT preset (isolation), while the global/theme-neutral files never move.
 check(
@@ -591,8 +592,9 @@ check(
     // each publishable site as a pointer → that site, and its preset dir is present
     for (const s of PRESET_SITES) {
       const c = mkdtempSync(join(tmpdir(), 'consumer-'));
+      mkdirSync(join(c, '.agent'), { recursive: true });
       writeFileSync(
-        join(c, 'stitch.config.json'),
+        join(c, '.agent', 'stitch.theme.json'),
         JSON.stringify({ activeSite: s }),
       );
       if (resolveActiveSite(c, site) !== s)

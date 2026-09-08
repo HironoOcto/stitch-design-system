@@ -48,9 +48,9 @@ _Avoid_: 主题快照（那是单份 tokens.css 的旧说法）；把 design-rul
 _Avoid_: 把它和 adapter.css 混谈（adapter 是源，style.css 是产物）
 
 **activeSite（当前主题开关 / 消费侧指针）**：
-`stitch.config.json` 的字段，是个**两层同名指针**：
-- **本仓库根**的 `activeSite` = **发布默认**——"当前生效哪个站"的唯一真相，`vite build`（出 style.css）与 `build:skill`（定发布默认、注入 SKILL.md `SLOT:default-site`）都读它，两条构建共用同一个 `mergeTokens`。demo 站不受此开关限制（全站都挂）。
-- **消费项目根**的 `activeSite` = **消费侧指针**——skill 被读时解析（[resolve-preset.mjs](./scripts/lib/resolve-preset.mjs)）选中对应**主题预置**；无文件 / 无该键 → 回落发布默认（= npm 默认皮）。与预览侧 `data-site`（[ADR 0009](./docs/adr/0009-themes-preview-export.md)）填同一站名即整体对齐。
+`activeSite` 是个**两层指针，落在两个不同文件**（不同角色，别混）：
+- **本仓库根 `stitch.config.json`** 的 `activeSite` = **发布默认**——"当前生效哪个站"的唯一真相，是**开发本设计系统时的构建配置**，`vite build`（出 style.css）与 `build:skill`（定发布默认、注入 SKILL.md `SLOT:default-site`）都读它，两条构建共用同一个 `mergeTokens`。demo 站不受此开关限制（全站都挂）。
+- **消费项目 `.agent/stitch.theme.json`** 的 `activeSite` = **消费侧指针**——装了插件的使用方选主题的指针（reset-theme 写、`.agent/` 是通用 agent 目录也是插件安装所在），skill 被读时解析（[resolve-preset.mjs](./scripts/lib/resolve-preset.mjs)）选中对应**主题预置**；无文件 / 无该键 → 回落发布默认（= npm 默认皮）。**刻意区别于本仓库的 `stitch.config.json`**：不同名、不同位、不同角色。对齐的是 `activeSite` 的**值（站名）**——与预览侧 `data-site`（[ADR 0009](./docs/adr/0009-themes-preview-export.md)）填同一站名即整体对齐。
 
 见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)（发布默认）+ [ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)（消费侧指针 + 读时解析）。
 _Avoid_: 每条构建各设一个开关；把两层指针当成一处（本仓库定默认、消费项目可覆盖）

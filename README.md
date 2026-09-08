@@ -18,7 +18,7 @@
 2. **抽两个产物**：按 [onboard-site playbook](./docs/contributing/onboard-site.md) 从 `DESIGN.md` 生成 `sites/<site>/adapter.css`（值·单段静态 `:root`，只填 `--stitch-*` 角色名）+ `sites/<site>/rules.md`（Do/Don't + 长相规则）。**AI 生成 + 人复核**，非确定脚本；复核清单见 [onboard-site-review.md](./docs/contributing/onboard-site-review.md)。
 3. **demo 肉眼验证**：`npm run demo`，顶栏切到 `<site>` 看整站换肤。demo **动态发现**——凡 `sites/*/adapter.css` 存在即自动上架，无需改配置、不受 `activeSite` 限制（见 [demo-site.md](./docs/contributing/demo-site.md)）。
 4. **设为生效主题**（仅当要把它嵌进 skill / 发布时）：把 `stitch.config.json` 的 `activeSite` 改成 `<site>`。用 `npm run build:tokens` 自证 `contract + 该站 adapter` 合并结果（产物 gitignore，只作核对）。
-5. **嵌进 skill**：按 [skill 构建流程 §4.5](./docs/contributing/skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（为**每个可发布站**各备一套预置 `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `references/theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`）。「哪套生效」由消费项目 `stitch.config.json` 指针读时解析（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)）；本仓库 `activeSite` 定发布默认。
+5. **嵌进 skill**：按 [skill 构建流程 §4.5](./docs/contributing/skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（为**每个可发布站**各备一套预置 `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `references/theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`）。「哪套生效」由消费项目 `.agent/stitch.theme.json` 指针读时解析（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)）；本仓库 `activeSite` 定发布默认。
 6. **验收**：按 [skill 结构验收标准](./docs/contributing/skill-acceptance.md) 核当前生效主题的 skill（9 产物节；`tokens.css == mergeTokens`、`rules.md == 源逐字`、无他站风格残留）。
 
 > 硬红线：`adapter.css` 只写 `--stitch-*` 角色名、绝不引原始 `--color-*`；`:root → [data-site=x]` 的作用域化只发生在 demo 内存里，源文件永远是纯 `:root`。
@@ -30,7 +30,7 @@
 一次只有一个 `activeSite` 生效（**构建时切**，见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)）。换主题只重算主题产物，**组件产物不变**：
 
 1. **改 activeSite**：把 `stitch.config.json` 的 `activeSite` 改成目标站。该站须已有 `sites/<site>/adapter.css` + `rules.md` + `skill-blurb.md`（还没有就先按上面「新增一个主题 site」加站——`skill-blurb.md` 是该站接入时 `build:blurb` 冻结的产物，缺它 `build:skill` 会直接报错）。
-2. **重建 skill 主题**：`npm run build:skill` —— 为每个可发布站重算预置 `references/theme-presets/<站>/*` 并把 SKILL.md 的 `SLOT:default-site` 更新成新默认；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。**注意**：这里换的是**发布默认**；**消费方**换开发主题不必动本仓库——改各自项目 `stitch.config.json` 指针即可（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)，配合 reset-theme skill）。
+2. **重建 skill 主题**：`npm run build:skill` —— 为每个可发布站重算预置 `references/theme-presets/<站>/*` 并把 SKILL.md 的 `SLOT:default-site` 更新成新默认；`references/components/*` 组件参考 diff 为空（[skill 构建流程](./docs/contributing/skill-build-pipeline.md)）。**注意**：这里换的是**发布默认**；**消费方**换开发主题不必动本仓库——改各自项目 `.agent/stitch.theme.json` 指针即可（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)，配合 reset-theme skill）。
 3. **重建发布产物**：执行 `npm run build`。构建时虚拟模块**自动**读 `activeSite`，把新主题的 `:root` 写进 `dist/style.css`——你不用手动改任何样式（原理见 [packaging.md](./docs/contributing/packaging.md)）；组件 JS 产物不变。
 4. **验收**：执行 `npm run ci`，须全绿（其中 `check:skill` 会断言「换主题只有 theme 产物变，其余 diff 为空」）。
 
@@ -56,6 +56,22 @@ document.documentElement.removeAttribute('data-site'); // 回默认皮
 ```
 
 > **零配置默认**：只 `import '.../style'`、不引 `themes/*`、不设 `data-site` 的消费方，拿到的就是 `dist/style.css` 里烤死的 `activeSite` 那一套单主题（[ADR 0007](./docs/adr/0007-active-site-single-switch.md)）——不想管多主题的 app 什么都不用做。想让用户灵活选主题，再按上面 opt-in 引入 `themes/*`：一站一份、只搬每站值到 `[data-site]`，不引就不存在、零膨胀。
+
+---
+
+## 用 reset-theme 切换开发主题
+
+上一节的 `themes/*` 是**运行时**给终端用户翻 `data-site` 换皮；这一节换的是另一回事——**你（使用方）开发时，让 AI 照哪套主题写 UI**。发这套 skill 的插件里除了 `stitch-design-system`，还并列一条 [`reset-theme`](./skills/reset-theme/SKILL.md) skill 专管这件事（同插件分发，便于彼此定位、一致更新）。
+
+它做的事极小、也极稳：
+
+1. **列可发布站**：从并列的 `stitch-design-system` skill 附带的 `references/theme-presets/*` **动态取**当前可选主题（零写死站名——跟 [`listPublishableSites`](./scripts/lib/publishable-sites.mjs) 判据同一集合）。
+2. **挑一套**：由你选，AI 不替你定、也不会给出列表外的名字。
+3. **只写项目指针**：把你选的站名写进**你自己项目**的 `.agent/stitch.theme.json` 的 `activeSite`（其余键原样保留；`.agent/` 是通用 agent 目录，也是本插件安装所在，故指针随之落这里——刻意区别于本仓库开发用的根 `stitch.config.json`）。**只碰这一个文件**——不改任何已装插件的内脏，所以升级插件不丢选择；幂等（再选同一套 = 同结果）；per-project（两个项目可各一套）。
+
+选定后，`stitch-design-system` skill 就**读时解析**这枚指针决定照哪套主题写 UI（[ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)），无指针则回落到发布默认（= npm 包默认皮）。
+
+> **两边对齐，不漂移**：上一节的**预览**认 `data-site="<站>"`，这一节的**开发**认指针 `activeSite="<站>"`——**同一个站名**即两边说的是同一套皮。给终端用户预览的那套，和 AI 开发时照的那套，从结构上锁成一致。
 
 ---
 

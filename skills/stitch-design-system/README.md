@@ -44,7 +44,7 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 | `references/theme-presets/<站>/style.md` | 该主题预置的招牌风格散文（一段话视觉心智模型） |
 | `references/theme/design-rules.md` | 全局设计法则（禁写死、图标、动效、无障碍、配色比例；跨主题单份） |
 
-主题**预置全备**：每个可发布站各一套 `theme-presets/<站>/`。「哪套生效」由消费项目 `stitch.config.json` 的 `activeSite` 指针在读时决定（无则回落发布默认）——见 `SKILL.md` 的「Current style」节。
+主题**预置全备**：每个可发布站各一套 `theme-presets/<站>/`。「哪套生效」由消费项目 `.agent/stitch.theme.json` 的 `activeSite` 指针在读时决定（无则回落发布默认）——见 `SKILL.md` 的「Current style」节。
 
 ## 两种使用场景
 

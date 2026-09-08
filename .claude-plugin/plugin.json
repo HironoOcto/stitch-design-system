@@ -15,5 +15,5 @@
     "design-tokens",
     "components"
   ],
-  "skills": ["./skills/stitch-design-system"]
+  "skills": ["./skills/stitch-design-system", "./skills/reset-theme"]
 }

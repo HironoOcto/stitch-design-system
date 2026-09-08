@@ -32,7 +32,7 @@ Exactly one theme is active for a project. Never pick, mix, or guess a theme, an
 browse `references/theme-presets/` to choose one — the active theme is determined, not
 selected:
 
-1. If the project root has a `stitch.config.json` with an `activeSite`, that value is the
+1. If the project has a `.agent/stitch.theme.json` with an `activeSite`, that value is the
    active theme.
 2. Otherwise the active theme is the default:
 

@@ -2,7 +2,7 @@
 
 > skill「**按规格造好、没坏**」的结构验收标准。认证结构，**不**认证「好不好用」——触发/产出质量的 eval 另立、晚一步做。
 >
-> **主题模型（[ADR 0010](../adr/0010-consume-time-theme-choice.md)）**：skill **预置全备**——`build:skill` 为**每个可发布站**（#7 [listPublishableSites](../../scripts/lib/publishable-sites.mjs)）各备一套主题预置 `references/theme-presets/<站>/{tokens.css, rules.md, style.md}`；「哪套生效」由消费项目 `stitch.config.json.activeSite` 指针**读时解析**，无指针回落**发布默认**（= 本仓库 `activeSite`，注入 SKILL.md `SLOT:default-site`）。验收因此按「每个可发布站的预置逐份核 + description 主题中性 + 读时解析/换主题隔离」跑，不再核「单套 `references/theme/*`」。`design-rules.md` 是全局、单份、跨主题不变的例外，仍在 `references/theme/`（不进预置）。
+> **主题模型（[ADR 0010](../adr/0010-consume-time-theme-choice.md)）**：skill **预置全备**——`build:skill` 为**每个可发布站**（#7 [listPublishableSites](../../scripts/lib/publishable-sites.mjs)）各备一套主题预置 `references/theme-presets/<站>/{tokens.css, rules.md, style.md}`；「哪套生效」由消费项目 `.agent/stitch.theme.json` 的 `activeSite` 指针**读时解析**，无指针回落**发布默认**（= 本仓库 `stitch.config.json` 的 `activeSite`，注入 SKILL.md `SLOT:default-site`）。验收因此按「每个可发布站的预置逐份核 + description 主题中性 + 读时解析/换主题隔离」跑，不再核「单套 `references/theme/*`」。`design-rules.md` 是全局、单份、跨主题不变的例外，仍在 `references/theme/`（不进预置）。
 > 本文与 `check:skill`（CI 脚本）是同一套标准的**人读面 / 机读面**：本文用文字列出查什么、怎么算过，`check:skill` 是同一批检查的代码实现。两者都**不是规则的源头**——规则在上游（见下），上游变、两者都跟；两者若彼此不符是漂移，靠单源派生消除，别靠谁压谁。
 
 面向接手 agent 与 `check:skill` 实现者。规则来源两套合一：① [skill 构建流程](./skill-build-pipeline.md) 的结构约束；② agentskills.io 官方规格与最佳实践（Specification / Best practices / Optimizing descriptions / Using scripts / Evaluating skills）。

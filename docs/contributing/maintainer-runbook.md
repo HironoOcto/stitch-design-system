@@ -76,7 +76,14 @@
 
 > 分发装法（`npx skills add` / `.claude-plugin` 原生路径）见 skill 侧 [安装说明](../../skills/stitch-design-system/README.md#安装) 与 [ADR 0008](../adr/0008-distribution-and-package-name.md)。
 
-### 本地重装验证 skill 插件（`.claude-plugin` 路径）
+本仓库有**两条对等的分发/安装路径**，本地验证时按你实际发布的那条来测（想两条都测就各跑一遍）：
+
+- **路径 A · `claude plugins`（Claude 原生）**——走仓库根 `.claude-plugin/`，只服务 Claude Code。
+- **路径 B · `npx skills`（通用 CLI）**——`vercel-labs/skills`，一次通吃 76+ agent。
+
+> ⚠️ 本仓库发了**两个 skill**：`stitch-design-system` + `reset-theme`。两条路径**装的时候按「仓库」一起进来，卸的时候都得把两个 skill 都清掉**，别只卸一个留一半。
+
+### 路径 A · 本地重装验证（`claude plugins` / `.claude-plugin`）
 
 换了插件版本、`git push` 之后，Claude 会**缓存旧的 marketplace**——不先刷新就还是旧版本。测试 / 重装按这个来（GitHub owner=`HironoOcto`，marketplace 名=`hironoocto`）：
 
@@ -93,10 +100,27 @@ claude plugins marketplace add HironoOcto/stitch-design-system --scope project
 claude plugins install stitch-design-system@hironoocto --scope project
 
 # 3. 确认版本 / scope
-claude plugins list | grep -i stitch     # 应显示当前 plugin.json 版本、project
+claude plugins list | grep -iA3 stitch    # -A3 带出后 3 行；应显示当前 plugin.json 版本、project
 ```
 
-> 卸载测试痕迹 = 只跑第 1 步那两条。`npx skills add` 那条路的卸载是 `npx skills remove stitch-design-system`。
+> 卸载测试痕迹（路径 A）= 只跑第 1 步那两条命令。
+
+### 路径 B · 本地重装验证（`npx skills`）
+
+`npx skills` 不走 marketplace 缓存，直接按仓库拉最新。`add` 按**仓库**装（可一次装多个 skill），`remove` 按 **skill 名**卸（CLI 不追踪来源仓库，所以没有「按仓库一键卸」——两个 skill 都得点名）。默认装到当前项目；加 `-g` 是全局（`~/`）。
+
+```bash
+# 1. 装 / 重装（拉最新；-y 跳过交互确认）
+npx skills add HironoOcto/stitch-design-system -y
+
+# 2. 确认已装（列出当前项目已装 skill）
+npx skills list                    # 应能看到 stitch-design-system 和 reset-theme
+
+# 3. 卸载测试痕迹——本仓库两个 skill 一并卸（按名，空格分隔）
+npx skills remove stitch-design-system reset-theme -y
+#    └ 不想记名字就跑 `npx skills remove`（空命令）弹多选菜单勾掉；
+#      切勿用 `--all`，那是卸载机器上所有 skill、不止本仓库。
+```
 
 ---
 

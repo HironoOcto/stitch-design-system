@@ -12,11 +12,13 @@ agent，76+ agent 各写入自己的技能目录，无需手拷）：
 npx skills add HironoOcto/stitch-design-system
 ```
 
+> ⚠️ 本仓库发了**两个 skill**：`stitch-design-system` + `reset-theme`。`add` 按**仓库**装（默认两个一起进来），而下面的 `remove` 按 **skill 名**卸——所以卸载要把两个都点名，没有「按仓库一键卸」。
+
 之后更新到最新、或移除：
 
 ```bash
 npx skills update HironoOcto/stitch-design-system
-npx skills remove stitch-design-system
+npx skills remove stitch-design-system reset-theme   # 两个 skill 一并卸；别用 --all（那会清掉机器上所有 skill）
 ```
 
 Claude Code 用户另有一条**原生路径**——仓库根的 `.claude-plugin/`（`plugin.json` +

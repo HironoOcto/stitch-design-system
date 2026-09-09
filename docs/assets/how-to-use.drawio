@@ -1,0 +1,70 @@
+<mxfile>
+  <diagram name="how-to-use" id="howto1">
+    <mxGraphModel dx="1422" dy="794" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="怎么用这套系统？ —— 2 个模块 × 2 个场景" style="text;html=1;sketch=1;fontFamily=Architects Daughter;fontSize=26;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="184" y="24" width="800" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="先认这 2 个模块（各干各的、可分开装）：" style="text;html=1;sketch=1;fontFamily=Architects Daughter;fontSize=15;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="184" y="66" width="800" height="24" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="mod-npm" value="📦 npm 组件库&lt;br&gt;&lt;b&gt;@octohirono/stitch-design-system&lt;/b&gt;&lt;br&gt;真实的 React 组件 + 样式（角色变量 / 主题皮）" style="rounded=1;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a3d66;" vertex="1" parent="1">
+          <mxGeometry x="200" y="100" width="380" height="86" as="geometry"/>
+        </mxCell>
+        <mxCell id="mod-skill" value="🤖 AI skill（+ reset-theme）&lt;br&gt;&lt;br&gt;让 AI 按组件规范、当前主题的长相，帮你写 UI" style="rounded=1;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#4a2d63;" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="380" height="86" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ask" value="👉 先问自己：你要交付什么？ 再看这个模块该不该装 👇" style="text;html=1;sketch=1;fontFamily=Architects Daughter;fontSize=16;fontStyle=1;align=center;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="184" y="200" width="800" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="corner" value="场景 ↓ ／ 模块 →" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=13;fillColor=#f5f5f5;strokeColor=#999999;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="180" y="236" width="200" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="h-npm" value="📦 npm 组件库" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=16;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a3d66;" vertex="1" parent="1">
+          <mxGeometry x="380" y="236" width="360" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="h-skill" value="🤖 AI skill" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=16;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#4a2d63;" vertex="1" parent="1">
+          <mxGeometry x="740" y="236" width="244" height="56" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="r-react" value="🧩 React 项目&lt;br&gt;&lt;br&gt;（有 npm / 有构建工具）" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=16;fontStyle=1;fillColor=#f5f5f5;strokeColor=#999999;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="180" y="292" width="200" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-react-npm" value="✅ &lt;b&gt;必需&lt;/b&gt;&lt;br&gt;&lt;br&gt;真实组件从这来：&lt;br&gt;npm install → import { Button }" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#2d5016;" vertex="1" parent="1">
+          <mxGeometry x="380" y="292" width="360" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-react-skill" value="⭕ &lt;b&gt;可选&lt;/b&gt;&lt;br&gt;&lt;br&gt;有它：AI 照 .d.ts / 主题帮你写&lt;br&gt;没它：你自己读类型手写" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#7a5c00;" vertex="1" parent="1">
+          <mxGeometry x="740" y="292" width="244" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="r-html" value="📄 单文件 HTML&lt;br&gt;&lt;br&gt;（无 npm，双击即开，&lt;br&gt;给非技术用户）" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=16;fontStyle=1;fillColor=#f5f5f5;strokeColor=#999999;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="180" y="442" width="200" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-html-npm" value="✖ &lt;b&gt;用不上&lt;/b&gt;&lt;br&gt;&lt;br&gt;包是 ESM-only、没有 UMD，&lt;br&gt;没法用 script 标签直接丢进页面" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#7a2520;" vertex="1" parent="1">
+          <mxGeometry x="380" y="442" width="360" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="c-html-skill" value="✅ &lt;b&gt;核心&lt;/b&gt;&lt;br&gt;&lt;br&gt;AI 照 skill 里的预置值，手搓&lt;br&gt;同名组件、内联进 index.html" style="rounded=0;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#2d5016;" vertex="1" parent="1">
+          <mxGeometry x="740" y="442" width="244" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="take1" value="📦 &lt;b&gt;npm 可独立用&lt;/b&gt;&lt;br&gt;React 项目里不装 skill 也行——自己读 .d.ts 写代码，包照常工作" style="rounded=1;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a3d66;" vertex="1" parent="1">
+          <mxGeometry x="180" y="620" width="400" height="86" as="geometry"/>
+        </mxCell>
+        <mxCell id="take2" value="🤖 &lt;b&gt;skill 可独立用（仅 HTML 场景）&lt;/b&gt;&lt;br&gt;不装 npm 包，光凭 skill 的规范就能产出一个自包含 index.html" style="rounded=1;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=15;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#4a2d63;" vertex="1" parent="1">
+          <mxGeometry x="600" y="620" width="384" height="86" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="foot" value="🎨 换肤是另一维（和上面正交）：运行时给终端用户翻 data-site 换皮 ／ 用 reset-theme 指针选「AI 开发时照哪套主题」—— 见 README 后两节" style="text;html=1;sketch=1;fontFamily=Architects Daughter;whiteSpace=wrap;fontSize=13;align=center;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="180" y="722" width="804" height="40" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

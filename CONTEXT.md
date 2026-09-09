@@ -36,22 +36,30 @@ _Avoid_: 设计稿、spec
 _Avoid_: 设计规范（太泛，两份都叫这个会混）
 
 **tokens.css**：
-skill 里嵌入的、由 contract.css + 当前 adapter.css 合并出的完整 `:root`。是 skill 给 AI 的**主题快照**（编写时用）。运行时渲染契约是包产物 **style.css**（见其条目），非本文件。
+skill 里嵌入的、由 contract.css + 某站 adapter.css 合并出的完整 `:root`。是 skill 给 AI 的**主题快照**（编写时用）。每套**主题预置**各一份，落在 `references/theme-presets/<站>/tokens.css`。运行时渲染契约是包产物 **style.css**（见其条目），非本文件。
 _Avoid_: tokens.json（本项目不以 JSON 为源）；"唯一运行时契约"（那是 style.css）
+
+**主题预置（preset）**：
+skill 里 `references/theme-presets/<站>/` 下的一套主题产物 = `{tokens.css, rules.md, style.md}`（该站的角色变量值 / 长相规则 / 招牌风格散文两段）。`build:skill` 为**每个可发布站**（见 **activeSite** / [listPublishableSites](./scripts/lib/publishable-sites.mjs)）各备一套，全备但任一时刻只有一套被读时解析选中。区别于全局、单份、跨主题不变的 `references/theme/design-rules.md`（不进预置）。见 [ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)。
+_Avoid_: 主题快照（那是单份 tokens.css 的旧说法）；把 design-rules.md 也叫预置（它是全局件）
 
 **style.css（包产物）**：
 `dist/style.css`，`vite build` 把 contract.css + 当前 adapter.css + 各组件编译样式烤成的一份 CSS。是 `@octohirono/stitch-design-system/style` 导出、终端 app 运行时加载的样式表——**运行时渲染契约**。随 activeSite 变。区别于 skill 的 **tokens.css**（同源、给 AI）。
 _Avoid_: 把它和 adapter.css 混谈（adapter 是源，style.css 是产物）
 
-**activeSite（当前主题开关）**：
-仓库根 `stitch.config.json` 的字段，"当前生效哪个站"的唯一真相。`vite build`（出 style.css）与 `build:skill`（出 tokens.css）都读它；两条构建共用同一个 `mergeTokens` 合并逻辑。demo 站不受此开关限制（全站都挂）。见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)。
-_Avoid_: 每条构建各设一个开关
+**activeSite（当前主题开关 / 消费侧指针）**：
+`activeSite` 是个**两层指针，落在两个不同文件**（不同角色，别混）：
+- **本仓库根 `stitch.config.json`** 的 `activeSite` = **发布默认**——"当前生效哪个站"的唯一真相，是**开发本设计系统时的构建配置**，`vite build`（出 style.css）与 `build:skill`（定发布默认、注入 SKILL.md `SLOT:default-site`）都读它，两条构建共用同一个 `mergeTokens`。demo 站不受此开关限制（全站都挂）。
+- **消费项目 `.agent/stitch.theme.json`** 的 `activeSite` = **消费侧指针**——装了插件的使用方选主题的指针（reset-theme 写、`.agent/` 是通用 agent 目录也是插件安装所在），skill 被读时解析（[resolve-preset.mjs](./scripts/lib/resolve-preset.mjs)）选中对应**主题预置**；无文件 / 无该键 → 回落发布默认（= npm 默认皮）。**刻意区别于本仓库的 `stitch.config.json`**：不同名、不同位、不同角色。对齐的是 `activeSite` 的**值（站名）**——与预览侧 `data-site`（[ADR 0009](./docs/adr/0009-themes-preview-export.md)）填同一站名即整体对齐。
+
+见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)（发布默认）+ [ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)（消费侧指针 + 读时解析）。
+_Avoid_: 每条构建各设一个开关；把两层指针当成一处（本仓库定默认、消费项目可覆盖）
 
 ### AI 消费
 
 **skill**：
-`skills/stitch-design-system/` —— 全系统**唯一**的 skill，嵌入当前生效的那一套主题。换主题 = 重跑 build，skill 结构不变。不存在 per-site skill。
-_Avoid_: per-site skill、多个 skill
+`skills/stitch-design-system/` —— 全系统**唯一**的 skill，任一时刻只呈现一套主题。预置全备（每个可发布站一套**主题预置**），「哪套」由消费项目 `activeSite` 指针读时解析、无则回落发布默认。换主题 = 改消费项目指针（skill 本身不重发布），结构不变。不存在 per-site skill。见 [ADR 0005](./docs/adr/0005-single-skill.md) + [ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)。
+_Avoid_: per-site skill、多个 skill；"嵌入发布时烤死的单套"（0010 起改消费时解析）
 
 **组件族（family）**：
 把主要功能相近的组件归到同一个 `references/components/<族>.md` 的分组（general / layout / form-controls / overlays / navigation / feedback / data-display …）。既是 AI 的目录分类，也是文件切分单位。判族只看主要功能，不看长相或实现。

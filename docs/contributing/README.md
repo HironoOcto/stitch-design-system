@@ -2,6 +2,7 @@
 
 维护 stitch 的工程规范（组件怎么写、怎么加、怎么同步、怎么发）。
 
+- [维护 runbook](./maintainer-runbook.md) — 高频操作总入口：加主题站 / 加改组件 / 切生效主题 / 发布 + 命令速查
 - [组件源代码规范](./component-authoring.md) — 目录四件套、TSX/Less/测试/桶导出约定
 - [手写新增一个组件](./add-new-component.md) — 长期贡献流程 + 每个组件必备清单
 - [同步机制与 CI](./sync-and-ci.md) — check:docs、pre-commit、"同步 = 同一 PR"

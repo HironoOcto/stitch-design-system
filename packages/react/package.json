@@ -17,7 +17,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./style": "./dist/style.css"
+    "./style": "./dist/style.css",
+    "./themes/*": "./dist/themes/*.css"
   },
   "sideEffects": [
     "**/*.css",

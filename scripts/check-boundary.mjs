@@ -17,7 +17,7 @@
 // ——这本身是 H1 自测。命中即非零退出。
 //
 // 已知边界：steep 也是普通英文词。source 层若误红正常英文注释——先不预开豁免、红了改词。
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, relative } from 'node:path';
 import { resolveSite } from './build-skill.mjs';
@@ -128,19 +128,20 @@ function skillConsumerFiles() {
   return out;
 }
 
-/** ds-surface 层：每个 skill 的 references/theme/* 主题参考。 */
+/**
+ * ds-surface 层：每个 skill 的主题参考 —— 全局 `references/theme/*`（design-rules.md）
+ * 与每站预置 `references/theme-presets/<站>/*`（tokens.css / rules.md / style.md，ADR 0010）。
+ * 这里主题值（hex + 全站枚举）合法，只禁 animal / 旧包名。
+ */
 function themeRefFiles() {
   const skillsRoot = resolve(root, 'skills');
   if (!existsSync(skillsRoot)) return [];
   const out = [];
   for (const skill of readdirSync(skillsRoot, { withFileTypes: true })) {
     if (!skill.isDirectory()) continue;
-    const themeDir = join(skillsRoot, skill.name, 'references', 'theme');
-    if (!existsSync(themeDir)) continue;
-    for (const f of readdirSync(themeDir)) {
-      const p = join(themeDir, f);
-      if (statSync(p).isFile() && TEXT_EXT.test(f)) out.push(p);
-    }
+    const refs = join(skillsRoot, skill.name, 'references');
+    out.push(...walk(join(refs, 'theme')));
+    out.push(...walk(join(refs, 'theme-presets')));
   }
   return out;
 }

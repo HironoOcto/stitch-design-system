@@ -22,6 +22,22 @@ only, and tree-shaking drops the rest.
 Importing the stylesheet defines the `var(--stitch-*)` role variables that components
 resolve at runtime — no extra setup.
 
+### Let the app pick / switch themes (opt-in)
+
+Zero-config default: `import '.../style'` and you are done — do NOT set `data-site`,
+you get the one baked-in theme. To let your app choose a theme (or switch it at
+runtime, e.g. a user-facing theme picker), the package also exports per-site layers:
+
+```ts
+import '@octohirono/stitch-design-system/style';        // required, baked default
+import '@octohirono/stitch-design-system/themes/<site>'; // opt-in, one import per theme you offer
+```
+
+Then set `document.documentElement.dataset.site = '<site>'` to select/switch (unset =
+the baked default). Each layer only re-scopes that site's per-site role values under
+`[data-site="<site>"]`; constants/derived stay in `/style` and follow via `var()`, so
+you ship no redundant CSS for themes you don't import.
+
 ## Explore the real API before writing code
 
 The installed package ships complete TypeScript declarations — the ground truth for

@@ -15,9 +15,25 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const table = resolve(here, '..', 'component-families.md');
 
-test('parses the 9 families with members', () => {
+test('parses the family roster with members', () => {
   const rows = parseFamilies(table);
-  assert.equal(rows.length, 9);
+  // Exact roster (source table order) — catches dropped/duplicated rows and
+  // documents the set, rather than a bare count that silently rots on growth.
+  assert.deepEqual(
+    rows.map((r) => r.family),
+    [
+      'general',
+      'layout',
+      'form-controls',
+      'overlays',
+      'navigation',
+      'feedback',
+      'data-display',
+      'data-viz',
+      'Form',
+      'Notification',
+    ],
+  );
   const general = rows.find((r) => r.family === 'general');
   assert.ok(general.members.includes('Icon'));
   assert.ok(general.members.includes('Button'));

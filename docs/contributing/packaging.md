@@ -2,7 +2,7 @@
 
 > **状态：已实现**（虚拟主题模块随 #57、打包卫生 `prepublishOnly` + tarball 冒烟随 #60 落地）。本节描述的配置已在 `packages/react/` 就位（`vite.config.ts` / `vite-plugin-stitch-theme.mjs` / `package.json` 发布字段），下面是其**正本记录**，不是待办清单。
 >
-> 本节是**人工做的一次性配置**（建库时配一次，之后基本不动），**不是给 agent 的组件流程**——组件写作规范见 [组件源代码规范](./component-authoring.md)。发布操作的分步 runbook 见 [根 README「发布新版本包」](../../README.md#发布新版本包)。
+> 本节是**人工做的一次性配置**（建库时配一次，之后基本不动），**不是给 agent 的组件流程**——组件写作规范见 [组件源代码规范](./component-authoring.md)。发布操作的分步 runbook 见 [维护 runbook「发布新版本包」](./maintainer-runbook.md#发布新版本包)。
 
 组件库以 **Vite Library 模式 + `preserveModules`** 出包。三条**硬要求**（每条都有下游依赖，漏了会连带出问题）：
 

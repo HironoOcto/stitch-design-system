@@ -377,22 +377,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/6
 
 > 落共享 helper：扫 `sites/` 收「三件套齐全」（adapter.css + rules.md + skill-blurb.md）的站、零写死站名，作 A(#8 themes/*)/B1(#9 skill presets) 的**同一集合来源**。纯 prefactor，不改发布产物。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 7 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：新增 scripts/lib/ 下的 listPublishableSites()——动态扫 sites/、只收三件套 {adapter.css, rules.md, skill-blurb.md} 齐全的站、稳定排序、零写死站名（延续 resolveSite/check-boundary 风格）。现状返回 {seline, steep}，排除只有 {README.md, source/} 的 phantom/saybriefly。这是「可发布站」唯一判据，#8/#9 都调它保证两发布面同集合。本 issue 不改任何发布产物。
-
-红线（结构 Hook，须全绿，可 grep）：H1 自包含（脚本零写死站名，check:boundary 三层零越界）；H5 npm run ci 八步 EXIT 0。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. listPublishableSites() 实跑返回 {seline, steep}、稳定排序；phantom/saybriefly 被排除。
-2. 单测：三件套齐全→收 / 临时造缺件站→排除（测后清理），缺任一件即排除。
-3. helper 零写死站名（grep 自证）。
-4. 执行报告两块表：① 结构 Hook（H1/H5）全 🟢；② 真实 case dry_run（实跑输出 + 造缺件站被排除）🟢。
-
-收尾门：用户验收通过后才 commit(#7) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `7017d01`，2026-09-08，用户验收通过）。落共享 helper [scripts/lib/publishable-sites.mjs](../scripts/lib/publishable-sites.mjs) `listPublishableSites(root)`：`readdirSync(sites)` 动态扫、`TRIAD.every(existsSync)` 判「三件套齐全」（`{adapter.css, rules.md, skill-blurb.md}`）、`.sort()` 稳定字典序、**零写死站名**（`TRIAD` 只列文件名，延续 `resolveSite`/`check-boundary` 动态解析风格）。作 A(#8 `themes/*` emit)/B1(#9 skill presets) 的**同一「可发布站」集合来源** —— 更严的「三件套齐全」而非「有 adapter.css 就算」，正是为让两发布面收录同一集合、能预览必能开发。纯 prefactor，**零发布产物改动**（`git status` 仅两个新文件）。TDD 三轮 vertical red→green：tracer 真实 `sites/`→`[seline,steep]`、缺件矩阵（throwaway `mkdtemp` fixture、`finally` 清理，不碰真 `sites/`）、乱序建目录→稳定排序。**① 结构 Hook**：**H1** 自包含（helper grep `seline|steep|phantom|saybriefly` 零命中；`check:boundary ✓ 三层零越界`）🟢、**H5** `npm run ci` 八步 EXIT 0（format:check→check:docs→check:skill→check:boundary→lint→test:run→test:a11y→build，pre-commit 复跑亦绿）🟢。**② 真实 case dry_run**：`listPublishableSites(realRoot)` 实跑 `["seline","steep"]`、on-disk `[phantom,saybriefly,seline,steep]`→excluded `[phantom,saybriefly]` 🟢；活跑 throwaway root 造 `missing-blurb`/`bare` 缺件站→kept `[full]`、cleanup ok 🟢；`node --test` 3/3 绿。两块表见 GH #7 评论。下游解锁：#8 `themes/*` 预览导出、#9 skill presets 均调此单判据。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/7
 依赖：无，可立即领取（#8/#9 的前置）。
@@ -403,22 +388,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/7
 
 > 给包加预览专用导出：build emit dist/themes/<站>.css（各站 adapter :root→[data-site]，用 #7 判据）+ package.json "./themes/*" 通配导出；生产仍只 /style 兜 activeSite。含改根 README + react-project.md 讲 npm 切主题用法 + 新 ADR。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 8 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：npm run build 为每个可发布站（#7 listPublishableSites）emit dist/themes/<站>.css（该站 adapter.css 的 :root 作用域化成 [data-site="<站>"]、只含每站值；恒定/派生留 style.css :root 靠 var() 跟随），emit 挂进现有 vite-plugin-stitch-theme 的 generateBundle/emitFile；package.json 加 "./themes/*": "./dist/themes/*.css"。生产默认路径不变（不 import themes/*、不设 data-site → 拿 style.css 烤的 activeSite 默认皮，B 方案不破）。改根 README 补「npm 切换预览主题」节（import themes/<站> + 翻 data-site；点明生产仍只 /style），react-project.md 顺带提。新增 ADR「themes/* 预览导出」（一站一文件/opt-in/生产单套/dev 预览非生产 A 方案）。
-
-红线（结构 Hook）：H2 只读 var(--stitch-*)（themes/* 只搬每站值到角色名、无越界）；H4 style.css :root 单份不变量不破；H1 emit 脚本零写死站名（check:boundary 绿）；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. npm run build 产 dist/themes/{seline,steep}.css（[data-site] 块、只含每站值），站集合==#7；phantom/saybriefly 不产。
-2. npm pack --dry-run 含 dist/themes/*.css；生产不变——dist/style.css :root 仍 seline、组件产物 diff（除 themes/*）空。
-3. 真实切站：装 tarball 探针 app import style + themes/seline + themes/steep，翻 data-site 时同一 --stitch-* 的 computed 值在两套间实际切换（浏览器/getComputedStyle 开篇+结尾）。
-4. 执行报告两块表：① Hook（H2/H4/H1/H5）全 🟢；② 真实切站 dry_run 🟢。
-
-收尾门：用户验收通过后才 commit(#8) + close + GH 评论登记两块表 + ADR/README/react-project.md 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `c5897e9`，用户验收通过）。`npm run build` 为每个可发布站（#7 [listPublishableSites](../scripts/lib/publishable-sites.mjs)）额外 emit `dist/themes/<站>.css`：该站 `adapter.css` 每站值作用域化成 `[data-site="<站>"]`（新 [scope-theme.mjs](../scripts/lib/scope-theme.mjs) 纯函数 seam、TDD 4/4；恒定/派生留 `style.css` 的 `:root` 靠 `var()` 跟随），emit 挂进既有 `vite-plugin-stitch-theme` 的 `generateBundle`/`emitFile`、与 `style.css` 原子产出；`package.json` 加 `"./themes/*": "./dist/themes/*.css"`。**定位（用户验收裁定，修订了原 prompt 的「dev 预览、非生产 A 方案」表述）**：`themes/* + data-site` 是**使用方灵活选主题的一等常规用法**（可做用户主题选择器），不引 `themes/*`/不设 `data-site` = 零配置默认单套（烤定 `activeSite`，B 方案不破）。新增 [ADR 0009](./adr/0009-themes-preview-export.md)（一站一文件 / opt-in / 零配置默认单套 / 与 [ADR 0001](./adr/0001-multi-site-reskin.md) B 方案关系）；README 新增「用 npm 包灵活切换主题」节；`react-project.md` 顺带提（`<site>` 占位、boundary-safe）。**① 结构 Hook**：**H2** themes 全 `--stitch-*`（seline 36/36、steep 34/34、`:root {` 选择器 0）、**H4** `style.css` 首行仍 seline / 单 `:root` / `color-mix` ×68 未求值 / 生产 diff（除 themes/）空、**H1** emit 走 `listPublishableSites` 零写死站名（`check:boundary ✓`）、**H5** `npm run ci` EXIT 0（pre-commit）🟢。**② 真实切站 dry_run**：build 产 `{seline,steep}.css`、站集合 `==#7`（phantom/saybriefly 不产）；`npm pack --dry-run` 含 `dist/themes/*.css`、`import.meta.resolve` 三路解析；真实浏览器装 tarball 探针经公开 exports import，翻 `data-site` 时 `--stitch-accent` 在 `#3ba6f1`↔`#17191c` 实际切换（flips true）、派生 `--stitch-accent-hover` 靠 `var()` 跟随 🟢。两块表见 GH #8 评论。顺带修既存 `node --test` 腐化（不在 ci）：families 族数硬编码 9→动态族名清单、build-skill/build-tokens 三个 stale `activeSite` 断言改为动态读 `stitch.config.json`。下游：#9 skill presets 与本导出同调 #7 判据、同一站名对齐。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/8
 依赖：#7（判据就位）。
@@ -429,23 +399,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/8
 
 > build:skill 出全部可发布站 presets（#7 判据）+ SKILL.md 读消费项目 stitch.config.json.activeSite 读时解析 presets/<active> + description 转主题中性、seline 散文下沉 body。默认（无指针）= npm 默认。新 ADR（修订 0005/0007）+ CONTEXT 新词 + 随之更新 check:skill/skill-acceptance。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 9 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：把 skill 主题从「发布时 activeSite 烤死单套」改为「发布时定默认、消费时可切、任一时刻仍单套」（不变式不破）。三处：① build:skill 为全部可发布站（#7）生成 references/theme-presets/<站>/{tokens.css==mergeTokens, rules.md 逐字节, 风格散文}，默认套=activeSite=npm 默认；② SKILL.md 读时解析——先读消费项目 stitch.config.json.activeSite（无则回落发布默认）→ 读 presets/<active>/*；③ description 转主题中性（讲系统不讲皮），seline 招牌散文下沉 body 的「当前风格」节随 active 解析。design-rules.md 不动。同步更新 check-skill.mjs / skill-acceptance.md 对应机器档（从「单套 references/theme/*」→「presets/<站>/* 全备 + 读时解析 + 换主题散文隔离」）。新增 ADR「消费时选主题」修订 0005/0007；CONTEXT 补 主题预置(preset) / activeSite（消费侧指针）；#7 单判据不变式在此 ADR 收录。
-
-红线（结构 Hook）：H3 skill self-contained（预置全在 references/、零外链、换主题散文隔离，check:skill 更新后全绿）；H4 每份 preset tokens 不变量（单 :root + DO NOT EDIT + 派生 color-mix 未求值）；H1 自包含·零写死站名；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. build:skill 产 references/theme-presets/{seline,steep}/*（tokens==mergeTokens、rules 逐字节、散文两段），站集合==#7。
-2. SKILL.md 读时解析：消费项目 activeSite=steep → 解析到 steep presets；无该文件 → 回落发布默认(=npm 默认)。
-3. description 主题中性（grep 无 seline 招牌词/站名）；seline 风格散文在 body、随 active。
-4. 换主题隔离：切消费侧指针 seline↔steep，AI 得对应 presets、其余 diff 收敛。
-5. 执行报告两块表：① Hook（H3/H4/H1/H5）全 🟢；② 真实 case dry_run（读时解析 + 换主题 diff 收敛）🟢。
-
-收尾门：用户验收通过后才 commit(#9) + close + GH 评论登记两块表 + ADR/CONTEXT/check:skill 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `4ed76d5`，用户验收通过）。把 skill 主题从「发布时 `activeSite` 烤死单套」改为「**发布时定默认、消费时可切、任一时刻仍单套**」——不变式不破（[ADR 0005](./adr/0005-single-skill.md)）：仍唯一 skill、任一时刻单套，只「哪套」的决定权从发布时搬到消费时。**① 预置全备**：`build:skill`（[build-skill.mjs](../scripts/build-skill.mjs)）为**每个可发布站**（#7 [listPublishableSites](../scripts/lib/publishable-sites.mjs)）生成 `references/theme-presets/<站>/{tokens.css==mergeTokens, rules.md 逐字节, style.md=blurb 两段}`；全局 `design-rules.md` **单份**留 `references/theme/`（**不动**，贴合 issue 字面）；SKILL.md 只注入 `SLOT:default-site`（发布默认 = 本仓库 `activeSite`）。**② 读时解析**：新 seam [resolve-preset.mjs](../scripts/lib/resolve-preset.mjs) + SKILL.md「Active theme」节——读消费项目 `stitch.config.json.activeSite`，无则回落发布默认；**确定式、绝不挑选、对不上就问用户**（不 browse 目录乱定）。**③ description 主题中性**：讲设计系统本身、触发落在「做/改 web UI」、明写 **npm 包非必需**（standalone 也走），招牌散文下沉各 preset `style.md` 随 active 呈现。**机器档同步**：[check-skill.mjs](../scripts/check-skill.mjs)（§Presets 站集合==#7、§6/§8/§9 逐 preset、`default-site` 槽、description 中性、读时解析/换主题隔离，**57/57**）、[skill-acceptance.md](./contributing/skill-acceptance.md) 对应节改写、[check-boundary.mjs](../scripts/check-boundary.mjs) ds-surface 纳入 `theme-presets/**`、`.prettierignore` 跟到新 tokens 路径。**新增 [ADR 0010](./adr/0010-consume-time-theme-choice.md)**（修订 0005/0007、收录 #7 单判据不变式）；**CONTEXT** 补「主题预置(preset)」+「activeSite 消费侧指针」；README/skill README/pipeline/multi-site-theming 同步。**期间按用户反馈重写 SKILL.md**（`/skill-creator` 对齐 agentskills 最佳实践）：面向消费 agent、不暴露构建行话、去掉 `<active>` 装完打不开的占位路径。**① 结构 Hook**：**H3** self-contained（预置全在 `references/`、零外链、换主题隔离，`check:skill` 57/57）🟢、**H4** 每份 preset tokens 不变量（单 `:root`+`DO NOT EDIT`+派生 `color-mix` 逐项未求值；seline/steep 各核）🟢、**H1** 自包含·零写死站名（新逻辑走 `listPublishableSites`/`resolveActiveSite`；`check:boundary ✓ 三层零越界`）🟢、**H5** `npm run ci` EXIT 0（format→check:docs→check:skill 57/57→check:boundary→lint→615 unit→132 a11y→build）🟢。**② 真实 case dry_run**：消费 `activeSite=steep`→解析 steep preset（accent `#17191c`）、翻 `seline`→seline preset（`#3ba6f1`）、无 config→回落发布默认 seline(=npm 默认)；换主题隔离——steep≠seline 三件 `[tokens,rules,style]` 全不同、`design-rules.md` 全局单份不进 preset；门闩真咬（注站名入 description→`✗[§1]`、改 preset tokens→`✗[§6]`、删 preset 目录→`✗[§Presets]`）🟢。两块表见 GH #9 评论。下游解锁：#10 reset-theme 写指针（被解析的那一端就位）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/9
 依赖：#7（presets 站集合以判据为准）。与 #8 可并行。
@@ -456,22 +410,13 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/9
 
 > 新增 reset-theme skill（并入 plugin.json skills 数组）：从可发布站挑一套 → 只写使用方项目 stitch.config.json 指针（幂等、不改已装插件、per-project）；与 #9 读时解析对齐。含改根 README 讲 reset-theme 切主题用法。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 10 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025 + --repo HironoOcto/stitch-design-system。
-
-目标：新增 skill reset-theme，并入 .claude-plugin/plugin.json 的 skills 数组（与 stitch-design-system 并列，同插件便于定位彼此）。功能：列出可发布站（#7 判据 / 或 stitch-design-system skill 的 theme-presets/ 目录动态取，零写死站名），使用方挑一套 → 只往使用方项目根写/更新 stitch.config.json 的 activeSite 指针。性质：幂等（再选同一套同结果）、不改任何已装插件内脏（升级不丢）、per-project。选定后 #9 skill 读时解析 + #8 预览默认站都对齐同一站名——预览(data-site) 与 开发(指针) 同名即对齐。改根 README 补「reset-theme 切换开发主题」节，与 #8「npm 预览切换」节呼应、点明对齐。
-
-红线（结构 Hook）：H1 自包含（reset-theme 零外链、零写死站名·动态取）；H3 不破 stitch-design-system skill 自包含；无 emoji/裸 svg/Unicode；H5 ci EXIT 0。
-
-验收（真实验收禁糊弄；一个 case 够证）：
-1. reset-theme skill 就位、并入 plugin.json skills；claude plugin validate 两清单通过。
-2. 选 steep → 使用方项目 stitch.config.json.activeSite=steep（幂等：再跑同结果）；不写任何已装插件目录（stitch-design-system skill 文件零改动）。
-3. 与 #9 联动：写指针后 stitch-design-system skill 读时解析得 steep presets（串一次开篇+结尾）。
-4. 执行报告两块表：① Hook（H1/H3/H5）全 🟢；② 真实 case dry_run（选站→指针写入→skill 解析到位）🟢。
-
-收尾门：用户验收通过后才 commit(#10) + close + GH 评论登记两块表 + README 同 PR。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `8233b90`，2026-09-09，用户验收通过）。新增并列 skill **reset-theme**（并入 [.claude-plugin/plugin.json](../.claude-plugin/plugin.json) skills 数组）：自包含 helper [scripts/theme-pointer.mjs](../skills/reset-theme/scripts/theme-pointer.mjs) —— `--list` 从并列的 stitch-design-system skill `references/theme-presets/*` **动态枚举**可选主题（零写死站名，跟 [listPublishableSites](../scripts/lib/publishable-sites.mjs) 判据同一集合）；`--site <theme> --root <project>` **幂等**写/更新使用方项目指针，**只碰这一个文件、绝不改任何已装插件内脏**（升级不丢）、per-project。**仅用户触发**：frontmatter `disable-model-invocation: true`（agent 不主动调用，避免误切主题）；`compatibility` 声明 Node.js 前置；结构符合 **agentskills 规范**（`SKILL.md` + `scripts/`（运行时）+ `tests/`（测试））；`--root` **必填**——写目标永远显式、与 cwd 无关，杜绝误写进 skill/plugin。
+>
+> **消费侧指针经用户评审从「项目根 `stitch.config.json`」迁到「项目 `.agent/stitch.theme.json`」**——刻意区别于本仓库自己开发用的构建配置 `stitch.config.json`（不同名/不同位/不同角色，消除混淆；`.agent/` 是通用 agent 目录也是插件安装所在）。**写读成对**：#9 读取端同步（[resolve-preset.mjs](../scripts/lib/resolve-preset.mjs) + stitch-design-system SKILL.md「Active theme」节 + 其 README + [check-skill.mjs](../scripts/check-skill.mjs) 消费者模拟），文档同步（[ADR 0010](./adr/0010-consume-time-theme-choice.md) 修订「两层同名指针」→「两层·两个不同文件·对齐 `activeSite` 的值(站名)」+ [ADR 0005](./adr/0005-single-skill.md)、[CONTEXT.md](../CONTEXT.md) `activeSite` 词条、[skill-acceptance.md](./contributing/skill-acceptance.md)、[multi-site-theming.md](./design-system/multi-site-theming.md)、根 README「用 reset-theme 切换开发主题」节）。本仓库根 `stitch.config.json` 引用一律不动。
+>
+> **① 结构 Hook**：**H1** 自包含·零外链·零写死站名（`--list` 动态枚举；`check:boundary ✓ 三层零越界`，agnostic 扫 reset-theme SKILL.md 无越界）🟢、**H3** 不破 stitch-design-system 自包含（`check:skill 57/57`，单向只读兄弟）🟢、无 emoji/裸 svg/Unicode 🟢、**H5** `npm run ci` EXIT 0（57/57 + 615 unit + 132 a11y + build）🟢。**② 真实 case dry_run**：`--list` 动态得 `{seline,steep}`；选 steep → `<project>/.agent/stitch.theme.json` `activeSite=steep`（幂等 byte-identical、插件快照零增删改、`--root` 缺失报错 exit 1 拒 cwd）→ #9 `resolveActiveSite` 读回 `steep` 且预置就位；`claude plugin validate` 两清单通过；`node --test` 16/16 🟢。两块表见 [GH #10 评论](https://github.com/HironoOcto/stitch-design-system/issues/10#issuecomment-5588677667)。
+>
+> **备注**：`disable-model-invocation` 是 Claude Code 专有字段（不在 agentskills 开放 spec，故仓库锁定的 skills-ref@0.1.5 会提示该字段——不进 CI、不 gate 任何闸；skills-ref 无更新版）。本 issue 顺带对 #9 消费指针位置作了一次有意修订（root → `.agent/stitch.theme.json`）。无迁移/预建笔记。下游：本件是本批（#7/#8/#9/#10）主题切换双向可切的收尾。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/10
 依赖：#9（预置 + 读时解析就位，指针要有被解析的一端）。

@@ -1,6 +1,8 @@
 # activeSite 单一开关驱动两条构建，合并逻辑单一实现共用
 
-仓库根 `stitch.config.json` 的 `{ "activeSite": "steep" }` 是"当前生效哪个站"的**唯一真相**。两条构建都读它：包的 `vite build`（经虚拟模块插件）产出 `dist/style.css`（终端 app 运行时加载），skill 的 `build:skill` 产出 `references/theme/tokens.css`（AI 编写时参考）。二者把 `contract.css` + `sites/<active>/adapter.css` **合并成单份 `:root`** 的逻辑是**同一个 `mergeTokens`**（[skill 构建流程](../contributing/skill-build-pipeline.md) §6.2），包与 skill 共用一份，杜绝两处合并漂移。`adapter.css` 全程是源，被读多次、从不手动拷贝。
+仓库根 `stitch.config.json` 的 `{ "activeSite": "steep" }` 是本仓库"当前生效哪个站"的**唯一真相**。两条构建都读它：包的 `vite build`（经虚拟模块插件）产出 `dist/style.css`（终端 app 运行时加载），skill 的 `build:skill` 用它定**发布默认**。二者把 `contract.css` + `sites/<active>/adapter.css` **合并成单份 `:root`** 的逻辑是**同一个 `mergeTokens`**（[skill 构建流程](../contributing/skill-build-pipeline.md) §6.2），包与 skill 共用一份，杜绝两处合并漂移。`adapter.css` 全程是源，被读多次、从不手动拷贝。
+
+> **[ADR 0010](./0010-consume-time-theme-choice.md) 把 `activeSite` 细化为两层同名指针**：① **本仓库** `activeSite` = **发布默认**——驱动 `dist/style.css`，并作 `build:skill` 注入 SKILL.md `SLOT:default-site` 的值（`build:skill` 不再只烤该单套 `references/theme/tokens.css`，而是为每个可发布站各备预置 `references/theme-presets/<站>/`）；② **消费项目** `activeSite` = **消费侧指针**——在 skill 被读时解析，选中对应预置，无则回落发布默认。两处**同名语义**，与预览侧 `data-site`（[ADR 0009](./0009-themes-preview-export.md)）填同一站名即整体对齐。本仓库内「一个字段翻转、两产物一致」仍成立；对外多一层「消费项目可自定」。
 
 demo 站**不受此开关限制**：它动态扫描 `sites/*/adapter.css` 全部挂上、在 demo 侧把每份 `:root` 作用域化成 `[data-site=<目录名>]`，仅用于本地多站预览（源文件保持纯 `:root` 不变）。
 
@@ -11,7 +13,7 @@ demo 站**不受此开关限制**：它动态扫描 `sites/*/adapter.css` 全部
 
 ## Consequences
 
-- 三个"当前主题"消费方的落点固定：`dist/style.css`（**运行时**·终端 app）、`references/theme/tokens.css`（**编写时**·skill·AI）、demo 多站预览（**dev**·全挂、不受开关限制）。
+- 三个"当前主题"消费方的落点固定：`dist/style.css`（**运行时**·终端 app）、skill 的主题预置（**编写时**·skill·AI；0010 起为 `references/theme-presets/<站>/`、由消费指针读时选，发布默认 = 本仓库 `activeSite`）、demo 多站预览（**dev**·全挂、不受开关限制）。
 - **精确化了 [0004](./0004-token-source.md)** 里"`tokens.css` 是唯一运行时契约"的表述——运行时渲染契约其实是 `dist/style.css`；`tokens.css` 是 skill 内嵌、给 AI 的**同源快照**。0004 的核心决策（token 以 CSS 契约 + 每站 adapter 为源）不变。
 - `vite.config.ts` 不再只编译组件：`src/index.ts` 顶部 `import 'virtual:stitch-theme'`，插件读 `activeSite` + `mergeTokens` 把合并出的 `:root` 灌进 `dist/style.css`（见 [打包发布](../contributing/packaging.md)）。
-- 换 `activeSite` 重跑：只有 `dist/style.css` 与 skill 的 `references/theme/*` 变，组件编译产物 diff 为空。
+- 换本仓库 `activeSite` 重跑：`dist/style.css` 的默认皮随之变，skill 侧只 SKILL.md 的 `SLOT:default-site` 变（预置全备、内容不随本仓库 `activeSite` 变），组件编译产物 diff 为空。消费方换主题则不重跑本仓库——改消费项目自己的指针即可（[ADR 0010](./0010-consume-time-theme-choice.md)）。

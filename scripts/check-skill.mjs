@@ -299,6 +299,17 @@ function themeAgnostic(section, ref, path, { extra = [] } = {}) {
       ? 'out-of-skill ../../ link'
       : true,
   );
+  // Every in-skill markdown link must resolve to a real file — catches dead links left by a
+  // path move (e.g. theme/tokens.css → theme-presets/<active>/tokens.css). Skip external
+  // links, pure anchors, and `<placeholder>` paths (the read-time-resolved preset paths).
+  check(section, ref, '文件链接均落到真实文件（无死链）', () => {
+    const dir = dirname(path);
+    const dead = linkTargets(src)
+      .map((t) => t.split('#')[0].trim())
+      .filter((t) => t && !/^(https?:|mailto:)/.test(t) && !t.includes('<'))
+      .filter((t) => !existsSync(resolve(dir, t)));
+    return dead.length ? `dead links: ${dead.join(', ')}` : true;
+  });
   for (const [nm, re, msg] of extra)
     check(section, ref, nm, () => (re.test(src) ? msg : true));
 }

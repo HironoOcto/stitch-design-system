@@ -14,7 +14,6 @@
 .content {
   box-sizing: border-box;
   min-width: 180px;
-  padding: var(--stitch-spacing-xs);
   background: var(--stitch-bg-elevated);
   border: var(--stitch-border-width) solid var(--stitch-border);
   border-radius: var(--stitch-radius-card);
@@ -25,6 +24,10 @@
   line-height: var(--stitch-line-height-base);
   z-index: 100;
 
+  // 圆角内裁：滚动交给内层 .scroller，本层只负责圆角外观并 overflow:hidden 把内层滚动条裁进圆角内。
+  // 这样任何主题的 radius-card（含大圆角）都不会让滚动条方角戳出卡片。内边距移到 .scroller。
+  overflow: hidden;
+
   // 底层把开合态暴露成 data-state，直接选，不自己 useState 切 class。
   &[data-state='open'] {
     animation: stitch-context-menu-in var(--stitch-motion-duration-base)
@@ -34,6 +37,19 @@
   &[data-state='closed'] {
     animation: stitch-context-menu-out var(--stitch-motion-duration-fast)
       var(--stitch-motion-ease);
+  }
+}
+
+// ---------- Scroll（内层滚动区 = 复用 <ScrollArea>）----------
+// 长菜单 / 长子菜单定高可滚，滚动条走 ScrollArea 自绘手柄（跨浏览器统一、贴合圆角），
+// 不用原生条。承载项内边距；被 .content 的 overflow:hidden + 圆角进一步裁切，任何主题都不戳角。
+.scroll {
+  padding: var(--stitch-spacing-xs);
+
+  // radix ScrollArea 的 Viewport 才是真正的滚动盒；给它定高上限令内容溢出即滚
+  // （max-height 不能只加在 Root 上——% 高度不对 max-height 生效，Viewport 会撑满不滚）。
+  [data-radix-scroll-area-viewport] {
+    max-height: 280px;
   }
 }
 

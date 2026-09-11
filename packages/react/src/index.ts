@@ -161,6 +161,12 @@ export type {
   ChatMessageStatus,
 } from './components/ChatMessage';
 
+export { ChatMessageActions } from './components/ChatMessageActions';
+export type {
+  ChatMessageActionsProps,
+  ChatMessageAction,
+} from './components/ChatMessageActions';
+
 export { ChatList } from './components/ChatList';
 export type { ChatListProps, ChatListItem } from './components/ChatList';
 

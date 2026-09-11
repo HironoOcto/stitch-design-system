@@ -1,0 +1,55 @@
+// ============================================
+// ChatMessageActions
+// ============================================
+// 值全走角色契约 var(--stitch-*)。本组件只出「触发 + 菜单壳」：壳（浮面 / 项 / 高亮 / 禁用态）
+// 住在复用件 ContextMenu / DropdownMenu 的 less 里，此处只管键盘触发钮的显形 + 皮。
+// 指针交互（右键 / 长按）走 ContextMenu、无常驻按钮；此处的钮仅键盘聚焦时露、供键盘用户打开菜单。
+
+// ---------- Wrap ----------
+// 包住消息，给键盘触发钮做绝对定位锚点。宽度随内容。
+.wrap {
+  position: relative;
+  display: inline-block;
+}
+
+// ---------- Trigger（键盘路专用）----------
+// 尾角触发钮：默认隐形（opacity:0），**仅键盘聚焦（focus-visible）或菜单开着时**显形——不随 hover 出现，
+// 指针用户走右键 / 长按，不在气泡上留常驻钮。小圆钮，浮起面皮（bg-elevated + border + 阴影），图标取 muted 字色。
+.trigger {
+  position: absolute;
+  top: var(--stitch-spacing-xs);
+  right: var(--stitch-spacing-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--stitch-height-sm);
+  height: var(--stitch-height-sm);
+  padding: 0;
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-button);
+  box-shadow: var(--stitch-shadow-sm);
+  color: var(--stitch-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  // 仅键盘聚焦 / 菜单开着 → 显形（不含 hover）。
+  &:focus-visible,
+  &[data-state='open'] {
+    opacity: 1;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-bg-section);
+    color: var(--stitch-text-primary);
+  }
+
+  &:focus-visible {
+    outline: var(--stitch-border-width) solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}

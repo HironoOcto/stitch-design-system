@@ -78,6 +78,20 @@ export default function ContextMenuDemo() {
           最近动作：{last}
         </p>
       </div>
+
+      <div>
+        <p style={rowLabel}>
+          长列表内滚动（超高度上限即滚，滚动条走 ScrollArea 自绘手柄）
+        </p>
+        <ContextMenu
+          items={Array.from({ length: 20 }, (_, i) => ({
+            label: `城市选项 ${i + 1}`,
+            onClick: () => setLast(`城市选项 ${i + 1}`),
+          }))}
+        >
+          <div style={dropZone}>在此区域右键弹出 20 项长列表菜单（可滚动）</div>
+        </ContextMenu>
+      </div>
     </div>
   );
 }

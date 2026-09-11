@@ -11,6 +11,7 @@ import clsx from 'clsx';
 
 // 2. 内部组件（相对路径）
 import { Icon } from '../Icon';
+import { ScrollArea } from '../ScrollArea';
 
 // 3. 样式（永远最后）
 import styles from './select.module.less';
@@ -254,33 +255,39 @@ export const Select: React.FC<SelectProps> = ({
             activeValue != null ? optionId(activeValue) : undefined
           }
         >
-          {options.map((option) => {
-            const selected = currentValue === option.value;
-            const active = activeValue === option.value;
-            return (
-              <div
-                key={String(option.value)}
-                id={optionId(option.value)}
-                role="option"
-                aria-selected={selected}
-                aria-disabled={option.disabled || undefined}
-                className={clsx(styles.option, {
-                  [styles.optionActive]: active,
-                  [styles.optionSelected]: selected,
-                  [styles.optionDisabled]: option.disabled,
-                })}
-                onClick={() => !option.disabled && handleSelect(option.value)}
-                onMouseEnter={() => {
-                  if (!option.disabled) setActiveValue(option.value);
-                }}
-              >
-                <span className={styles.optionLabel}>{option.label}</span>
-                {selected && (
-                  <Icon name="check" size="1em" className={styles.checkMark} />
-                )}
-              </div>
-            );
-          })}
+          <ScrollArea className={styles.dropdownScroll}>
+            {options.map((option) => {
+              const selected = currentValue === option.value;
+              const active = activeValue === option.value;
+              return (
+                <div
+                  key={String(option.value)}
+                  id={optionId(option.value)}
+                  role="option"
+                  aria-selected={selected}
+                  aria-disabled={option.disabled || undefined}
+                  className={clsx(styles.option, {
+                    [styles.optionActive]: active,
+                    [styles.optionSelected]: selected,
+                    [styles.optionDisabled]: option.disabled,
+                  })}
+                  onClick={() => !option.disabled && handleSelect(option.value)}
+                  onMouseEnter={() => {
+                    if (!option.disabled) setActiveValue(option.value);
+                  }}
+                >
+                  <span className={styles.optionLabel}>{option.label}</span>
+                  {selected && (
+                    <Icon
+                      name="check"
+                      size="1em"
+                      className={styles.checkMark}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </ScrollArea>
         </div>
       )}
     </div>

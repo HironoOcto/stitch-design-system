@@ -473,24 +473,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/16
 
 > 在 #13 的 ChatMessage 上新增消息操作菜单（hover/长按出「回复/撤回/转发」），复用现有 DropdownMenu/ContextMenu、不另造浮层。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 17 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律带 GH_CONFIG_DIR=~/.config/gh-linling9025 --repo HironoOcto/stitch-design-system。
-
-目标：新增消息操作菜单（归 chat 族），端到端一个垂直切片（触发 + 菜单壳 + demo + build:refs + 测试）。照 add-new-component.md 执行，本段不复述步骤。
-
-本 issue 特殊点：① 气泡 hover（桌面）/长按（触屏）出操作入口，复用现有 DropdownMenu（点/hover）或 ContextMenu（右键/长按）——选型实现时按交互定，二者皆现有件、不另造浮层；② 菜单项（回复/撤回/转发等）由 app 传（actions 可配置），图标走 <Icon>，动作回调交 app（组件只出触发 + 菜单壳）；③ props 取 antd Dropdown/Menu 的 items/onClick 惯例、不自创。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)、零新增契约 token；无 emoji/裸 svg/Unicode；H1 自包含。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 气泡 hover/长按触发菜单、复用现有 Dropdown/ContextMenu、点一项触发回调。
-2. 切站换肤跟随；菜单键盘可达 + 可及名（走复用件既有能力）。
-3. 过 #29 skill-acceptance.md 的 §5 相关节（check:skill 全绿、props==源）。
-4. 执行报告两块表：① 结构 Hook（H2/H4/H5）全 🟢；② 真实 case dry_run（hover/长按出菜单 + 点一项触发 + 切站，开篇+结尾）🟢。
-
-收尾门：用户验收通过后才 commit(#17) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `c069c52`，2026-09-12，用户验收通过）。在 #13 ChatMessage 上新增 chat 族 **ChatMessageActions**（只出触发 + 菜单壳），端到端垂直切片：四件套 + demo（可交互迷你 IM）+ `build:refs` 生成 [chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatMessageActions`（props==源）+ 9 unit + 2 a11y。**选型（按交互定）**：指针主入口复用 `ContextMenu`（桌面右键 / 触屏长按目标区，**无常驻按钮**——按用户拍板从「hover 出下滑钮」改为右键，贴 IM 惯例）；键盘路复用 `DropdownMenu`（尾角触发钮仅 `:focus-visible` 露、Enter 打开，保住键盘可达 + 可及名 `triggerLabel`）；两路喂同一份 `actions`（`{ label, icon?, onClick?, danger?, disabled?, children? }` = 复用 `DropdownMenuItem`，Ant v5 `items`/per-item `onClick` 惯例），点项调 `item.onClick`、回调全交 app、图标走 `<Icon>`。**转发目标 = 子菜单**（`actions` 的 `children`）——直接复用菜单件自带子菜单列会话、点一项即转发，右键/键盘两路自动展开；不另造 Modal、不手写列表（先后否掉了 Modal+Button 行、Modal+手写 listbox，因「列表不该是一排按钮」且真实项目该有会话选择）。**浮层滚动统一到 `<ScrollArea>` 自绘手柄**（跨 DropdownMenu/ContextMenu/Select 三件）：原生滚动条无法被 `border-radius` 裁切、大圆角主题（steep radius-card 24px）会戳角 → 改「外层 `.content`/`.dropdown` `overflow:hidden` 圆角内裁 + 内层 ScrollArea Viewport 定高可滚」；跨浏览器一致、任意主题圆角不戳角、键盘焦点项自动滚入视口（实测 scrollTop 跟随）。demo 三处补长列表滚动示例。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（`contract.css` 未改）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode 🟢；H1 自包含（`check:boundary` 三层零越界）🟢；H5 `npm run ci` EXIT 0（708 unit + 147 a11y + build）🟢。**② 真实 case dry_run**（demo 浏览器实测、console 无 warn）：右键气泡出 ContextMenu、键盘 Tab 尾角钮 Enter 出 DropdownMenu、点项触发回调（回复→引用卡片[原作者+原文]、转发→子菜单选会话[转发自 X 头、发去别的会话不塞回当前窗]、复制→写剪贴板、撤回→变系统「已撤回」，照 Telegram）+ 切 seline↔steep 换肤跟随 + 长列表 ScrollArea 滚动（含 steep 24px 圆角不戳角）+ 键盘导航/子菜单展开/Esc，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源、catalog 派生含 ChatMessageActions）🟢。两块表见 GH #17 评论。**复用件顺带改进（非本组件专属）**：DropdownMenu/ContextMenu/Select 三件浮层加 ScrollArea 内滚 + 圆角内裁（各带 demo 长列表示例），`build:refs` 同步 navigation.md / form-controls.md。**给后续**：chat 族本批（#13–#17）收官。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/17
 依赖：#13（ChatMessage 就位）。可与 #14/#15/#16 并行。

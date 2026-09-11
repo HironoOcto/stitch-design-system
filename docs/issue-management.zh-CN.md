@@ -451,24 +451,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/14
 
 > 在 #13 立起的 chat 族上新增 ChatInput（多行自增高 + 发送键 + 受控/非受控 + Enter 发送）+ TypingIndicator（对方正在输入三点动画）。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 15 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律带 GH_CONFIG_DIR=~/.config/gh-linling9025 --repo HironoOcto/stitch-design-system。
-
-目标：新增两个对外组件 ChatInput + TypingIndicator（归 chat 族），端到端一个垂直切片（两组四件套 + demo + build:refs 两条 + 测试）。照 add-new-component.md 执行，本段不复述步骤。
-
-本 issue 特殊点：① ChatInput 多行 textarea 自增高（autoSize）、发送键走 <Icon>、受控/非受控 value、Enter 发送 / Shift+Enter 换行、onSend 回调、附件按钮插槽预留（附件逻辑交 app）、IM 无停止态；② TypingIndicator 三点动画、色走 --stitch-text-muted、动效走 --stitch-motion-*（不超设计动效窗）；③ props 命名照搬不自创——输入器照搬 antd Input（value/onChange/disabled/placeholder/autoSize）+ 补 Ant Design X Sender（onSubmit/loading），TypingIndicator 无源取 Ant 最近惯例。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)、零新增契约 token；无 emoji/裸 svg/Unicode（发送键/点走 <Icon> 或角色变量小元素）；H1 自包含。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. ChatInput 多行自增 + Enter 发送真实触发 + 受控/非受控双模式；TypingIndicator 三点动画 render。
-2. 切 seline→steep 换肤跟随。
-3. 过 #29 skill-acceptance.md 的 §1/§5 相关节（check:skill 全绿、props==源）。
-4. 执行报告两块表：① 结构 Hook（H2/H4/H5）全 🟢；② 真实 case dry_run（输入器 Enter 发送 + TypingIndicator render + 切站，开篇+结尾）🟢。
-
-收尾门：用户验收通过后才 commit(#15) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `5682b45`，2026-09-11，用户验收通过）。在 #13 chat 族上新增两个对外组件 **ChatInput + TypingIndicator**（chat 族），端到端垂直切片：两组四件套 + demo + `build:refs` 生成 [references/components/chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatInput` / `## TypingIndicator`（props==源）+ 各带 unit + a11y。**props 照搬不自创**：ChatInput = antd `Input`（`value`/`onChange`/`disabled`/`placeholder`/`autoSize`）+ Ant Design X `Sender`（发送回调用 Sender 本名 `onSubmit`，非正文散提的 `onSend`；已 fetch x.ant.design 核实）+ `loading`/`submitType`/`prefix`/`actions`；TypingIndicator 无 Ant 源 → 取 Ant 惯例（`label` 可访问名 + 透传原生属性）。**ChatInput**：多行 textarea 自增高（`autoSize` `true`/`{minRows,maxRows}`，`ResizeObserver` 只认宽度重量、避开首帧错宽量高卡死 + 写 height 自触发死循环）+ 受控/非受控 `value`（非受控发送后自清、受控交父清）+ `submitType`（`enter`=Enter 发送/Shift+Enter 换行，可反；IME 组词中 Enter 不发）+ `onSubmit`（纯空白/`disabled`/`loading` 不发）+ 发送键走 `<Icon name="send">`（新增纸飞机图标、品牌中立自绘）+ `prefix`/`actions` 附件插槽（逻辑交 app）；**IM 无停止态**：`loading` 仅忙/禁发、不换停止键。**TypingIndicator**：三点循环动画（角色变量小 `<span>`、非 emoji/svg/Unicode）+ 色走 `--stitch-text-muted` + 动效走 `--stitch-motion-*`（`calc` 锚定、不超动效窗）+ `prefers-reduced-motion` 降级 + `role="status"` 可访问名；`align-self:flex-start`+`width:fit-content` 贴左裹内容、落 flex 容器不被拉成整条。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（`contract.css` 未改）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（发送键 `<Icon>`、点走角色变量小元素）🟢；H1 自包含（`check:boundary` 零越界）🟢；H5 `npm run ci` EXIT 0 🟢。**② 真实 case dry_run**（demo 浏览器实测，console 无 warn）：多行自增（空框 21px→键入长文长到多行、图标+发送键垂直居中）+ Enter 发送真触发（清空缩回 + 已发送日志）+ 受控/非受控双模式 + TypingIndicator 三点动画 render（小气泡贴左对齐头像列）+ 切 seline→steep 换肤跟随（accent/圆角/字体全随），逐条 🟢；过 #29 skill-acceptance §1/§5（`check:skill` 57/57、props==源、catalog 派生含两员）🟢；`npm run ci` EXIT 0（678 unit + 141 a11y + build）🟢。两块表见 GH #15 评论。**修订**：验收中修两处 demo 暴露的真 bug——自增高首帧错宽量出 546px 死高（改 ResizeObserver 认宽度重量）、单行文字未居中且小于按钮（`align-items:center` + textarea `display:block`/`box-sizing:border-box`）、TypingIndicator 落 flex 列被拉成整条（`align-self:flex-start`）。**给后续**：#16 富媒体内容件、#17 消息操作菜单在本输入器 + 气泡上继续。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/15
 依赖：#13（仅 chat 族已立；与 ChatMessage 无代码耦合）。可与 #14/#16/#17 并行。

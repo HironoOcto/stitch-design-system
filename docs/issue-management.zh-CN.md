@@ -462,24 +462,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/15
 
 > 在 #13 的 ChatMessage 上新增三种富媒体内容件（作 content 塞入）= 图片（复用 Image）+ 文件附件卡（复用 Card）+ 语音消息（手绘波形柱，振幅 app 传）。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 16 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律带 GH_CONFIG_DIR=~/.config/gh-linling9025 --repo HironoOcto/stitch-design-system。
-
-目标：新增富媒体内容件（归 chat 族，作 ChatMessage 的 content），端到端一个垂直切片（内容件 + demo 三例 + build:refs + 测试）。照 add-new-component.md 执行，本段不复述步骤。
-
-本 issue 特殊点：① 图片消息复用 <Image>（圆角 --stitch-radius-image，src/alt 照搬 antd Image）；② 文件附件卡复用 Card（文件名/大小/类型图标 <Icon>，点击/下载回调交 app）；③ 语音消息手绘静态波形——一排角色变量小条（已播 --stitch-accent / 未播 --stitch-border）+ 播放按钮 <Icon> + 时长，振幅数组由 app 传（组件不解码音频），柱用 <div>+角色变量、非内联 svg；④ props 命名照搬不自创（图片照搬 antd Image、文件卡/语音无源取 Ant 最近惯例）。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)、零新增契约 token；无 emoji/裸 svg/Unicode（波形柱用角色变量小元素、非 svg）；H1 自包含。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 三内容件均可作 ChatMessage 的 content 正常渲染（sent/received 两侧）。
-2. 语音已播段=accent、未播=border，切站换肤跟随；图片复用 Image、文件卡复用 Card。
-3. 过 #29 skill-acceptance.md 的 §5 相关节（check:skill 全绿、props==源）。
-4. 执行报告两块表：① 结构 Hook（H2/H4/H5）全 🟢；② 真实 case dry_run（图片+文件卡+语音波形各一条 render + 切站，开篇+结尾）🟢。
-
-收尾门：用户验收通过后才 commit(#16) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。原创长相取舍（语音波形档）实现期登记 预建笔记.md。
-```
+> ✅ 已完成并 close（commit `1707925`，2026-09-11，用户验收通过）。在 #13 ChatMessage 上新增三种富媒体内容件（chat 族），端到端垂直切片：四件套 + demo 三例 + `build:refs` 生成 [chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatImage`/`## ChatFile`/`## ChatVoice`（props==源）+ 24 unit + 3 a11y。**ChatImage**：气泡内缩略图 + 大图查看器——**缩略图与大图都复用通用 `<Image>`**（大图即 Image 自带相框、点击开），本组件只加遮罩 + 把下载/关闭工具键叠在大图框上；块级排布令时间落缩略图下方（同文件卡）。**ChatFile**：复用 `<Card>` 承载（类型图标 `<Icon name="file">`/文件名/大小字节格式化）+ 常驻下载键（复用 `<Button>`），点击/下载回调交 app；props 取 Ant Attachments 附件项惯例（name/size/description）。**ChatVoice**：手绘静态波形（一排 `<div>`+角色变量小条，已播 `--stitch-accent`/未播 `--stitch-border`、非内联 svg）+ 播放键（`<Button>`+`<Icon play/pause>`）+ 时长；受控视图不解码音频，`waveform`/`percent`/`playing` 由 app 传（播放态取 Ant `open`/`onOpenChange` 惯例）。**Icon** 新增 `play`/`pause`（填充）、`file`/`download`（描边）品牌中立字形。**Image 通用改进（用户拍板、非聊天专属）**：预览关闭钮改轻量悬浮钮（28×28 圆形 + 半透明 scrim 底 `--stitch-mask-bg` + 浅色图标），不再白底大圆钮。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（语音 accent/border）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（波形柱=角色变量 `<div>`）🟢；H1 自包含（`check:boundary` 三层零越界）🟢；H5 `npm run ci` EXIT 0（含 test:a11y）🟢。**② 真实 case dry_run**（demo 浏览器实测、console 无 warn）：图片缩略图点开大图（复用 Image 相框、下载/关闭叠框上、真实图铺满视口）+ 文件卡三条均可下载（大小格式化/长名省略）+ 语音波形计时器模拟播放（accent 随播放从左往右填、play↔pause 切换）+ 切站换肤（seline↔steep 波形 accent/border 跟随）+ sent/received 两侧，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源）🟢。两块表见 GH #16 评论。**过程纠偏（用户多轮指正）**：两度把「聊天下载键」塞进/重造通用 `<Image>`（污染通用件 + 重造已有预览），均已撤回还原（`git diff` Image 归零后仅保留用户拍板的通用预览钮改进）——大图改为复用 Image 相框、下载 chrome 全留 ChatImage。**给后续**：#17 消息操作菜单在这些内容件上继续编排。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/16
 依赖：#13（ChatMessage content 承载就位）。可与 #14/#15/#17 并行。

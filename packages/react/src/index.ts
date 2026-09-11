@@ -152,6 +152,16 @@ export { CodeBlock } from './components/CodeBlock';
 export type { CodeBlockProps } from './components/CodeBlock';
 
 // ============================================
+// 对话 / 消息（chat）
+// ============================================
+export { ChatMessage } from './components/ChatMessage';
+export type {
+  ChatMessageProps,
+  ChatMessageVariant,
+  ChatMessageStatus,
+} from './components/ChatMessage';
+
+// ============================================
 // 数据可视化（data-viz）
 // ============================================
 export { LineChart } from './components/LineChart';

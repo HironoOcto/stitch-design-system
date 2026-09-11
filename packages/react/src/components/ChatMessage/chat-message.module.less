@@ -1,0 +1,176 @@
+// ============================================
+// ChatMessage
+// 单条聊天气泡：三态布局（sent 右 / received 左 / system 居中）。
+// 颜色 / 圆角 / 间距 / 字体全走 var(--stitch-*)（H2），零硬编码主题值、零新增契约 token。
+// ============================================
+
+.message {
+  box-sizing: border-box;
+  display: flex;
+  gap: var(--stitch-spacing-sm);
+  margin-bottom: var(--stitch-spacing-md);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  line-height: var(--stitch-line-height-base);
+}
+
+// ---------- Variant: received（对方，左）----------
+.variant-received {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+// ---------- Variant: sent（本方，右）----------
+.variant-sent {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+// ---------- Variant: system（系统，居中灰条）----------
+.variant-system {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  text-align: center;
+}
+
+// ---------- 头像位 ----------
+// 固定宽度占位：连发分组（.is-grouped）隐藏头像但保留缩进，让气泡纵向对齐成一列。
+.avatar-slot {
+  // 固定宽度 = 头像 large 档（40px，物理控件几何、非主题值，同 Avatar/Slider 先例）：
+  // 群聊头像用 large 档；连发分组（.is-grouped）隐藏头像但保留这段缩进，让同一串气泡
+  // 的左缘对齐成一列。头像贴气泡底缘（flex-end）。
+  flex: none;
+  width: 40px;
+  display: flex;
+  align-items: flex-end;
+}
+
+// ---------- 消息体（气泡 + 元信息）----------
+.body {
+  display: flex;
+  flex-direction: column;
+  max-width: 72%;
+  min-width: 0;
+}
+
+.variant-sent .body {
+  align-items: flex-end;
+}
+
+// ---------- 气泡 ----------
+.bubble {
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-card);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+// received：卡片底 + 主文字。
+.variant-received .bubble {
+  background: var(--stitch-bg-card);
+  color: var(--stitch-text-primary);
+}
+
+// sent：软色调彩底 + cat-1 墨色文字——面色与文字皆同 Card filled cat-1 配方（bg = cat-1 兑
+// 画布底 88%；ink = cat-1 兑 text-primary 68%，深墨带 cat-1 色相、随站换肤、≥AA），全库
+// cat-1 填充面观感一致。
+.variant-sent .bubble {
+  background: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-bg-canvas) 88%
+  );
+  color: color-mix(
+    in srgb,
+    var(--stitch-cat-1),
+    var(--stitch-text-primary) 68%
+  );
+}
+
+// 正文内链接：同库内内容链接惯例（accent 色 + 无下划线 + medium 字重，hover 加下划线），
+// 与其它组件的文本链接一致，不落回浏览器默认蓝链。
+.bubble a {
+  color: var(--stitch-accent);
+  text-decoration: none;
+  font-weight: var(--stitch-font-weight-medium);
+  transition: color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+}
+
+.bubble a:hover {
+  color: var(--stitch-accent-hover);
+  text-decoration: underline;
+}
+
+// ---------- 纯 emoji 大图（无气泡）----------
+// 无气泡底色 / 内边距，放大字号呈现（照即时通讯惯例）。
+.emoji {
+  font-size: calc(var(--stitch-font-size-display) * 0.75);
+  line-height: 1.1;
+}
+
+// ---------- System 灰条 ----------
+.system {
+  display: inline-block;
+  padding: var(--stitch-spacing-xs) var(--stitch-spacing-md);
+  border-radius: var(--stitch-radius-card);
+  background: var(--stitch-bg-section);
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-sm);
+}
+
+// ---------- 元信息（时间 + 已读回执）----------
+// 字号锚定角色变量 --stitch-font-size-sm 再乘系数收小（随字体档换肤缩放，非写死像素，
+// 同 emoji 大图 display×0.75 手法）；颜色走 --stitch-text-muted，不喧宾夺主。
+.meta,
+.meta-below {
+  font-size: calc(var(--stitch-font-size-sm) * 0.8);
+  line-height: 1;
+  color: var(--stitch-text-muted);
+}
+
+// 气泡内：作为正文末尾的行内元素，vertical-align:text-bottom 让时间底缘对齐正文字体的
+// text-bottom（字体 em 盒底＝ CJK 字形真实底缘），故时间与正文底部齐平贴线（照 Telegram），
+// 而非 baseline（会浮在 CJK 字底之上）或 bottom（会沉到行盒底）。字体度量驱动、非写死像素。
+// 短消息时间贴同行右侧、气泡随内容缩放；长/多行落到末行末尾。
+.meta {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: text-bottom;
+  gap: var(--stitch-spacing-xs);
+  margin-left: var(--stitch-spacing-sm);
+}
+
+// 无气泡（emoji / system）：落在下方，跟随 body 的左右对齐。
+.meta-below {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  margin-top: var(--stitch-spacing-xs);
+}
+
+.time {
+  color: var(--stitch-text-muted);
+}
+
+// ---------- 已读回执（✓ / ✓✓）----------
+// 双勾用负外边距让第二个勾叠进第一个，成连笔 ✓✓ 观感；颜色默认弱化、read 态走 info。
+.ticks {
+  display: inline-flex;
+  align-items: center;
+  color: var(--stitch-text-muted);
+}
+
+.ticks .tick + .tick {
+  margin-left: -0.55em;
+}
+
+.ticks-read {
+  color: var(--stitch-info);
+}
+
+// ---------- 连发分组（样式钩子）----------
+// 相邻同 variant 连发：隐藏头像（保留占位缩进）、收紧上间距。
+.is-grouped {
+  margin-bottom: var(--stitch-spacing-xs);
+}

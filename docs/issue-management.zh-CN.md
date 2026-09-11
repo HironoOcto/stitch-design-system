@@ -440,24 +440,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/13
 
 > 在 #13 的 ChatMessage 上新增 ChatList = 数据驱动 messages[] + 贴底（上滚暂停）+ onReachTop + 连发分组编排 + 日期分隔项。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 14 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律带 GH_CONFIG_DIR=~/.config/gh-linling9025 --repo HironoOcto/stitch-design-system。
-
-目标：新增对外组件 ChatList（归 chat 族），端到端一个垂直切片（四件套 + demo + build:refs 的 ## ChatList + 测试）。照 add-new-component.md 执行，本段不复述步骤。
-
-本 issue 特殊点：① 数据驱动 <ChatList messages={[{id,variant,content,time,status,...}]} />，内部渲染 ChatMessage（ChatMessage 仍单独可用）；② 新消息贴底、用户手动上滚则暂停自动贴底、回底恢复；③ onReachTop 回调 + 顶部转圈（复用 Loading）——组件不 fetch，传输交 app（接缝同 #13 原则）；④ 连发分组：相邻同 variant 头像显一次 + 间距收紧、不合并内容仍多气泡（用 #13 的分组样式钩子）；⑤ 日期分隔线走 system 项承载、标签文字由 app 传（组件不算日期）；⑥ props 照搬 Ant Design X Bubble.List（items/roles）、不自创。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 var(--stitch-*)、零新增契约 token；H4 契约不动；无 emoji/裸 svg/Unicode；H1 自包含。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. messages[] 数据驱动渲染；append 新消息贴底、上滚暂停、回底恢复。
-2. 连发分组（头像一次+间距）+ 日期分隔项（system、标签 app 传）真实浏览器可见。
-3. 过 #29 skill-acceptance.md 的 §5 相关节（check:skill 全绿、props==源、catalog 派生含 ChatList）。
-4. 执行报告两块表：① 结构 Hook（H2/H4/H5）全 🟢；② 真实 case dry_run（一串消息含连发分组 + append 贴底 + 上滚暂停，开篇+结尾）🟢。
-
-收尾门：用户验收通过后才 commit(#14) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `b4d53f4`，2026-09-11，用户验收通过）。在 #13 ChatMessage 上新增对外组件 **ChatList**（chat 族），端到端垂直切片：四件套 + demo + `build:refs` 生成 [references/components/chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatList`（props==源）+ 17 unit + 2 a11y。**props 照搬 Ant X `Bubble.List`**（正文示意的 `messages` 按红线 ⑥ 改用本名 `items`）：`items`（每项 = `ChatMessageProps` + `id`，内部渲染 `ChatMessage`，`ChatMessage` 仍单独可用）/ `roles`（按 variant 灌默认、item 显式值优先）/ `autoScroll`；加载更多接缝取 Ant `on*` 惯例——`onReachTop`（**组件不 fetch**、传输交 app）+ `loadingMore`（**复用 `<Loading>`** 顶部转圈、仅内容真溢出才判触顶防开屏误触发）。**贴底**：append 贴底、用户上滚暂停、回底恢复（`autoScroll`，jsdom 喂几何断言 + 浏览器实测双证）。**连发分组**：相邻同 variant（非 system）续条置 `grouped`（头像组内一次、间距收紧、内容不合并）；**日期分隔** = `variant="system"` 项、标签文字由 app 传（组件不算日期）。**a11y**：根 `role="log"` + `aria-live` + `tabIndex=0` 键盘可聚焦（WCAG 2.1.1）+ `:focus-visible` 焦点环。**顺修 #13 头像列占位 bug**：续条占列改为「随该条是否带 `avatar`」——1:1 私聊（无头像）整串贴边对齐、群聊（`roles` 每条有头像）对齐成列（同步改 `ChatMessage` JSDoc/note + 测试）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token 🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（转圈复用 `<Loading>`）🟢；H1 自包含（`check:boundary` 零越界）🟢。**② 真实 case dry_run**（demo 浏览器实测，console 无 warn）：日期分隔 + 连发分组 + append 贴底 + 上滚暂停 + 回底恢复 + onReachTop prepend（组件不 fetch）+ 已读回执三态（单勾/双勾/双勾高亮·各带可及名）+ 1:1 对齐 + 键盘焦点环，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源、catalog 派生含 ChatList）🟢；`npm run ci` EXIT 0（659 unit + 138 a11y + build）🟢。两块表见 GH #14 评论。**给后续**：#15/#16/#17 在本列表 + 气泡上继续编排。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/14
 依赖：#13（chat 族 + ChatMessage 就位）。可与 #15/#16/#17 并行。

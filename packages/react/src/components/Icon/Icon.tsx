@@ -61,12 +61,25 @@ const ICON_PATHS = {
   'arrow-down-right': ['M7 7L17 17', 'M17 8v9H8'],
   // 发送（纸飞机）：对角引线 + 机身三角轮廓，描边，品牌中立自绘。聊天输入器发送键用。
   send: ['M22 2L11 13', 'M22 2L15 22 11 13 2 9z'],
+  // ---- 媒体播放（语音消息播放键用；填充字形，品牌中立自绘）----
+  // 播放：实心三角（唯二填充图标之一，见 FILLED_ICONS）。
+  play: ['M8 5v14l11-7z'],
+  // 暂停：两条实心竖条。
+  pause: ['M8 5h3v14H8z', 'M13 5h3v14h-3z'],
+  // ---- 文件（文件附件卡类型图标 / 下载键用；描边，品牌中立自绘）----
+  // 文件：折角文档轮廓（通用类型图标）。
+  file: [
+    'M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z',
+    'M13 3v6h6',
+  ],
+  // 下载：竖向引线 + 下箭头 + 底托盘。
+  download: ['M12 4v11', 'M8 11l4 4 4-4', 'M5 20h14'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type IconName = keyof typeof ICON_PATHS;
 
 // 「填充」型图标：整块 fill=currentColor、无描边（其余图标皆描边、fill=none）。
-const FILLED_ICONS = new Set<IconName>(['dot']);
+const FILLED_ICONS = new Set<IconName>(['dot', 'play', 'pause']);
 
 /**
  * 图标基元：内置具名图标 `name`（或自定义 `src`）+ `size` + `label`（可访问名）+
@@ -184,4 +197,8 @@ export const ICON_LIST = [
   { name: 'arrow-up-right', label: 'Trend up' },
   { name: 'arrow-down-right', label: 'Trend down' },
   { name: 'send', label: 'Send' },
+  { name: 'play', label: 'Play' },
+  { name: 'pause', label: 'Pause' },
+  { name: 'file', label: 'File' },
+  { name: 'download', label: 'Download' },
 ] as const satisfies ReadonlyArray<{ name: IconName; label: string }>;

@@ -174,6 +174,15 @@ export type {
 export { TypingIndicator } from './components/TypingIndicator';
 export type { TypingIndicatorProps } from './components/TypingIndicator';
 
+export { ChatImage } from './components/ChatImage';
+export type { ChatImageProps } from './components/ChatImage';
+
+export { ChatFile } from './components/ChatFile';
+export type { ChatFileProps } from './components/ChatFile';
+
+export { ChatVoice } from './components/ChatVoice';
+export type { ChatVoiceProps } from './components/ChatVoice';
+
 // ============================================
 // 数据可视化（data-viz）
 // ============================================

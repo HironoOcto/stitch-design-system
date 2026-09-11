@@ -171,8 +171,8 @@ export interface ImageProps extends Omit<
 
 ```tsx
 <Image
-          src={photo('Island', 190)}
-          alt="岛屿风景"
+          src="https://images.unsplash.com/photo-1535025183041-0991a977e25b?w=1200&q=80&auto=format"
+          alt="风景照"
           width={240}
           height={160}
         />

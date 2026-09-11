@@ -306,3 +306,149 @@ export interface TypingIndicatorProps extends React.HTMLAttributes<HTMLSpanEleme
 - **可及名走 `label`**：根节点 `role="status"`（`aria-live` 区，屏幕阅读器读出 `label`），
   三点纯装饰（`aria-hidden`）。默认可访问名「对方正在输入」。
 - **动效降级**：尊重 `prefers-reduced-motion`——用户关动效时三点停在静止态、不循环。
+
+## ChatImage
+
+```ts
+export interface ChatImageProps {
+  /** 图片地址（必填，照搬 antd Image） */
+  src: string;
+  /** 图片替代文本（无障碍）；留空表示装饰性图片 */
+  alt?: string;
+  /** 缩略图宽度（数字按 px，字符串原样） */
+  width?: number | string;
+  /** 缩略图高度（数字按 px，字符串原样） */
+  height?: number | string;
+  /** 自定义类名（挂到根） */
+  className?: string;
+  /** 行内样式（挂到根） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<ChatImage src={PHOTO_1} alt="风景照" width={200} />
+
+<ChatImage src={PHOTO_2} alt="风景照（裁剪）" width={200} />
+```
+
+图片消息（气泡内缩略图 + 大图查看器）：气泡里显缩略图（复用通用 `<Image>`、`preview` 关闭），
+点击开大图——**大图仍复用通用 `<Image>`（它自带的相框即「框」）**，本组件只做一层遮罩 + 把下载 /
+关闭工具键**叠在这个框上**。作为 `<ChatMessage>` 的 `content` 塞入（sent / received 两侧皆可）。
+`src` / `alt` / `width` / `height` 照搬 antd `Image`；`width` 即缩略图宽。
+
+跨-prop 注意事项：
+- **缩略图与大图都复用 `<Image preview={false}>`**（不手写裸 `<img>`、不重造 Image 的相框 / 圆角 /
+  加载淡入 / 错误占位）；本组件只加聊天专属的遮罩 + 框上工具键（下载 / 关闭），`<Image>` 一行未改。
+- **块级排布**：根为块级元素，故 `<ChatMessage>` 的时间 / 回执落在缩略图**下方**（同文件卡）。
+- **大图查看器 a11y**：Portal 遮罩 + `role="dialog"`；打开焦点落关闭键、Tab 在下载 / 关闭间循环、
+  ESC 关闭、关闭后焦点归还缩略图。下载走原生 `<a download href={src}>`（存下当前图，不解码不发
+  请求），工具键图标走 `<Icon>`，均带可访问名。
+- `width` 控缩略图尺寸；点击后大图按视口放大（原始尺寸）。
+
+## ChatFile
+
+```ts
+export interface ChatFileProps {
+  /** 文件名（必填） */
+  name: string;
+  /** 文件大小（字节数）；组件内格式化为人类可读 */
+  size?: number;
+  /** 副文本（如文件类型说明），与大小同排 `·` 分隔 */
+  description?: React.ReactNode;
+  /** 点击文件卡的回调（打开 / 预览交 app）；给出时文件名区可聚焦、可键盘触发 */
+  onClick?: () => void;
+  /** 点击下载键的回调（下载交 app）；下载键常驻，点击走此回调 */
+  onDownload?: () => void;
+  /** 自定义类名（挂到根 Card） */
+  className?: string;
+  /** 行内样式（挂到根 Card） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<ChatFile
+            name="需求评审纪要.pdf"
+            size={2_411_724}
+            description="PDF"
+            onClick={() => {}}
+            onDownload={() => {}}
+          />
+
+<ChatFile
+            name="设计稿-v3-final-换肤对齐-really-final.sketch"
+            size={51_200}
+            description="Sketch"
+            onClick={() => {}}
+            onDownload={() => {}}
+          />
+
+<ChatFile name="README.md" size={840} onDownload={() => {}} />
+```
+
+文件附件卡：复用 `<Card>` 承载——类型图标（`<Icon name="file">`）+ 文件名 + 大小 /
+副文本；作为 `<ChatMessage>` 的 `content` 塞入（sent / received 两侧皆可）。点击 / 下载
+均为**回调交 app**（组件不导航、不发起下载）。对外 props 取 Ant Design X `Attachments`
+附件项最近惯例（`name` / `size` / `description`）+ Ant v5 回调命名。
+
+跨-prop 注意事项：
+- **下载键是文件卡固有部件、常驻**（文件默认可下载）：右侧复用 `<Button type="text">`，点击走
+  `onDownload` 回调、由 app 落地下载。
+- **两个独立可聚焦控件、互不嵌套**：给 `onClick` 时文件名区升格为整行透明按钮（打开），与下载
+  键平级，无按钮套按钮。
+- **`size` 是字节数**，组件内格式化为人类可读（`1.2 MB`）；`description` 为副文本（如类型），
+  与已格式化的大小同排、`·` 分隔。
+- **图标走 `<Icon>`**：类型图标 `<Icon name="file">`（装饰性）、下载 `<Icon name="download">`
+  （其按钮带可访问名 `下载 {name}`），非 emoji / 裸 `<svg>`。
+
+## ChatVoice
+
+```ts
+export interface ChatVoiceProps {
+  /** 波形振幅数组（`0…1`，由 app 传入；组件不解码音频） */
+  waveform: number[];
+  /** 时长文本（如 `0:12`） */
+  duration?: React.ReactNode;
+  /**
+   * 已播进度（`0…100`）：前 `percent%` 的波形柱染为已播色（accent）
+   * @default 0
+   */
+  percent?: number;
+  /**
+   * 是否播放中：切换播放 / 暂停图标
+   * @default false
+   */
+  playing?: boolean;
+  /** 点击播放按钮的回调（播放 / 暂停交 app） */
+  onPlayingChange?: (playing: boolean) => void;
+  /** 自定义类名（挂到根容器） */
+  className?: string;
+  /** 行内样式（挂到根容器） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<ChatVoice
+          waveform={WAVE}
+          duration={duration}
+          percent={percent}
+          playing={playing}
+          onPlayingChange={handlePlayingChange}
+        />
+```
+
+语音消息（手绘静态波形）：播放按钮（`<Button>` + `<Icon play/pause>`）+ 一排高低不等的
+波形小条 + 时长；作为 `<ChatMessage>` 的 `content` 塞入（sent / received 两侧皆可）。
+组件**不解码音频**——波形振幅数组 `waveform` 由 app 传入。无 Ant 对应件 → 播放态取
+Ant v5 `open` / `onOpenChange` 惯例（`playing` / `onPlayingChange`）、播放进度取 Ant
+`percent` 惯例，均不自创。
+
+跨-prop 注意事项：
+- **波形柱是角色变量小元素、非内联 `<svg>`**：每根柱一个 `<div>`，高度按 `waveform` 振幅
+  （`0…1`）由内联 `height` 百分比驱动（几何数据、非颜色）；颜色只走角色变量类——已播段
+  `--stitch-accent`、未播段 `--stitch-border`，切站换肤跟随。
+- **`percent` 划已播 / 未播**：`0…100`，按柱序比例染色（前 `percent%` 的柱 = 已播 accent）。
+- **`playing` 切图标、`onPlayingChange` 交 app**：受控播放态（app 翻转 `playing`）；播放按钮
+  带可访问名（播放语音 / 暂停语音），波形本体装饰性 `aria-hidden`。

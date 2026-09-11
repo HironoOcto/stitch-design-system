@@ -1,0 +1,54 @@
+// ============================================
+// ChatVoice — 语音消息（手绘静态波形）
+// ============================================
+
+// ---------- Wrapper ----------
+.voice {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  min-width: 180px;
+}
+
+// ---------- 播放按钮（复用 Button，圆形化）----------
+.play {
+  flex: 0 0 auto;
+  width: var(--stitch-height-base);
+  height: var(--stitch-height-base);
+  padding: 0;
+  border-radius: 50%;
+}
+
+// ---------- 波形（一排角色变量小条，非 svg）----------
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 auto;
+  height: 28px;
+  min-width: 0;
+}
+
+.bar {
+  flex: 1 1 auto;
+  min-width: 2px;
+  max-width: 4px;
+  border-radius: var(--stitch-radius-button);
+}
+
+// ---------- 已播 / 未播染色（切站换肤跟随）----------
+.bar-played {
+  background: var(--stitch-accent);
+}
+
+.bar-idle {
+  background: var(--stitch-border);
+}
+
+// ---------- 时长 ----------
+.duration {
+  flex: 0 0 auto;
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}

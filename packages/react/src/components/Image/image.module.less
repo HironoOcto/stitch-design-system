@@ -174,30 +174,28 @@
 }
 
 // ---------- Close button（关闭预览）----------
+// 轻量悬浮钮：小尺寸 + 半透明深色 scrim 底 + 浅色图标，压在图角不喧宾夺主（不做白底大圆钮）。
 .closeBtn {
   position: absolute;
-  top: var(--stitch-spacing-md);
-  right: var(--stitch-spacing-md);
+  top: var(--stitch-spacing-sm);
+  right: var(--stitch-spacing-sm);
   z-index: 1;
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: var(--stitch-text-primary);
-  background: var(--stitch-bg-elevated);
-  border: var(--stitch-border-width) solid var(--stitch-border);
-  border-radius: var(--stitch-radius-button);
-  box-shadow: var(--stitch-shadow-sm);
+  color: var(--stitch-text-on-dark);
+  background: var(--stitch-mask-bg);
+  border: none;
+  border-radius: 50%;
   cursor: pointer;
-  transition:
-    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
-    transform var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+  transition: transform var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
 
   &:hover {
-    background: var(--stitch-bg-card);
-    transform: scale(1.06);
+    transform: scale(1.1);
   }
 
   &:focus-visible {

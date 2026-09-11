@@ -165,3 +165,144 @@ export interface ChatListProps {
 - **根节点 `role="log"` + 键盘可聚焦**：消息流作实时日志区（`aria-live="polite"` + 增量播报），
   新消息由辅助技术增量读出；容器 `tabIndex={0}` 使纯键盘用户 Tab 进本区后用方向键 /
   PageUp/Down 翻历史（滚到顶即触 `onReachTop`），聚焦环走 `:focus-visible`（WCAG 2.1.1）。
+
+## ChatInput
+
+```ts
+export interface ChatInputProps extends Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  | 'value'
+  | 'defaultValue'
+  | 'onChange'
+  | 'onSubmit'
+  | 'onKeyDown'
+  | 'rows'
+  | 'prefix'
+> {
+  /** 输入值（受控）；不传由组件自管（非受控，配 `defaultValue`） */
+  value?: string;
+  /** 默认值（非受控初始值） */
+  defaultValue?: string;
+  /** 值变化回调（照搬 antd Input） */
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+  /** 发送回调（照搬 Ant Design X Sender）：参数为当前消息文本 */
+  onSubmit?: (message: string) => void;
+  /** 占位符（照搬 antd Input） */
+  placeholder?: string;
+  /** 禁用（照搬 antd Input） */
+  disabled?: boolean;
+  /**
+   * 发送中（照搬 Sender）：置发送键忙 / 禁发；**IM 无停止态**，不换成「停止」键
+   * @default false
+   */
+  loading?: boolean;
+  /**
+   * 多行自增高（照搬 antd Input.TextArea / Sender）：`true` 随内容增高，`{ minRows, maxRows }`
+   * 卡上下界，`false` 关自增
+   * @default true
+   */
+  autoSize?: boolean | ChatInputAutoSize;
+  /**
+   * 发送键位（照搬 Sender）：`enter` = Enter 发送 / Shift+Enter 换行；`shiftEnter` 反之
+   * @default 'enter'
+   */
+  submitType?: ChatInputSubmitType;
+  /** 前缀插槽（附件按钮等钩子，照搬 Sender）；附件逻辑由 app */
+  prefix?: React.ReactNode;
+  /** 动作区插槽（照搬 Sender）：覆盖默认发送键旁的自定义动作 */
+  actions?: React.ReactNode;
+  /**
+   * 发送键的无障碍标签（纯图标按钮必备可访问名）
+   * @default '发送'
+   */
+  sendAriaLabel?: string;
+  /** 自定义类名（挂到根容器） */
+  className?: string;
+  /** 行内样式（挂到根容器） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<ChatInput
+        aria-label="消息"
+        placeholder="输入消息，Enter 发送、Shift+Enter 换行"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onSubmit={(message) => {
+          setSent((prev) => [...prev, message]);
+          setValue(''); // 受控：清空由父在 onSubmit 里做
+        }}
+        prefix={<Icon name="menu" size={20} label="附件" />}
+      />
+
+<ChatInput
+          aria-label="消息"
+          defaultValue="拖动多写几行看自增高……"
+          placeholder="输入消息"
+          onSubmit={(message) => console.log('send:', message)}
+        />
+
+<ChatInput
+          aria-label="消息"
+          submitType="shiftEnter"
+          placeholder="Enter 换行，Shift+Enter 发送"
+        />
+```
+
+聊天输入器：多行 textarea **自增高**（`autoSize`）+ 受控/非受控 `value` + `submitType`
+决定发送键位（Enter 发送 / Shift+Enter 换行）+ `onSubmit` 发送回调 + `prefix` / `actions`
+插槽（附件按钮等钩子由 app 填）。对外 props 照搬 antd `Input`（`value` / `onChange` /
+`disabled` / `placeholder` / `autoSize`）+ 聊天专属补 Ant Design X `Sender`
+（`onSubmit` / `loading` / `submitType` / `prefix` / `actions`）。
+
+跨-prop 注意事项：
+- **受控/非受控双模式**：给 `value` 由父管，只给 `defaultValue` 组件自管；非受控时发送后
+  自动清空，受控时清空由父在 `onSubmit` 里做（组件不擅自改父的值）。
+- **`autoSize` 自增高**：`true`（默认）随内容行数增高；传 `{ minRows, maxRows }` 卡上下界，
+  超 `maxRows` 内部滚动。`false` 关自增（固定单行高、可手动拉伸由浏览器定）。
+- **`submitType` 定发送键位**：`enter`（默认）→ Enter 发送、Shift+Enter 换行；`shiftEnter`
+  → Shift+Enter 发送、Enter 换行。输入法组词中（IME composing）的 Enter 一律只上屏、不发送。
+- **`onSubmit` 只在有内容时触发**：纯空白不发送；`disabled` / `loading` 时不发送。发送键是
+  原生 `<button>`，图标走 `<Icon name="send">`（禁 emoji / Unicode / 裸 svg），`sendAriaLabel`
+  定其可访问名。
+- **IM 无停止态**：`loading` 只置发送键忙 / 禁发，**不**把发送键换成「停止」键（那是 AI 生成
+  语境；IM 是人对人、无生成可停）。
+- **`prefix` / `actions` 传你自己的元素**（附件按钮走 `<Icon>` 或 `<Button>`）——**Do NOT** 传
+  emoji / Unicode 符号 / 裸 `<svg>`。附件的选择 / 上传逻辑由 app 实现，组件只留插槽。
+- **可及名**：其余原生 textarea 属性（`aria-label` / `id` / `name` / `maxLength` …）经 `...rest`
+  透传到内部 `<textarea>`——给它可访问名（配 `<label htmlFor>` 或 `aria-label`）。
+
+## TypingIndicator
+
+```ts
+export interface TypingIndicatorProps extends React.HTMLAttributes<HTMLSpanElement> {
+  /**
+   * 可访问名（屏幕阅读器读出，如「张三正在输入」）
+   * @default '对方正在输入'
+   */
+  label?: string;
+  /** 自定义类名（挂到根容器） */
+  className?: string;
+  /** 行内样式（挂到根容器） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<TypingIndicator />
+
+<TypingIndicator label="张三正在输入" />
+
+<TypingIndicator label="陈正在输入" />
+```
+
+「对方正在输入」指示：三点循环动画（IM 语境是**对方**的态）。点为角色变量小元素
+（`--stitch-text-muted` 铺底的小圆，非 emoji / Unicode / 裸 svg），动效走 `--stitch-motion-*`
+（不超设计动效窗）。无 Ant 对应件 → 取 Ant 最近惯例（`label` 可访问名 + 透传原生属性）。
+
+跨-prop 注意事项：
+- **纯呈现件**：只画「正在输入」的三点动画，不含业务（谁在输入、何时出现由上层决定）。
+- **可及名走 `label`**：根节点 `role="status"`（`aria-live` 区，屏幕阅读器读出 `label`），
+  三点纯装饰（`aria-hidden`）。默认可访问名「对方正在输入」。
+- **动效降级**：尊重 `prefers-reduced-motion`——用户关动效时三点停在静止态、不循环。

@@ -1,0 +1,128 @@
+// ============================================
+// ChatInput
+// 聊天输入条：前缀插槽 + 多行自增高 textarea + 动作区（发送键）。
+// 颜色 / 圆角 / 间距 / 字体 / 动效全走 var(--stitch-*)（H2），零硬编码主题值、零新增契约 token。
+// ============================================
+
+// ---------- Wrapper ----------
+// 结构靠 1px 边框（同 Input 先例，扁平 + 边），底缘对齐让发送键贴在末行右下。
+.input {
+  box-sizing: border-box;
+  display: flex;
+  // 单行时内容 + 发送键垂直居中；多行自增高时同样居中（照 Telegram 输入条观感）。
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  width: 100%;
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  background: var(--stitch-bg-elevated);
+  border: var(--stitch-border-width) solid var(--stitch-border);
+  border-radius: var(--stitch-radius-input);
+  font-family: var(--stitch-font-body);
+  font-size: var(--stitch-font-size-base);
+  transition:
+    border-color var(--stitch-motion-duration-base) var(--stitch-motion-ease),
+    box-shadow var(--stitch-motion-duration-base) var(--stitch-motion-ease);
+
+  &:hover:not(.is-disabled) {
+    border-color: var(--stitch-border-strong);
+  }
+
+  // 聚焦环随点击 / 键盘聚焦（表单控件惯例，用 :focus-within，含插槽整框）。
+  &:focus-within:not(.is-disabled) {
+    border-color: var(--stitch-accent);
+    box-shadow: 0 0 0 2px var(--stitch-focus-ring);
+  }
+}
+
+// ---------- Disabled ----------
+.is-disabled {
+  background: var(--stitch-bg-disabled);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+// ---------- 前缀插槽（附件按钮等，由 app 填）----------
+.prefix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+// ---------- textarea（多行自增高，高度由 JS 接管）----------
+.textarea {
+  flex: 1;
+  min-width: 0;
+  // block 去掉 inline 基线下的描述符间隙；border-box 让 JS 写的 height 即真实占高。
+  display: block;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow-y: hidden;
+  background: transparent;
+  color: var(--stitch-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--stitch-font-weight-normal);
+  line-height: var(--stitch-line-height-base);
+  // 无内边距：scrollHeight 即内容高，自增高逻辑据此写行内 height。
+  padding: 0;
+
+  &::placeholder {
+    color: var(--stitch-text-muted);
+  }
+
+  &:disabled {
+    color: var(--stitch-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+// ---------- 动作区（发送键 + 自定义动作）----------
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--stitch-spacing-xs);
+  flex-shrink: 0;
+}
+
+// ---------- 发送键（图标走 <Icon name="send">，非 emoji / Unicode）----------
+// 填充态用 accent 铺底 + accent-text 前景（CTA 惯例）；禁用（空 / disabled / loading）弱化。
+.send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--stitch-height-sm);
+  height: var(--stitch-height-sm);
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  color: var(--stitch-accent-text);
+  background: var(--stitch-accent);
+  // 方形上取 radius-button（药丸）即圆形，随换肤不硬编码圆角。
+  border-radius: var(--stitch-radius-button);
+  transition:
+    background var(--stitch-motion-duration-fast) var(--stitch-motion-ease),
+    opacity var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
+
+  &:hover:not(:disabled) {
+    background: var(--stitch-accent-hover);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--stitch-accent-active);
+  }
+
+  &:focus-visible {
+    // 同色填充上的焦点环：内圈用背景色隔开 accent 填充与 accent 环（design-rules §7）。
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--stitch-bg-elevated),
+      0 0 0 4px var(--stitch-focus-ring);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}

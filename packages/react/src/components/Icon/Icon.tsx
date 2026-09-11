@@ -59,6 +59,8 @@ const ICON_PATHS = {
   'arrow-up-right': ['M7 17L17 7', 'M8 7h9v9'],
   // 下降趋势：对角线指向右下 + 右下角箭头（跌）。
   'arrow-down-right': ['M7 7L17 17', 'M17 8v9H8'],
+  // 发送（纸飞机）：对角引线 + 机身三角轮廓，描边，品牌中立自绘。聊天输入器发送键用。
+  send: ['M22 2L11 13', 'M22 2L15 22 11 13 2 9z'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type IconName = keyof typeof ICON_PATHS;
@@ -181,4 +183,5 @@ export const ICON_LIST = [
   { name: 'eye-off', label: 'Eye off' },
   { name: 'arrow-up-right', label: 'Trend up' },
   { name: 'arrow-down-right', label: 'Trend down' },
+  { name: 'send', label: 'Send' },
 ] as const satisfies ReadonlyArray<{ name: IconName; label: string }>;

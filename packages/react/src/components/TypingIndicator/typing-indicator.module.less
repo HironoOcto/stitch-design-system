@@ -1,0 +1,64 @@
+// ============================================
+// TypingIndicator
+// 「对方正在输入」三点循环动画。点色走 var(--stitch-text-muted)、动效走 var(--stitch-motion-*)
+// （H2 只读角色变量，零硬编码主题值、零新增契约 token）。
+// ============================================
+
+// ---------- Wrapper ----------
+// 气泡状小容器，贴合 received 气泡观感（卡片底 + 卡片圆角），点垂直居中。
+// inline-flex 天然按内容收窄；align-self:flex-start + width:fit-content 保证即使落在
+// flex/grid 容器里（默认 stretch）也只裹住三点、贴左，不被拉成整条（照 received 气泡贴左）。
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  width: fit-content;
+  gap: var(--stitch-spacing-xs);
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  background: var(--stitch-bg-card);
+  border-radius: var(--stitch-radius-card);
+}
+
+// ---------- 三点（角色变量小元素，非 emoji / svg / Unicode）----------
+// 点尺寸锚定字号（随字体档换肤缩放，非写死像素）；色走 text-muted，弱化不喧宾夺主。
+.dot {
+  width: calc(var(--stitch-font-size-sm) * 0.4);
+  height: calc(var(--stitch-font-size-sm) * 0.4);
+  border-radius: var(--stitch-radius-button); // 药丸即圆，随换肤不硬编码
+  background: var(--stitch-text-muted);
+  // 循环节拍锚定动效令牌（base 200ms 为一拍，三点各延一拍错峰起伏）；缓动走统一 ease。
+  animation: stitch-typing-bounce calc(var(--stitch-motion-duration-base) * 3)
+    var(--stitch-motion-ease) infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: var(--stitch-motion-duration-base);
+}
+
+.dot:nth-child(3) {
+  animation-delay: calc(var(--stitch-motion-duration-base) * 2);
+}
+
+// 起伏：淡入 + 微上抬再回落（一拍活跃、其余静息），错峰形成「打字」波动。
+:global {
+  @keyframes stitch-typing-bounce {
+    0%,
+    60%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-25%);
+    }
+  }
+}
+
+// ---------- 动效降级（尊重系统减弱动效）----------
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}

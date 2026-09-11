@@ -164,6 +164,16 @@ export type {
 export { ChatList } from './components/ChatList';
 export type { ChatListProps, ChatListItem } from './components/ChatList';
 
+export { ChatInput } from './components/ChatInput';
+export type {
+  ChatInputProps,
+  ChatInputSubmitType,
+  ChatInputAutoSize,
+} from './components/ChatInput';
+
+export { TypingIndicator } from './components/TypingIndicator';
+export type { TypingIndicatorProps } from './components/TypingIndicator';
+
 // ============================================
 // 数据可视化（data-viz）
 // ============================================

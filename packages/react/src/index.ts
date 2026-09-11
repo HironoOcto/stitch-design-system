@@ -161,6 +161,9 @@ export type {
   ChatMessageStatus,
 } from './components/ChatMessage';
 
+export { ChatList } from './components/ChatList';
+export type { ChatListProps, ChatListItem } from './components/ChatList';
+
 // ============================================
 // 数据可视化（data-viz）
 // ============================================

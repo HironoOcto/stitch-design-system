@@ -33,8 +33,10 @@ const STATUS_LABEL: Record<ChatMessageStatus, string> = {
  *   read → 双勾 `--stitch-info`；勾走 `<Icon name="check">`（禁 emoji / Unicode `✓` / 裸
  *   svg），回执整体挂 `role="img"` + 可访问名（已发送 / 已送达 / 已读），内层 Icon 纯装饰。
  * - **`grouped` 只出样式钩子**：为真时隐藏头像、收紧下间距（相邻同 variant 连发），由上层
- *   编排决定何时置真，组件本身不判断相邻。头像列占位：received 续条仍保留缩进（同串气泡左缘
- *   对齐成一列）；sent（本方，照即时通讯惯例无头像）与无头像非 grouped 的消息不占列、气泡贴边。
+ *   编排决定何时置真，组件本身不判断相邻。头像列占位随「该条是否带 `avatar`」：带头像的续条
+ *   （grouped 隐藏头像但保留列，同串气泡左缘对齐成一列，群聊）；无头像的消息不占列、气泡贴边
+ *   （1:1 私聊首尾条都无头像 → 整串贴边对齐）。要对齐成列 = 给每条都灌头像（列表走 `roles` /
+ *   每项 `avatar`），不靠「续条自动占空列」。
  */
 export interface ChatMessageProps {
   /**
@@ -113,9 +115,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   const showStatus = variant === 'sent' && status != null;
   const tickCount = status === 'sent' ? 1 : 2;
 
-  // 头像列：有头像就占；连发续条（grouped，头像已隐）仍占位以对齐成列——但仅 received 侧，
-  // 因本方消息（sent）照即时通讯惯例无头像，占位只会把续条从贴边处内缩、与首条错位。
-  const reserveAvatar = avatar != null || (grouped && variant === 'received');
+  // 头像列：**有头像才占**（含 grouped 续条——头像虽被隐藏，只要该条带 avatar 仍保留列，让同串
+  // 气泡左缘对齐成一列，群聊场景）。无头像的消息不占列、气泡贴边：1:1 私聊（首尾条都无头像）由此
+  // 整串贴边对齐，不会把续条从贴边处内缩、与首条错位。对齐成列的编排 = 给每条都灌头像（ChatList
+  // 走 roles / 每项 avatar），非靠「续条自动占空列」。
+  const reserveAvatar = avatar != null;
 
   // 时间 + 已读回执：文本气泡内作行内末尾元素、与正文共用基线（照 Telegram，`.meta`
   // vertical-align:baseline）；纯 emoji / system 无气泡 → 落在下方（`.meta-below`）。两处复用同一内容。

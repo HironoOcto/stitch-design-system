@@ -91,13 +91,27 @@ describe('ChatMessage', () => {
       expect(container.querySelector(`.${styles['avatar-slot']}`)).toBeNull();
     });
 
-    it('received 连发续条（grouped 无头像）保留头像列占位', () => {
+    it('received 连发续条带头像时保留头像列占位（群聊对齐成列）', () => {
       const { container } = render(
-        <ChatMessage variant="received" grouped content="x" />,
+        <ChatMessage
+          variant="received"
+          grouped
+          avatar={<Avatar fallback="A" />}
+          content="x"
+        />,
       );
+      // 头像被隐藏但列保留，让同串气泡左缘对齐
       expect(
         container.querySelector(`.${styles['avatar-slot']}`),
       ).not.toBeNull();
+      expect(screen.queryByText('A')).toBeNull();
+    });
+
+    it('received 连发续条无头像时不占头像列（1:1 私聊贴边对齐）', () => {
+      const { container } = render(
+        <ChatMessage variant="received" grouped content="x" />,
+      );
+      expect(container.querySelector(`.${styles['avatar-slot']}`)).toBeNull();
     });
 
     it('sent 连发续条（grouped 无头像）不占头像列', () => {

@@ -67,5 +67,101 @@ Design X `Bubble`（`content`/`variant`/`avatar`），已读回执 `status` 取 
   read → 双勾 `--stitch-info`；勾走 `<Icon name="check">`（禁 emoji / Unicode `✓` / 裸
   svg），回执整体挂 `role="img"` + 可访问名（已发送 / 已送达 / 已读），内层 Icon 纯装饰。
 - **`grouped` 只出样式钩子**：为真时隐藏头像、收紧下间距（相邻同 variant 连发），由上层
-  编排决定何时置真，组件本身不判断相邻。头像列占位：received 续条仍保留缩进（同串气泡左缘
-  对齐成一列）；sent（本方，照即时通讯惯例无头像）与无头像非 grouped 的消息不占列、气泡贴边。
+  编排决定何时置真，组件本身不判断相邻。头像列占位随「该条是否带 `avatar`」：带头像的续条
+  （grouped 隐藏头像但保留列，同串气泡左缘对齐成一列，群聊）；无头像的消息不占列、气泡贴边
+  （1:1 私聊首尾条都无头像 → 整串贴边对齐）。要对齐成列 = 给每条都灌头像（列表走 `roles` /
+  每项 `avatar`），不靠「续条自动占空列」。
+
+## ChatList
+
+```ts
+export interface ChatListProps {
+  /** 消息数据（数据驱动，内部渲染 `ChatMessage`）；每项 = `ChatMessageProps` + `id` */
+  items: ChatListItem[];
+  /** 按 `variant` 的角色默认配置（照 Ant X `roles`）；合并进同 variant 的每项，item 显式值优先 */
+  roles?: Partial<Record<ChatMessageVariant, Partial<ChatMessageProps>>>;
+  /**
+   * 新消息自动贴底（照 Ant X `autoScroll`）：用户手动上滚时暂停、滚回底部恢复
+   * @default true
+   */
+  autoScroll?: boolean;
+  /**
+   * 滚到顶时触发（加载更多历史）：**组件不 fetch**，去哪拿数据、拿到怎么 prepend 全交 app；
+   * 组件只发信号并等 app 回灌 `items`（接缝原则同 `ChatMessage` 不拥有传输）
+   */
+  onReachTop?: () => void;
+  /**
+   * 顶部加载中（**由 app 控制**，配合 `onReachTop`）：为真在顶部显示转圈（复用 `<Loading>`）
+   * @default false
+   */
+  loadingMore?: boolean;
+  /** 自定义类名（挂到根容器） */
+  className?: string;
+  /** 行内样式（挂到根容器） */
+  style?: React.CSSProperties;
+}
+```
+
+```tsx
+<ChatList
+          items={items}
+          loadingMore={loadingMore}
+          onReachTop={handleReachTop}
+          style={{ flex: 1 }}
+        />
+
+<ChatList
+          style={{ flex: 1 }}
+          roles={{
+            received: { avatar: <Avatar size="large" fallback="林" /> },
+          }}
+          items={[
+            {
+              id: 1,
+              variant: 'received',
+              content: '设计稿我看过了，换肤没问题',
+              time: '10:01',
+            },
+            { id: 2, variant: 'received', content: '我也 +1', time: '10:02' },
+            {
+              id: 3,
+              variant: 'received',
+              content: '就等 chat 族补齐',
+              time: '10:02',
+            },
+            {
+              id: 4,
+              variant: 'sent',
+              content: '好，我来补列表编排',
+              time: '10:03',
+              status: 'read',
+            },
+          ]}
+        />
+
+<ChatList style={{ flex: 1 }} items={RECEIPTS} />
+```
+
+消息流容器：**数据驱动**——吃 `items`（每项 = 一条 `ChatMessage` 的 props + `id`），内部
+渲染 `ChatMessage`（`ChatMessage` 仍可单独使用，列表场景走 `items`）。负责连发分组编排、
+贴底滚动与向上加载历史的接缝。对外 props 照搬 Ant Design X `Bubble.List`（`items` / `roles` /
+`autoScroll`），加载更多接缝取 Ant `on*` 惯例。
+
+跨-prop 注意事项：
+- **数据驱动、组件不算业务**：消息内容 / 时间 / 头像 / 已读态全由 `items` 每项自带（就是
+  `ChatMessageProps`）；组件只按数组顺序渲染，不排序、不去重、不算时间。
+- **`roles` 灌角色默认**：按 `variant` 给同类消息灌共享默认（如 received 统一头像），`item`
+  显式字段优先覆盖 `roles` 默认（照 Ant X `roles`）。
+- **连发分组自动编排**：相邻同 `variant`（非 system）的续条自动置 `ChatMessage` 的 `grouped`
+  ——头像只在组内首条显示、组内间距收紧（**不合并内容，仍是多个独立气泡**）。`system` 项
+  （如日期分隔）断组。`item` 显式传 `grouped` 时以其为准。
+- **日期分隔 = `system` 项**：日期分隔线作为一条 `variant="system"` 的 `item` 承载居中灰条，
+  **标签文字（今天 / 昨天 / 某月某日）由 app 放进该项的 `content`，组件不算日期**。
+- **`autoScroll` 贴底 + 上滚暂停**：`items` 追加时若用户仍在底部则自动滚到底；用户手动上滚
+  离底即暂停自动贴底、滚回底部恢复。`autoScroll={false}` 整体关闭。
+- **`onReachTop` 只发信号、组件不 fetch**：滚到顶发一次 `onReachTop`，去哪取历史、怎么
+  prepend 全交 app；`loadingMore` 由 app 控制，为真时顶部显示转圈（复用 `<Loading>`）。组件
+  不拥有传输（接缝原则同 `ChatMessage`）。
+- **根节点 `role="log"` + 键盘可聚焦**：消息流作实时日志区（`aria-live="polite"` + 增量播报），
+  新消息由辅助技术增量读出；容器 `tabIndex={0}` 使纯键盘用户 Tab 进本区后用方向键 /
+  PageUp/Down 翻历史（滚到顶即触 `onReachTop`），聚焦环走 `:focus-visible`（WCAG 2.1.1）。

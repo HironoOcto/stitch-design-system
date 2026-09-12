@@ -64,6 +64,9 @@
   border-radius: var(--stitch-radius-card);
   word-break: break-word;
   white-space: pre-wrap;
+  // sent/received 共用同一 elevated 表面：靠 --stitch-shadow-base 浮起显形（各站取本站阴影），
+  // 修 bg-card==bg-canvas 站上 received 隐形；仅填充色分身份（received=卡片底、sent=cat-1 兑色底）。
+  box-shadow: var(--stitch-shadow-base);
 }
 
 // received：卡片底 + 主文字。

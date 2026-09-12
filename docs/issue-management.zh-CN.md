@@ -50,6 +50,8 @@
 - **H4 生成 tokens 不变量**（#2 引入）：`mergeTokens` 合并出的 tokens 恒满足——**单一 `:root`** + 首行 **`DO NOT EDIT`** 头 + **派生 `color-mix()` 原样保留**（不求值成 hex）+ **生成物永不手改**（默认落点 `packages/tokens/dist/` 已 gitignore、不进 git，`git check-ignore` 断言）。由 [merge-tokens.mjs](../scripts/lib/merge-tokens.mjs) 保证，[merge-tokens.test.mjs](../scripts/lib/merge-tokens.test.mjs) grep 断言。
 - **H5 CI 管线存在性**（#4 引入，#33 起含 `check:skill`，#59 起含 `check:boundary`）：`npm run ci` = `format:check → check:docs → check:skill → check:boundary → lint → test:run → test:a11y → build` 八步齐备，且对**空 `packages/react`** 全绿（退出码 0）——后续每个组件 issue 的「绿」标尺。`npm run ci; echo $?` 断言。管线细节见 [sync-and-ci.md](../contributing/sync-and-ci.md)。
 
+- **H6 页面尺度层生成不变量**（[ADR 0012](./adr/0012-page-scale-layer.md) 引入，GH #23 落地）：页面尺度层（`--stitch-space-*` / `--stitch-text-<角色>` / `--stitch-leading·tracking-<角色>` / layout 四键）与组件角色契约**并列、同为 `--stitch-*` 公开 API**，但**生成·非手写**——每站 `sites/<site>/layout.css` 由 `build:layout` 从 `source/variables.css` 确定性映射产出，恒满足：**幂等** + 首行 `DO NOT EDIT` 头 + **只含 `--stitch-*`**（无泄漏 `--text-*`/`--spacing-*`/`--color-*`/站名/源 hex）+ **缺角色/档位不生成**（不发明默认）。`mergeTokens` 为三输入 `(contract, layer, adapter)`、**adapter 仍最后胜**；契约 `--stitch-spacing-xs..xl` 退化为 `var(--stitch-space-N, 旧值)` 别名（组件零行为变更）。由 [extract-layout.mjs](../scripts/lib/extract-layout.mjs) + [build-layout.mjs](../scripts/build-layout.mjs) 保证，`build-layout.test.mjs` / 扩展的 [check-boundary.mjs](../scripts/check-boundary.mjs) + [check-skill.mjs](../scripts/check-skill.mjs) grep 断言。
+
 > 未来 Hook（到相应阶段补）：**check:docs 覆盖 teeth**（组件 ↔ skill references 覆盖强制，脚本已随 #4 就位、空库天然过，真组件 + skill 参考到位后见效）等。
 
 ---
@@ -514,6 +516,93 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
 ## #21（AFK）：图表图例文字走中性 `--stitch-text-primary`、色卡留分类色（Pie/Bar/Line）
 
 > ✅ 已完成并 close（commit `2771912`，2026-09-12，用户验收通过）。recharts `<Legend>` 默认把每项文字也染成系列色（= 分类填充色 `--stitch-cat-*`）——鲜艳/极淡分类色当白底文字对比极低（phantom Firefox=Buttercream 1.01:1 隐形）。**落库原则：分类色是「色块/填充色」，永不当「文字色」。** 两处 inline formatter 本相同 → 抽进 `_internal/dataviz` 私有原语 [`renderLegendLabel`](../packages/react/src/components/_internal/dataviz/ChartLegendLabel.tsx)（同 `catColor`/`ChartTooltip`/`ChartFrame` 单一来源、可 jsdom 直测），把 Legend **标签文字**裹成 `var(--stitch-text-primary)`；**色卡**（recharts 默认 svg `<path fill>` = 系列色）不碰 → 分类靠「色卡 + 文字」双通道（守 WCAG 1.4.1）。[PieChart](../packages/react/src/components/PieChart/PieChart.tsx) / [BarChart](../packages/react/src/components/BarChart/BarChart.tsx) `<Legend>` 改 `formatter={renderLegendLabel}`，**顺删原 `wrapperStyle` 容器色**（per-label 显式着色已完全盖过，留着是死断言——用户验收拍板删）。[LineChart](../packages/react/src/components/LineChart/LineChart.tsx) 无 `<Legend>`、末端标名 `.endLabel` 已 `text-primary`，仅确认无改。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（文字接 `--stitch-text-primary`、swatch 仍 `--stitch-cat-*`、源零 hex）🟢、contract.css 零 diff（无新增 token）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出）🟢、`check:boundary` 三层零越界 / `check:docs` ✓ / `check:skill` 59/59 / `npm run ci` 八步 **EXIT 0**（pre-commit）🟢、test:run 709/709 + test:a11y 147/147（含新增 1 case）🟢。**② 真实 case dry_run**（真实浏览器 recharts 实渲染 computed 值）：**phantom Pie · Firefox** 图例文字 改前 Buttercream `rgb(255,255,196)`/**1.01:1** 隐形 → 改后 ink `#1c1c1c`(text-primary)/**16.66:1** 可读、swatch 仍 `var(--stitch-cat-3)`（开篇 Chrome…结尾 其他 全 5 项达预期）🟢、跨站 **seline** `#0c0a09` / **steep** `#17191c` 图例文字亦 text-primary、swatch 留 cat 色 🟢、**BarChart 多系列**（phantom/seline 独立访客·页面浏览）标签 = text-primary / swatch = cat 🟢、console 无 error/warn 🟢；过 #29 skill-acceptance §5 相关节（`props==源码` 无变、data-viz.md 无 diff）🟢。两块表见 GH #21 评论。
+
+---
+
+## #23（AFK）：页面尺度层地基 —— build:layout 生成器 + 三输入 mergeTokens + 契约间距别名
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md)（已接受）第 1/3 步：页面尺度层地基 = ① `build:layout` 从每站 `source/variables.css` 确定性生成 `sites/<site>/layout.css`（layout 四键 + `--stitch-space-*` + `--stitch-text/leading/tracking-<角色>`，缺则不提供）+ ② `mergeTokens` 扩三输入（contract+layer+adapter，adapter 最后胜）+ ③ `contract.css` 间距旧名退化为 `var(--stitch-space-N, 旧值)` 别名。引入 **H6**；阻塞 #24 / #25。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 23 --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
+
+目标：建页面尺度层地基（生成器 + 三输入合并 + 契约间距别名 + 单测 + 正本文档同步）。照 ADR 0012「决策」+ multi-site-theming §9.4（新增 §9.4.4 页面尺度层·生成）执行，本段不复述步骤。
+
+本 issue 特殊点 —— 新层是【生成·非手写】：零裁值判断，仅三条归一化（phantom element-gap 取下界 8px / saybriefly 8px 基走 4px 网格 / spacing-unit 作元数据）。P1：组件一字不改、间距旧名退化别名、值恒等。本 issue 不碰 skill 预置用法（归 #24）/ 运行时·demo（归 #25），但 mergeTokens 签名变更要同步 build-skill/虚拟模块调用点、保持其产物不变使 ci 绿。
+
+红线（结构 Hook，须全绿，可 grep）：H6（layout.css 幂等 + DO NOT EDIT + 只含 --stitch-* + 缺角色不生成；mergeTokens 三输入 adapter 胜）；H4（三输入合并仍单一 :root + 派生 var()/color-mix() 不求值）；H2（新 token 皆 --stitch-*；spacing-xs..xl 别名仍解析出原值、组件零行为变更）；H1（check:boundary 三层零越界、脚本零写死站名走 listPublishableSites）。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. npm run build:layout 出四可发布站 layout.css；抽 steep 核 --stitch-space-160 / --stitch-text-display:90px / --stitch-leading-display:1.3 / --stitch-section-gap:80px、phantom 核 --stitch-element-gap:8px（区间归一）、seline 核无 --stitch-text-body（缺则不提供）。
+2. npm run build:tokens 自证合并 :root 同含 --stitch-space-*（新层）+ --stitch-spacing-md: var(--stitch-space-12, 12px)（别名）+ adapter 覆盖正确。
+3. npm run test:units 全绿（extract-layout / merge-tokens / build-layout 三测）。
+4. npm run ci 八步全绿（尤其 check:boundary / lint / test:run / test:a11y——组件 P1 值恒等反证）。
+5. 执行报告两块表：① 结构 Hook（H6/H4/H2/H1）全 🟢；② 真实 case dry_run（build:layout + build:tokens 开篇↔结尾合并产物达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#23) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/23
+依赖：无（ADR 0012 已接受，可立即领取）。阻塞 #24 / #25。
+
+---
+
+## #24（AFK）：页面尺度层折入 skill 预置 + 校验闸 + 消费文档
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 2/3 步：`build:skill` 把页面尺度层**折入现有预置 `tokens.css` 一个文件** + `check:skill`/`check:boundary` 扩断言守住它 + `SKILL.md`/`react-project.md`/`standalone-html.md` 讲清 AI 心智（写页面用 `--stitch-space-*`/`--stitch-text-<角色>`/layout 键；`spacing-xs..xl`、`font-size-*` 是组件内部接口不用管）。依赖 #23。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 24 --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
+
+目标：页面尺度层折入 skill 预置 + 扩校验 + 消费文档。照 ADR 0012（决策 5：折入一个 tokens.css）+ skill-build-pipeline.md + skill-acceptance.md 执行，本段不复述步骤。
+
+本 issue 特殊点 —— 预置不另开文件：新层折进现有 references/theme-presets/<站>/tokens.css；字号/行高是组件【控件层】、与页面字阶 --stitch-text-<角色> 分层并存（非重复），文档讲清分工、不互相别名。
+
+红线（结构 Hook，须全绿，可 grep）：H3（skill 自包含：零外链、每值嵌 references/、换主题散文零改，check:skill 扩到新层仍全绿）；H6/H4/H2（三输入合并单一 :root、新层只 --stitch-*、别名解析）；SKILL.md 规格不破（name/desc≤1024 / <500 行 / <5000 token / 引用一层深）。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. npm run build:skill 后抽当前生效主题预置 tokens.css：一个文件内同含 --stitch-space-160 / --stitch-text-<角色> 全梯 / layout 四键 / --stitch-spacing-md: var(--stitch-space-12, 12px) 别名。
+2. npm run check:skill 全绿（新断言：tokens==三输入 mergeTokens + 含全量尺度 + 别名可解析）；npm run check:boundary 零越界。
+3. 过 #29 skill-acceptance.md 对应节（tokens.css 断言、props==源不变、幂等、换主题 diff 收敛）。
+4. 读 SKILL.md / react-project.md / standalone-html.md 改后段落，确认 AI 心智表述正确、无 spacing 封顶误导、react-project boilerplate 硬编码示例已改 var()。
+5. npm run ci 八步全绿。
+6. 执行报告两块表：① 结构 Hook（H3/H6/H4/H2）全 🟢；② 真实 case dry_run（预置 tokens.css 折入 + check:skill 开篇↔结尾达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#24) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/24
+依赖：#23（页面尺度层地基）。可与 #25 并行（#24 碰预置/文档、#25 碰运行时/demo，互不重叠）。
+
+---
+
+## #25（AFK）：页面尺度层运行时/demo 重排 —— scope-theme + /themes 导出 + demo
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 3/3 步：让**运行时切 `/themes/<site>`** 与 **demo 切站**时页面尺度层（layout/间距/字阶）也随之重排 —— `scope-theme.mjs` 连 `layout.css` 一起作用域化到 `[data-site]`、包 `/themes/<site>` 层含新层、`demo/theme.ts` glob `layout.css`。依赖 #23。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 25 --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
+
+目标：运行时 /themes/<site> + demo 切站时页面尺度层一致重排。照 ADR 0012（决策 6）+ packaging.md + demo-site.md 执行，本段不复述步骤。
+
+本 issue 特殊点 —— 只碰【作用域化/运行时/demo】，不碰预置（#24）：scopeAdapter 要把 adapter + layer 的每站值都写进 [data-site] 块；恒定/派生仍留 /style 的 :root 靠 var() 跟随，不得重复进分层。
+
+红线（结构 Hook，须全绿，可 grep）：H2/H6（/themes 与 demo 作用域化块只含 --stitch-*、新层每站值正确落 [data-site]、恒定/派生不重复）；H1（demo/scope 脚本零写死站名、走动态发现 / listPublishableSites）；运行时「组件产物不变、只 :root/分层变」仍成立。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. npm run build → dist/style.css :root 含新层；/themes/<site> 分层块含该站 scoped --stitch-space-*/--stitch-text-*/layout 四键，且不含恒定/派生。
+2. demo 真实浏览器：npm run demo，顶栏在 section-gap 不同的两站切换（steep 80 ↔ seline 96），肉眼 + computed style 确认用 var(--stitch-section-gap) 的外壳/样例间距随切站重排；console 无 error。
+3. npm run test:units（scope-theme 测试）+ npm run ci 全绿。
+4. 执行报告两块表：① 结构 Hook（H2/H6/H1）全 🟢；② 真实 case dry_run（demo 切站 layout 重排，开篇 steep ↔ 结尾 seline 的某 section-gap/字阶 computed 值达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#25) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/25
+依赖：#23（页面尺度层地基）。与 #24 可并行。
 
 ---
 

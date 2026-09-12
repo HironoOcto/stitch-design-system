@@ -27,6 +27,7 @@ import {
   ChartFrame,
   ChartTooltip,
   catColor,
+  renderLegendLabel,
   type ChartTooltipProps,
 } from '../_internal/dataviz';
 
@@ -142,10 +143,10 @@ export const BarChart: React.FC<BarChartProps> = ({
             fill: 'color-mix(in srgb, var(--stitch-text-primary), transparent 92%)',
           }}
         />
-        {/* 多系列才出图例——把「系列名 → 色块」显式列出，一条不依赖颜色的区分通道。 */}
-        {showLegend && (
-          <Legend wrapperStyle={{ color: 'var(--stitch-text-primary)' }} />
-        )}
+        {/* 多系列才出图例——把「系列名 → 色块」显式列出，一条不依赖颜色的区分通道。
+            色卡（recharts 默认 = 系列色）承载分类色；formatter 把标签文字拉成中性墨色，
+            分类色永不当文字色（守 WCAG 1.4.1 双通道 + §5 对比度）。 */}
+        {showLegend && <Legend formatter={renderLegendLabel} />}
         {series.map((s, i) => (
           <Bar
             key={s.dataKey}

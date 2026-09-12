@@ -1,0 +1,70 @@
+// ============================================
+// ChatFile — 文件附件卡（复用 Card 承载）
+// ============================================
+
+// ---------- Wrapper（覆写 Card 默认内边距为紧凑排布）----------
+.file {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  padding: var(--stitch-spacing-sm) var(--stitch-spacing-md);
+  max-width: 320px;
+}
+
+// ---------- 主区（整行点击触发器 / 只读容器）----------
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--stitch-spacing-sm);
+  flex: 1 1 auto;
+  min-width: 0; // 允许文件名省略号
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+button.trigger {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--stitch-radius-input);
+  }
+}
+
+// ---------- 类型图标 ----------
+.type {
+  flex: 0 0 auto;
+  color: var(--stitch-text-secondary);
+}
+
+// ---------- 文本列 ----------
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.name {
+  color: var(--stitch-text-primary);
+  font-weight: var(--stitch-font-weight-medium);
+  font-size: var(--stitch-font-size-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  color: var(--stitch-text-muted);
+  font-size: var(--stitch-font-size-sm);
+}
+
+// ---------- 下载按钮 ----------
+.download {
+  flex: 0 0 auto;
+}

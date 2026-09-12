@@ -1,0 +1,86 @@
+// ============================================
+// ChatImage — 图片消息（气泡内缩略图 + chat 层自建大图查看器）
+// ============================================
+
+// ---------- 根（块级：令 ChatMessage 时间落在缩略图下方，与文件卡一致）----------
+.frame {
+  display: block;
+  line-height: 0; // 去掉 inline 图底缝
+  max-width: 100%;
+}
+
+// ---------- 缩略图触发键（点击开大图）----------
+.thumb {
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+  border-radius: var(--stitch-radius-image);
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- 大图遮罩 ----------
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stitch-mask-bg);
+}
+
+// ---------- 大图（复用 <Image> 的相框；本层只做定位锚点）----------
+.dialog {
+  position: relative;
+  display: inline-flex;
+  line-height: 0;
+}
+
+// 复用 <Image> 的相框，只把它约束进视口（圆角 / 边框 / 阴影由 Image 自带）。
+.full {
+  max-width: min(88vw, 1100px);
+  max-height: 86vh;
+}
+
+// ---------- 框上工具栏（下载 / 关闭）----------
+.tools {
+  position: absolute;
+  top: var(--stitch-spacing-md);
+  right: var(--stitch-spacing-md);
+  z-index: 1;
+  display: flex;
+  gap: var(--stitch-spacing-sm);
+}
+
+// 轻量悬浮钮：小尺寸 + 半透明深色 scrim 底 + 浅色图标，压在图角不喧宾夺主
+//（与 <Image> 关闭钮同一手法、视觉一致）。
+.toolBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--stitch-text-on-dark);
+  background: var(--stitch-mask-bg);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform var(--stitch-motion-duration-fast)
+    var(--stitch-motion-ease);
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: 2px;
+  }
+}

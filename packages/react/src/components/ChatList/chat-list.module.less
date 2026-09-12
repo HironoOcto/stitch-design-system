@@ -1,0 +1,31 @@
+// ============================================
+// ChatList
+// 消息流容器：数据驱动渲染 ChatMessage、连发分组编排、贴底 + 上滚暂停、顶部加载。
+// 颜色 / 间距 / 字体全走 var(--stitch-*)（H2），零硬编码主题值、零新增契约 token。
+// ============================================
+
+// ---------- 滚动容器 ----------
+.list {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--stitch-spacing-md);
+  font-family: var(--stitch-font-body);
+
+  // 键盘聚焦环：焦点走 :focus-visible（非 :focus，避免鼠标点击残留）。offset 取负（内描边），
+  // 因本区常嵌在 overflow:hidden 的外框里，外描边会被裁掉。
+  &:focus-visible {
+    outline: 2px solid var(--stitch-focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+// ---------- 顶部加载区（复用 Loading）----------
+// 相对定位承载 Loading 的绝对遮罩（inset:0）；固定高度让转圈有落点、不占太多列高。
+// 高度锚 --stitch-height-lg（控件几何角色变量、非写死像素），随档换肤缩放。
+.top-loader {
+  position: relative;
+  flex: none;
+  height: var(--stitch-height-lg);
+}

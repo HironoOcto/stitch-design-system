@@ -124,6 +124,15 @@ export interface ContextMenuProps {
         >
           <div style={dropZone}>在此区域右键弹出菜单</div>
         </ContextMenu>
+
+<ContextMenu
+          items={Array.from({ length: 20 }, (_, i) => ({
+            label: `城市选项 ${i + 1}`,
+            onClick: () => setLast(`城市选项 ${i + 1}`),
+          }))}
+        >
+          <div style={dropZone}>在此区域右键弹出 20 项长列表菜单（可滚动）</div>
+        </ContextMenu>
 ```
 
 右键菜单（在目标区域右键弹出的一列动作）：`children` 是右键目标区、`items` 是动作项数组，

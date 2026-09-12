@@ -152,6 +152,44 @@ export { CodeBlock } from './components/CodeBlock';
 export type { CodeBlockProps } from './components/CodeBlock';
 
 // ============================================
+// 对话 / 消息（chat）
+// ============================================
+export { ChatMessage } from './components/ChatMessage';
+export type {
+  ChatMessageProps,
+  ChatMessageVariant,
+  ChatMessageStatus,
+} from './components/ChatMessage';
+
+export { ChatMessageActions } from './components/ChatMessageActions';
+export type {
+  ChatMessageActionsProps,
+  ChatMessageAction,
+} from './components/ChatMessageActions';
+
+export { ChatList } from './components/ChatList';
+export type { ChatListProps, ChatListItem } from './components/ChatList';
+
+export { ChatInput } from './components/ChatInput';
+export type {
+  ChatInputProps,
+  ChatInputSubmitType,
+  ChatInputAutoSize,
+} from './components/ChatInput';
+
+export { TypingIndicator } from './components/TypingIndicator';
+export type { TypingIndicatorProps } from './components/TypingIndicator';
+
+export { ChatImage } from './components/ChatImage';
+export type { ChatImageProps } from './components/ChatImage';
+
+export { ChatFile } from './components/ChatFile';
+export type { ChatFileProps } from './components/ChatFile';
+
+export { ChatVoice } from './components/ChatVoice';
+export type { ChatVoiceProps } from './components/ChatVoice';
+
+// ============================================
 // 数据可视化（data-viz）
 // ============================================
 export { LineChart } from './components/LineChart';

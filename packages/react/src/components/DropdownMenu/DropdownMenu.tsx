@@ -5,6 +5,7 @@ import clsx from 'clsx';
 
 // 2. 内部组件（相对路径）
 import { Icon, type IconName } from '../Icon';
+import { ScrollArea } from '../ScrollArea';
 
 // 3. 样式（永远最后）
 import styles from './dropdown-menu.module.less';
@@ -95,7 +96,9 @@ function renderItems(
               className={styles.content}
               sideOffset={8}
             >
-              {renderItems(item.children, `${key}-`)}
+              <ScrollArea className={styles.scroll}>
+                {renderItems(item.children, `${key}-`)}
+              </ScrollArea>
             </RadixDropdownMenu.SubContent>
           </RadixDropdownMenu.Portal>
         </RadixDropdownMenu.Sub>
@@ -140,7 +143,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
         className={clsx(styles.content, className)}
         sideOffset={sideOffset}
       >
-        {renderItems(items)}
+        <ScrollArea className={styles.scroll}>{renderItems(items)}</ScrollArea>
       </RadixDropdownMenu.Content>
     </RadixDropdownMenu.Portal>
   </RadixDropdownMenu.Root>

@@ -226,7 +226,7 @@ export const Image: React.FC<ImageProps> = ({
                   aria-label="关闭预览"
                   onClick={() => setPreviewOpen(false)}
                 >
-                  <Icon name="close" size={16} />
+                  <Icon name="close" size={14} />
                 </button>
                 <img src={src} alt={alt} className={styles.previewImg} />
               </div>

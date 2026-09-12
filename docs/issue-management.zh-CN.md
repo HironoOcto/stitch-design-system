@@ -423,6 +423,63 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/10
 
 ---
 
+> **本批规划（chat 族 · `/grill-with-docs` 对齐）**：手写一套人-人 IM 聊天对话组件（**不做 AI 对话**——有 assistant-ui / Vercel AI SDK UI 等现成库；连带流式/停止/思考态/代码块气泡全部出局）。锚点决策——**手写非包引擎件**，复用 `Avatar`/`Image`/`Icon`/`Card`/`DropdownMenu`/`ContextMenu`/`Loading`；新族 **`chat`**（`conversation & messaging`）；**零新增契约 token**（sent=`--stitch-bg-accent` 软色调 / received=`--stitch-bg-card` / 已读=`--stitch-info` / 语音波形=`--stitch-accent`+`--stitch-border` / 时间=`--stitch-text-muted`）；`ChatList` **数据驱动** `messages[]` + **连发分组**（相邻同 variant 头像显一次、间距收紧，**不合并内容**、仍多气泡）；三态 `variant`=sent/received/system、**纯 emoji 大图无气泡**（照 WhatsApp/Telegram）、已读打勾、图片/文件/语音富媒体、消息操作菜单。**接缝**（同砍掉的 AI 流式原则——组件不拥有数据/传输）：日期分隔线的**标签文字由 app 传**（组件不算日期）、向上加载历史只暴露 `onReachTop`（**fetch 由 app**）、实时新消息由 app `setState` append 喂增长的 `messages[]`。**props 命名照搬、不自创**：antd v5 本体优先（`Input` 的 `value`/`onChange`/`disabled`/`placeholder`/`autoSize`、`Avatar`、`Image`），聊天专属补 **Ant Design X**（`Bubble`/`Bubble.List`/`Sender`），两处皆无取 Ant 最近惯例。依赖：**#13 地基（立族 + ChatMessage）**先行，#14/#15/#16/#17 在 #13 merge 后可并行。
+
+## #13（AFK）：chat 族 + ChatMessage（气泡核心 · 立族地基）
+
+> 立 `chat` 族 + 手写 ChatMessage 气泡核心（本族原子，#14–#17 都建其上）= 三态 sent/received/system + 纯 emoji 大图 + 时间 + Avatar + 已读打勾 + 连发分组样式钩子。
+
+> ✅ 已完成并 close（commit `84cf41f`，2026-09-11，用户验收通过）。立 `chat` 族 + 手写 ChatMessage 气泡核心（非包引擎件，纯 markup + CSS，复用 `Avatar`/`Icon`），端到端垂直切片：四件套 + demo + `build:refs` 生成 [references/components/chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatMessage`（props==源）+ 25 unit + 4 a11y（含可及名/role）。**三态** `variant`=sent/received/system（驱动左右/居中，不另立 `placement`）；`content` 纯文本/ReactNode（+`children` 兜底）；**纯 emoji 大图无气泡**（自动判定，≤3 emoji）；`time` 时间贴正文底缘（`vertical-align:text-bottom`，与字体底对齐）；`status` 已读回执仅 sent 侧（✓/✓✓ 走 `<Icon name=check>`，read=`--stitch-info`，回执 `role=img`+可及名）；`grouped` 连发分组样式钩子（received 保留头像列对齐成列，编排在 #14）。**长相经多轮用户验收**：sent 气泡底色 + 文字色 = **Card filled cat-1 同配方**（bg=`color-mix(cat-1,canvas 88%)`、ink=`color-mix(cat-1,text-primary 68%)`，逐字节一致、全库 cat-1 面统一）——**原创偏离**：issue 原 token 图指定 sent=`bg-accent 软色调`，用户按观感拍板改走分类槽 cat-1（登记于此 + 预建笔记.md）；正文内链接走 `--stitch-accent`（无下划线/medium，同 Collapse 内容链接惯例）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零硬编码色 🟢；H4 契约不动（`contract.css` 零 diff、零新 token）🟢；无 emoji/裸 svg/Unicode（打勾走 `<Icon>`）🟢；H1 自包含（`check:boundary` 三层零越界）🟢。**② 真实 case dry_run**（demo 浏览器实测）：sent/received/system 三态 + 纯 emoji 大图 + 时间 + Avatar + 已读打勾真实 render，切 seline→steep 换肤跟随（sent bg cat-1 随站变、read 勾恒 info、emoji 随 display 档缩放）🟢；过 #29 skill-acceptance §1/§5（`check:skill` 57/57、props==源、catalog 派生含 chat）🟢；`npm run ci` EXIT 0（640 unit + 136 a11y + build）🟢。两块表见 GH #13 评论。**给后续**：#14 ChatList 在本气泡上编排（数据驱动 + 连发分组 + 贴底 + onReachTop）。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/13
+依赖：无，可立即领取（#14–#17 的前置）。
+
+---
+
+## #14（AFK）：ChatList（消息流容器 · 数据驱动 + 连发分组）
+
+> 在 #13 的 ChatMessage 上新增 ChatList = 数据驱动 messages[] + 贴底（上滚暂停）+ onReachTop + 连发分组编排 + 日期分隔项。
+
+> ✅ 已完成并 close（commit `b4d53f4`，2026-09-11，用户验收通过）。在 #13 ChatMessage 上新增对外组件 **ChatList**（chat 族），端到端垂直切片：四件套 + demo + `build:refs` 生成 [references/components/chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatList`（props==源）+ 17 unit + 2 a11y。**props 照搬 Ant X `Bubble.List`**（正文示意的 `messages` 按红线 ⑥ 改用本名 `items`）：`items`（每项 = `ChatMessageProps` + `id`，内部渲染 `ChatMessage`，`ChatMessage` 仍单独可用）/ `roles`（按 variant 灌默认、item 显式值优先）/ `autoScroll`；加载更多接缝取 Ant `on*` 惯例——`onReachTop`（**组件不 fetch**、传输交 app）+ `loadingMore`（**复用 `<Loading>`** 顶部转圈、仅内容真溢出才判触顶防开屏误触发）。**贴底**：append 贴底、用户上滚暂停、回底恢复（`autoScroll`，jsdom 喂几何断言 + 浏览器实测双证）。**连发分组**：相邻同 variant（非 system）续条置 `grouped`（头像组内一次、间距收紧、内容不合并）；**日期分隔** = `variant="system"` 项、标签文字由 app 传（组件不算日期）。**a11y**：根 `role="log"` + `aria-live` + `tabIndex=0` 键盘可聚焦（WCAG 2.1.1）+ `:focus-visible` 焦点环。**顺修 #13 头像列占位 bug**：续条占列改为「随该条是否带 `avatar`」——1:1 私聊（无头像）整串贴边对齐、群聊（`roles` 每条有头像）对齐成列（同步改 `ChatMessage` JSDoc/note + 测试）。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token 🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（转圈复用 `<Loading>`）🟢；H1 自包含（`check:boundary` 零越界）🟢。**② 真实 case dry_run**（demo 浏览器实测，console 无 warn）：日期分隔 + 连发分组 + append 贴底 + 上滚暂停 + 回底恢复 + onReachTop prepend（组件不 fetch）+ 已读回执三态（单勾/双勾/双勾高亮·各带可及名）+ 1:1 对齐 + 键盘焦点环，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源、catalog 派生含 ChatList）🟢；`npm run ci` EXIT 0（659 unit + 138 a11y + build）🟢。两块表见 GH #14 评论。**给后续**：#15/#16/#17 在本列表 + 气泡上继续编排。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/14
+依赖：#13（chat 族 + ChatMessage 就位）。可与 #15/#16/#17 并行。
+
+---
+
+## #15（AFK）：ChatInput + TypingIndicator（输入器 + 正在输入）
+
+> 在 #13 立起的 chat 族上新增 ChatInput（多行自增高 + 发送键 + 受控/非受控 + Enter 发送）+ TypingIndicator（对方正在输入三点动画）。
+
+> ✅ 已完成并 close（commit `5682b45`，2026-09-11，用户验收通过）。在 #13 chat 族上新增两个对外组件 **ChatInput + TypingIndicator**（chat 族），端到端垂直切片：两组四件套 + demo + `build:refs` 生成 [references/components/chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatInput` / `## TypingIndicator`（props==源）+ 各带 unit + a11y。**props 照搬不自创**：ChatInput = antd `Input`（`value`/`onChange`/`disabled`/`placeholder`/`autoSize`）+ Ant Design X `Sender`（发送回调用 Sender 本名 `onSubmit`，非正文散提的 `onSend`；已 fetch x.ant.design 核实）+ `loading`/`submitType`/`prefix`/`actions`；TypingIndicator 无 Ant 源 → 取 Ant 惯例（`label` 可访问名 + 透传原生属性）。**ChatInput**：多行 textarea 自增高（`autoSize` `true`/`{minRows,maxRows}`，`ResizeObserver` 只认宽度重量、避开首帧错宽量高卡死 + 写 height 自触发死循环）+ 受控/非受控 `value`（非受控发送后自清、受控交父清）+ `submitType`（`enter`=Enter 发送/Shift+Enter 换行，可反；IME 组词中 Enter 不发）+ `onSubmit`（纯空白/`disabled`/`loading` 不发）+ 发送键走 `<Icon name="send">`（新增纸飞机图标、品牌中立自绘）+ `prefix`/`actions` 附件插槽（逻辑交 app）；**IM 无停止态**：`loading` 仅忙/禁发、不换停止键。**TypingIndicator**：三点循环动画（角色变量小 `<span>`、非 emoji/svg/Unicode）+ 色走 `--stitch-text-muted` + 动效走 `--stitch-motion-*`（`calc` 锚定、不超动效窗）+ `prefers-reduced-motion` 降级 + `role="status"` 可访问名；`align-self:flex-start`+`width:fit-content` 贴左裹内容、落 flex 容器不被拉成整条。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（`contract.css` 未改）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（发送键 `<Icon>`、点走角色变量小元素）🟢；H1 自包含（`check:boundary` 零越界）🟢；H5 `npm run ci` EXIT 0 🟢。**② 真实 case dry_run**（demo 浏览器实测，console 无 warn）：多行自增（空框 21px→键入长文长到多行、图标+发送键垂直居中）+ Enter 发送真触发（清空缩回 + 已发送日志）+ 受控/非受控双模式 + TypingIndicator 三点动画 render（小气泡贴左对齐头像列）+ 切 seline→steep 换肤跟随（accent/圆角/字体全随），逐条 🟢；过 #29 skill-acceptance §1/§5（`check:skill` 57/57、props==源、catalog 派生含两员）🟢；`npm run ci` EXIT 0（678 unit + 141 a11y + build）🟢。两块表见 GH #15 评论。**修订**：验收中修两处 demo 暴露的真 bug——自增高首帧错宽量出 546px 死高（改 ResizeObserver 认宽度重量）、单行文字未居中且小于按钮（`align-items:center` + textarea `display:block`/`box-sizing:border-box`）、TypingIndicator 落 flex 列被拉成整条（`align-self:flex-start`）。**给后续**：#16 富媒体内容件、#17 消息操作菜单在本输入器 + 气泡上继续。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/15
+依赖：#13（仅 chat 族已立；与 ChatMessage 无代码耦合）。可与 #14/#16/#17 并行。
+
+---
+
+## #16（AFK）：chat 富媒体内容件（图片 / 文件卡 / 语音波形）
+
+> 在 #13 的 ChatMessage 上新增三种富媒体内容件（作 content 塞入）= 图片（复用 Image）+ 文件附件卡（复用 Card）+ 语音消息（手绘波形柱，振幅 app 传）。
+
+> ✅ 已完成并 close（commit `1707925`，2026-09-11，用户验收通过）。在 #13 ChatMessage 上新增三种富媒体内容件（chat 族），端到端垂直切片：四件套 + demo 三例 + `build:refs` 生成 [chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatImage`/`## ChatFile`/`## ChatVoice`（props==源）+ 24 unit + 3 a11y。**ChatImage**：气泡内缩略图 + 大图查看器——**缩略图与大图都复用通用 `<Image>`**（大图即 Image 自带相框、点击开），本组件只加遮罩 + 把下载/关闭工具键叠在大图框上；块级排布令时间落缩略图下方（同文件卡）。**ChatFile**：复用 `<Card>` 承载（类型图标 `<Icon name="file">`/文件名/大小字节格式化）+ 常驻下载键（复用 `<Button>`），点击/下载回调交 app；props 取 Ant Attachments 附件项惯例（name/size/description）。**ChatVoice**：手绘静态波形（一排 `<div>`+角色变量小条，已播 `--stitch-accent`/未播 `--stitch-border`、非内联 svg）+ 播放键（`<Button>`+`<Icon play/pause>`）+ 时长；受控视图不解码音频，`waveform`/`percent`/`playing` 由 app 传（播放态取 Ant `open`/`onOpenChange` 惯例）。**Icon** 新增 `play`/`pause`（填充）、`file`/`download`（描边）品牌中立字形。**Image 通用改进（用户拍板、非聊天专属）**：预览关闭钮改轻量悬浮钮（28×28 圆形 + 半透明 scrim 底 `--stitch-mask-bg` + 浅色图标），不再白底大圆钮。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（语音 accent/border）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode（波形柱=角色变量 `<div>`）🟢；H1 自包含（`check:boundary` 三层零越界）🟢；H5 `npm run ci` EXIT 0（含 test:a11y）🟢。**② 真实 case dry_run**（demo 浏览器实测、console 无 warn）：图片缩略图点开大图（复用 Image 相框、下载/关闭叠框上、真实图铺满视口）+ 文件卡三条均可下载（大小格式化/长名省略）+ 语音波形计时器模拟播放（accent 随播放从左往右填、play↔pause 切换）+ 切站换肤（seline↔steep 波形 accent/border 跟随）+ sent/received 两侧，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源）🟢。两块表见 GH #16 评论。**过程纠偏（用户多轮指正）**：两度把「聊天下载键」塞进/重造通用 `<Image>`（污染通用件 + 重造已有预览），均已撤回还原（`git diff` Image 归零后仅保留用户拍板的通用预览钮改进）——大图改为复用 Image 相框、下载 chrome 全留 ChatImage。**给后续**：#17 消息操作菜单在这些内容件上继续编排。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/16
+依赖：#13（ChatMessage content 承载就位）。可与 #14/#15/#17 并行。
+
+---
+
+## #17（AFK）：chat 消息操作菜单（回复/撤回/转发 · 复用 Dropdown/ContextMenu）
+
+> 在 #13 的 ChatMessage 上新增消息操作菜单（hover/长按出「回复/撤回/转发」），复用现有 DropdownMenu/ContextMenu、不另造浮层。
+
+> ✅ 已完成并 close（commit `c069c52`，2026-09-12，用户验收通过）。在 #13 ChatMessage 上新增 chat 族 **ChatMessageActions**（只出触发 + 菜单壳），端到端垂直切片：四件套 + demo（可交互迷你 IM）+ `build:refs` 生成 [chat.md](../skills/stitch-design-system/references/components/chat.md) 的 `## ChatMessageActions`（props==源）+ 9 unit + 2 a11y。**选型（按交互定）**：指针主入口复用 `ContextMenu`（桌面右键 / 触屏长按目标区，**无常驻按钮**——按用户拍板从「hover 出下滑钮」改为右键，贴 IM 惯例）；键盘路复用 `DropdownMenu`（尾角触发钮仅 `:focus-visible` 露、Enter 打开，保住键盘可达 + 可及名 `triggerLabel`）；两路喂同一份 `actions`（`{ label, icon?, onClick?, danger?, disabled?, children? }` = 复用 `DropdownMenuItem`，Ant v5 `items`/per-item `onClick` 惯例），点项调 `item.onClick`、回调全交 app、图标走 `<Icon>`。**转发目标 = 子菜单**（`actions` 的 `children`）——直接复用菜单件自带子菜单列会话、点一项即转发，右键/键盘两路自动展开；不另造 Modal、不手写列表（先后否掉了 Modal+Button 行、Modal+手写 listbox，因「列表不该是一排按钮」且真实项目该有会话选择）。**浮层滚动统一到 `<ScrollArea>` 自绘手柄**（跨 DropdownMenu/ContextMenu/Select 三件）：原生滚动条无法被 `border-radius` 裁切、大圆角主题（steep radius-card 24px）会戳角 → 改「外层 `.content`/`.dropdown` `overflow:hidden` 圆角内裁 + 内层 ScrollArea Viewport 定高可滚」；跨浏览器一致、任意主题圆角不戳角、键盘焦点项自动滚入视口（实测 scrollTop 跟随）。demo 三处补长列表滚动示例。**① 结构 Hook**：H2 只读 `var(--stitch-*)`、零新增契约 token（`contract.css` 未改）🟢；H4 契约不动 🟢；无 emoji/裸 svg/Unicode 🟢；H1 自包含（`check:boundary` 三层零越界）🟢；H5 `npm run ci` EXIT 0（708 unit + 147 a11y + build）🟢。**② 真实 case dry_run**（demo 浏览器实测、console 无 warn）：右键气泡出 ContextMenu、键盘 Tab 尾角钮 Enter 出 DropdownMenu、点项触发回调（回复→引用卡片[原作者+原文]、转发→子菜单选会话[转发自 X 头、发去别的会话不塞回当前窗]、复制→写剪贴板、撤回→变系统「已撤回」，照 Telegram）+ 切 seline↔steep 换肤跟随 + 长列表 ScrollArea 滚动（含 steep 24px 圆角不戳角）+ 键盘导航/子菜单展开/Esc，逐条 🟢；过 #29 skill-acceptance §5（`check:skill` 57/57、props==源、catalog 派生含 ChatMessageActions）🟢。两块表见 GH #17 评论。**复用件顺带改进（非本组件专属）**：DropdownMenu/ContextMenu/Select 三件浮层加 ScrollArea 内滚 + 圆角内裁（各带 demo 长列表示例），`build:refs` 同步 navigation.md / form-controls.md。**给后续**：chat 族本批（#13–#17）收官。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/17
+依赖：#13（ChatMessage 就位）。可与 #14/#15/#16 并行。
+
+---
+
 # 待建 issue（依赖未就位，暂不领取）
 
 > 依赖到位后补建 GH issue（`[stitch]` 前缀 + `ready-for-agent`），并把 AFK prompt 挪到上面「各 issue 的 prompt」。

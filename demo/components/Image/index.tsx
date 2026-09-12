@@ -58,11 +58,12 @@ export default function ImageDemo() {
     <div style={section}>
       <div>
         <p style={rowLabel}>
-          默认 · 点击图片开大图预览（Enter/Space 亦可，ESC 关）
+          默认 · 点击图片开大图预览（真实图片 → 大图按原图尺寸铺开；Enter/Space
+          亦可，ESC 关）
         </p>
         <Image
-          src={photo('Island', 190)}
-          alt="岛屿风景"
+          src="https://images.unsplash.com/photo-1535025183041-0991a977e25b?w=1200&q=80&auto=format"
+          alt="风景照"
           width={240}
           height={160}
         />

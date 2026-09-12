@@ -88,6 +88,21 @@ export default function DropdownMenuDemo() {
       </div>
 
       <div>
+        <p style={rowLabel}>
+          长列表内滚动（超高度上限即滚，滚动条走 ScrollArea 自绘手柄）
+        </p>
+        <div style={grid}>
+          <DropdownMenu
+            trigger={<Button>选择城市（20 项）</Button>}
+            items={Array.from({ length: 20 }, (_, i) => ({
+              label: `城市选项 ${i + 1}`,
+              onClick: () => {},
+            }))}
+          />
+        </div>
+      </div>
+
+      <div>
         <p style={rowLabel}>受控（open / onOpenChange）</p>
         <ControlledDemo />
       </div>

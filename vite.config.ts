@@ -17,7 +17,11 @@ export default defineConfig({
   // stitchTheme：src/index.ts 顶部 import 'virtual:stitch-theme'——demo 与测试都经
   // alias 引 src/index.ts，故这里也须注册这个虚拟模块（否则解析不到）。
   plugins: [react(), stitchTheme()],
-  server: { open: false },
+  server: {
+    open: false,
+    // 优先用环境分配的 PORT（demo 预览器 autoPort 会注入），否则回落 vite 默认。
+    port: process.env.PORT ? Number(process.env.PORT) : undefined,
+  },
   resolve: {
     alias: {
       '@octohirono/stitch-design-system': fileURLToPath(

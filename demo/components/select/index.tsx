@@ -40,6 +40,12 @@ const fruitsWithDisabled = [
   { label: '樱桃', value: 'cherry' },
 ];
 
+// 长列表：超过下拉高度上限即滚，滚动条走 ScrollArea 自绘手柄（非原生粗条）。
+const manyCities = Array.from({ length: 20 }, (_, i) => ({
+  label: `城市选项 ${i + 1}`,
+  value: `city-${i + 1}`,
+}));
+
 function ControlledSelect() {
   const [value, setValue] = useState<string | number>('apple');
   return (
@@ -116,6 +122,18 @@ export default function SelectDemo() {
         <div style={col}>
           <Select options={fruits} defaultValue="grape" aria-label="非受控" />
           <ControlledSelect />
+        </div>
+      </section>
+
+      {/* 长列表内滚动 */}
+      <section>
+        <p style={rowLabel}>长列表内滚动（滚动条走 ScrollArea 自绘手柄）</p>
+        <div style={col}>
+          <Select
+            options={manyCities}
+            placeholder="选择城市（20 项，可滚动）"
+            aria-label="长列表城市选择"
+          />
         </div>
       </section>
     </div>

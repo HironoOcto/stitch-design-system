@@ -102,9 +102,6 @@
   z-index: 100;
   min-width: 100%;
   box-sizing: border-box;
-  max-height: 280px;
-  overflow-y: auto;
-  padding: var(--stitch-spacing-xs);
   background: var(--stitch-bg-elevated);
   border: var(--stitch-border-width) solid var(--stitch-border);
   border-radius: var(--stitch-radius-card);
@@ -112,6 +109,20 @@
   opacity: 0;
   animation: dropdownFadeIn var(--stitch-motion-duration-base)
     var(--stitch-motion-ease) forwards;
+
+  // 圆角内裁：滚动交给内层 <ScrollArea>，本层 overflow:hidden 把自绘滚动条裁进圆角内。
+  // 任何主题的 radius-card（含大圆角）都不会让滚动条戳出下拉面。内边距移到 .dropdownScroll。
+  overflow: hidden;
+}
+
+// 内层滚动区（复用 <ScrollArea> 自绘手柄，替换原生粗滚动条）：给 Viewport 定高上限令内容溢出即滚
+// （% 高度不对 Root 的 max-height 生效，故直接给 Viewport）。承载选项内边距。
+.dropdownScroll {
+  padding: var(--stitch-spacing-xs);
+
+  [data-radix-scroll-area-viewport] {
+    max-height: 280px;
+  }
 }
 
 @keyframes dropdownFadeIn {

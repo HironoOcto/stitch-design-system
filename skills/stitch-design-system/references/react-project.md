@@ -70,7 +70,8 @@ export default function App() {
 - Use role tokens: `color: var(--stitch-text-primary)`,
   `background: var(--stitch-bg-card)`, `border-radius: var(--stitch-radius-card)` —
   so custom UI stays on-palette.
-- Exact token values: [theme/tokens.css](theme/tokens.css).
+- Exact token values: the active theme's `theme-presets/<active-theme>/tokens.css` (resolve
+  `<active-theme>` as in [SKILL.md](../SKILL.md) "Active theme").
 - Do NOT hard-code hex/px; use the `--stitch-*` role variables only.
 
 ## Scenario-specific rules

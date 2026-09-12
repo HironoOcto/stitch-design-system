@@ -12,11 +12,13 @@ agent，76+ agent 各写入自己的技能目录，无需手拷）：
 npx skills add HironoOcto/stitch-design-system
 ```
 
+> ⚠️ 本仓库发了**两个 skill**：`stitch-design-system` + `reset-theme`。`add` 按**仓库**装（默认两个一起进来），而下面的 `remove` 按 **skill 名**卸——所以卸载要把两个都点名，没有「按仓库一键卸」。
+
 之后更新到最新、或移除：
 
 ```bash
 npx skills update HironoOcto/stitch-design-system
-npx skills remove stitch-design-system
+npx skills remove stitch-design-system reset-theme   # 两个 skill 一并卸；别用 --all（那会清掉机器上所有 skill）
 ```
 
 Claude Code 用户另有一条**原生路径**——仓库根的 `.claude-plugin/`（`plugin.json` +
@@ -44,7 +46,7 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 | `references/theme-presets/<站>/style.md` | 该主题预置的招牌风格散文（一段话视觉心智模型） |
 | `references/theme/design-rules.md` | 全局设计法则（禁写死、图标、动效、无障碍、配色比例；跨主题单份） |
 
-主题**预置全备**：每个可发布站各一套 `theme-presets/<站>/`。「哪套生效」由消费项目 `.agent/stitch.theme.json` 的 `activeSite` 指针在读时决定（无则回落发布默认）——见 `SKILL.md` 的「Current style」节。
+主题**预置全备**：每个可发布站各一套 `theme-presets/<站>/`。「哪套生效」由消费项目 `.agent/stitch.theme.json` 的 `activeSite` 指针在读时决定（无则回落发布默认）——见 `SKILL.md` 的「Active theme」节。
 
 ## 两种使用场景
 
@@ -71,6 +73,7 @@ claude plugins install stitch-design-system@HironoOcto/stitch-design-system
 | navigation | DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toolbar | [navigation.md](references/components/navigation.md) |
 | feedback | Loading, Progress, Skeleton | [feedback.md](references/components/feedback.md) |
 | data-display | Table, CodeBlock, Tag, Avatar | [data-display.md](references/components/data-display.md) |
+| chat | ChatMessage, ChatMessageActions, ChatList, ChatInput, TypingIndicator, ChatImage, ChatFile, ChatVoice | [chat.md](references/components/chat.md) |
 | data-viz | LineChart, BarChart, PieChart, Stat | [data-viz.md](references/components/data-viz.md) |
 | Form | Form | [Form.md](references/components/Form.md) |
 | Notification | Notification | [Notification.md](references/components/Notification.md) |

@@ -5,6 +5,7 @@ import clsx from 'clsx';
 
 // 2. 内部组件（相对路径）
 import { Icon, type IconName } from '../Icon';
+import { ScrollArea } from '../ScrollArea';
 
 // 3. 样式（永远最后）
 import styles from './context-menu.module.less';
@@ -87,7 +88,9 @@ function renderItems(
               className={styles.content}
               sideOffset={8}
             >
-              {renderItems(item.children, `${key}-`)}
+              <ScrollArea className={styles.scroll}>
+                {renderItems(item.children, `${key}-`)}
+              </ScrollArea>
             </RadixContextMenu.SubContent>
           </RadixContextMenu.Portal>
         </RadixContextMenu.Sub>
@@ -120,7 +123,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     <RadixContextMenu.Portal>
       {/* ContextMenu 锚在光标处，无 sideOffset（那是按钮锚定的 DropdownMenu 才有） */}
       <RadixContextMenu.Content className={clsx(styles.content, className)}>
-        {renderItems(items)}
+        <ScrollArea className={styles.scroll}>{renderItems(items)}</ScrollArea>
       </RadixContextMenu.Content>
     </RadixContextMenu.Portal>
   </RadixContextMenu.Root>

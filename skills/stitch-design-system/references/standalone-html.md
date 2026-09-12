@@ -9,11 +9,14 @@ library API. For a real React project, use [react-project.md](react-project.md) 
 
 1. **Ask first.** If the page intent is unclear, reply with a short question plus 3–5
    concrete suggestions (blog, product grid, FAQ, login, dashboard). **Generate nothing yet.**
-2. **Use the embedded specs — do NOT fetch anything:**
-   - `:root` token block (paste-ready, complete): [theme/tokens.css](theme/tokens.css)
+2. **Resolve the active theme first.** Exactly one theme is active — determine it as in
+   [SKILL.md](../SKILL.md) "Active theme" (project `.agent/stitch.theme.json` `activeSite`,
+   else the published default; never pick or guess). Its folder is
+   `theme-presets/<active-theme>/`. Then **use the embedded specs — do NOT fetch anything:**
+   - `:root` token block (paste-ready, complete): the theme's `theme-presets/<active-theme>/tokens.css`
    - Global rules: [theme/design-rules.md](theme/design-rules.md)
-   - This theme's look rules (fonts, shadow policy, shapes, accent usage):
-     [theme/rules.md](theme/rules.md)
+   - This theme's look rules (fonts, shadow policy, shapes, accent usage): the theme's
+     `theme-presets/<active-theme>/rules.md`
    - Per-component props: [components/](components/)
 3. **Generate** one complete `index.html` in a single fenced code block, then list any
    spec line you intentionally relaxed and why.
@@ -30,14 +33,14 @@ library API. For a real React project, use [react-project.md](react-project.md) 
 
 - Page code in one `<script type="text/babel" data-presets="react,typescript">` block;
   mount on `<div id="root"></div>` via `ReactDOM.createRoot(...).render(<App />)`.
-- All CSS inline in one `<style>` in `<head>`: paste `theme/tokens.css` `:root` first,
+- All CSS inline in one `<style>` in `<head>`: paste the theme's `tokens.css` `:root` first,
   then component classes. **No CSS frameworks; Tailwind is forbidden.**
-- Fonts: load exactly the families named in `theme/tokens.css` (`--stitch-font-*`) —
+- Fonts: load exactly the families named in the theme's `tokens.css` (`--stitch-font-*`) —
   do not hard-code a font here.
-- Shadows / radii / typography weights / any shape (clip-path): take from
-  `theme/tokens.css` + `theme/rules.md`; never write literal values in this file.
-  Shadow application is the most-misapplied rule — follow `theme/rules.md` exactly.
-- If the theme uses an SVG clip-path shape (see `theme/rules.md`), inject its `<defs>`
+- Shadows / radii / typography weights / any shape (clip-path): take from the theme's
+  `tokens.css` + `rules.md`; never write literal values in this file.
+  Shadow application is the most-misapplied rule — follow the theme's `rules.md` exactly.
+- If the theme uses an SVG clip-path shape (see the theme's `rules.md`), inject its `<defs>`
   once at the top of `<body>` so `clip-path: url(#…)` resolves.
 
 ## Hand-roll the library API, then compose with it
@@ -52,4 +55,4 @@ library API. For a real React project, use [react-project.md](react-project.md) 
 ## Scenario-specific rules
 
 - Every value comes from the embedded specs — do not round or substitute "close" colors.
-- All hard rules from [SKILL.md](../SKILL.md) + [theme/rules.md](theme/rules.md) apply.
+- All hard rules from [SKILL.md](../SKILL.md) + the theme's `theme-presets/<active-theme>/rules.md` apply.

@@ -18,6 +18,7 @@
   /* 强调 / 链接 */
   --stitch-accent:      #e2dffe;  /* ① Ghost Lavender（Quick Ref: primary action = filled action）—— light-on-light 填充 CTA, 靠 4px violet glow 显形 */
   --stitch-accent-text: #3c315b;  /* ① Aubergine —— Download Button 淡紫填充上的字(契约注释亦标"phantom 为深色")*/
+  --stitch-brand:       #3c315b;  /* ② 覆盖默认(默认=accent=浅紫,当前景 1.27:1 隐形) → ③ Aubergine 脊色: phantom 品牌拆脊(前景)/行动(填充)二色,契约单槽装不下,故 adapter 覆盖前景槽。on canvas 11.52:1 达标 —— ADR 0011 */
   --stitch-link:        #3c315b;  /* ③ 需确认: DESIGN 无显式链接色(See More 是淡紫药丸按钮, 非文字链接色)。判断补 Aubergine 脊色作内联链接色 —— 在白底达 AA; Periwinkle #ab9ff2 太浅(小字对白底不达 AA) 故落选, 仅留作装饰 accent */
 
   /* 分类色槽（phantom 是"多色"站 → 直接取自它自己的糖果调色板, 6 色可区分, 不外部手挑）*/

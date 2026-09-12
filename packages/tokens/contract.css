@@ -22,6 +22,7 @@
   --stitch-accent-hover:   color-mix(in srgb, var(--stitch-accent), black 12%);  /* 【派生·自动跟随 accent】 */
   --stitch-accent-active:  color-mix(in srgb, var(--stitch-accent), black 22%);  /* 【派生·自动跟随 accent】 */
   --stitch-accent-text:    #ffffff;  /* 【每站】CTA 上的文字(phantom 为深色) */
+  --stitch-brand:          var(--stitch-accent);  /* 【派生·默认跟随 accent;站可覆盖】品牌前景强调(当前项/选中态/品牌图标,要被读) —— ADR 0011 */
   --stitch-link:           #777b86;  /* 【每站】链接色 */
 
   /* 分类色槽（只为"互相区分"的分类,如 Tag 分类用法;N=6 固定,可移植;每站填可区分色:色多鲜艳/色少调子。语义色不走这套,用 danger/success/warning/info）*/

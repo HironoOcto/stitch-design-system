@@ -15,6 +15,7 @@
   --stitch-accent-hover: color-mix(in srgb, var(--stitch-accent), black 12%);
   --stitch-accent-active: color-mix(in srgb, var(--stitch-accent), black 22%);
   --stitch-accent-text: #ffffff;
+  --stitch-brand: var(--stitch-accent);
   --stitch-link: #777b86;
   --stitch-cat-1: #fbe1d1;
   --stitch-cat-2: #5d2a1a;

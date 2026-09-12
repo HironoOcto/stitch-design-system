@@ -1,0 +1,66 @@
+/* sites/phantom/adapter.css —— 只覆盖【每站】/【每站·可选】槽 */
+:root {
+  /* 背景 / 表面 */
+  --stitch-bg-canvas:      #fdfcfe;  /* ① Paper White（Quick Ref: canvas）*/
+  --stitch-bg-section:     #f4f2f4;  /* ① Bone（Surfaces L2 / Quick Ref: light panels）*/
+  --stitch-bg-card:        #fdfcfe;  /* ② 多选一: Card Surface 组件明写 Paper White 底 + 1px 边框分隔（不靠填充差）→ 与 canvas 同色, 靠 border 分层; 候选 Ash #e9e8ea(Surfaces L3 quiet container) 落选 —— 具名 Card 组件以边框而非填充分层, 值须忠于组件 */
+  --stitch-bg-elevated:    #fdfcfe;  /* ② phantom 全扁平, 无独立浮层表面(Imagery 无产品截图); 浮层坐在 Paper White 上, 靠 mask + violet glow 分离 */
+  --stitch-bg-accent:      #e2dffe;  /* ① Ghost Lavender（Surfaces L4 primary CTA surface）—— 与 --stitch-accent 同色: phantom "light-on-light" 强调面即淡紫 CTA 面 */
+  --stitch-bg-inverted:    #3c315b;  /* ① Aubergine（Quick Ref: dark sections）*/
+
+  /* 文字（phantom 3 值中性世界: Obsidian 墨 / Aubergine 脊 / Fog 灰）*/
+  --stitch-text-primary:   #1c1c1c;  /* ② 多选一: Obsidian(Quick Ref: body) —— 正文 + 内容卡标题(Example Prompt #4 heading/body 皆 #1c1c1c); Aubergine #3c315b 的"headings/nav"是结构脊治理(nav/hero/dark-section), 归 rules.md, 不占 text-primary */
+  --stitch-text-secondary: #86848d;  /* ① Fog（Role: muted / non-emphasized text）*/
+  --stitch-text-muted:     color-mix(in srgb, #86848d, #fdfcfe 40%);  /* ② 派生: phantom 仅 Fog 一档灰, 无更弱的具名色 → 由 Fog 混 canvas 提亮作占位符/弱化(避免继承契约 #a3a6af 的外站冷灰)*/
+  --stitch-text-on-accent: #3c315b;  /* ① Download Button: Ghost Lavender 面上文字 = Aubergine */
+  --stitch-text-on-dark:   #fdfcfe;  /* ① Paper White（Quick Ref: text on dark）*/
+
+  /* 强调 / 链接 */
+  --stitch-accent:      #e2dffe;  /* ① Ghost Lavender（Quick Ref: primary action = filled action）—— light-on-light 填充 CTA, 靠 4px violet glow 显形 */
+  --stitch-accent-text: #3c315b;  /* ① Aubergine —— Download Button 淡紫填充上的字(契约注释亦标"phantom 为深色")*/
+  --stitch-link:        #3c315b;  /* ③ 需确认: DESIGN 无显式链接色(See More 是淡紫药丸按钮, 非文字链接色)。判断补 Aubergine 脊色作内联链接色 —— 在白底达 AA; Periwinkle #ab9ff2 太浅(小字对白底不达 AA) 故落选, 仅留作装饰 accent */
+
+  /* 分类色槽（phantom 是"多色"站 → 直接取自它自己的糖果调色板, 6 色可区分, 不外部手挑）*/
+  --stitch-cat-1: #ab9ff2;  /* ① Periwinkle */
+  --stitch-cat-2: #4a87f2;  /* ① Cornflower Pop */
+  --stitch-cat-3: #ffffc4;  /* ① Buttercream */
+  --stitch-cat-4: #ffdadc;  /* ① Blush Mist */
+  --stitch-cat-5: #3c315b;  /* ① Aubergine */
+  --stitch-cat-6: #2ec08b;  /* ① Mint Signal —— 取作第 6 可区分色; 分类槽是非语义纯区分用, 语义"成功"另走 --stitch-success 契约稳定层(见文末), 二者不复用同一职责 */
+
+  /* 字体（Phantom 单一定制字体"包打一切", display 与 body 同一 face）*/
+  --stitch-font-display: 'Phantom', 'Inter', 'DM Sans', ui-sans-serif, system-ui, sans-serif;  /* ① 定制体, substitute Inter/DM Sans @ 300/400 */
+  --stitch-font-body:    'Phantom', 'Inter', 'DM Sans', ui-sans-serif, system-ui, sans-serif;  /* ① 同一 face(everything) */
+
+  /* 控件字重（DESIGN Do: "all text weight 350", Don't: "weight 600+"; 连填充 CTA 也 350——whisper-weight 即品牌嗓音, 填充态不加重）*/
+  --stitch-font-weight-normal: 350;  /* ① 非填充控件(nav/ghost/link) 15px weight 350 */
+  --stitch-font-weight-medium: 350;  /* ① 填充 CTA(Download/See More) 亦 weight 350, 不加粗(招牌 anti-bold)*/
+
+  /* 圆角（DESIGN Border Radius; pill 几何是招牌）*/
+  --stitch-radius-button: 100px;  /* ① buttons/nav/tags 全 100px 药丸 */
+  --stitch-radius-card:   24px;   /* ① cards */
+  --stitch-radius-input:  100px;  /* ③ 需确认: DESIGN 无 input 圆角。判断补 100px 药丸 —— pill 几何"non-negotiable、no flat", 单行输入与 100px 按钮配对成药丸; 若多行 textarea 觉方, 复核可回落 24px(≥16px Don't 底线)*/
+  --stitch-radius-image:  24px;   /* ② phantom 无配图(Imagery: 纯排版+ghost); 取 24px 对齐 cards, 并守 Don't"小元素圆角不低于 16px"(契约默认 12px 会破此规 → 不继承)*/
+
+  /* 线条 */
+  --stitch-border:        #e9e8ea;  /* ① Ash（Quick Ref: border subtle / Card border）*/
+  --stitch-border-strong: #3c315b;  /* ① Aubergine（Quick Ref: border strong / nav pill 描边）*/
+  --stitch-icon-stroke-width: 1.5;  /* ② 判断: DESIGN 有"icon strokes"但未列粗细。phantom whisper-weight/airy/anti-bold 身份 → 取纤细 1.5(介于 seline 发丝 1 与 steep 稳重 2), 而非契约默认 2 */
+
+  /* 阴影（phantom 全扁平, 仅一道 4px violet glow; Don't: "no drop shadows beyond the single 4px violet glow"）*/
+  --stitch-shadow-sm:   rgb(226, 223, 254) 0px 0px 4px 0px;  /* ① --shadow-sm(the violet glow), verbatim */
+  --stitch-shadow-base: rgb(226, 223, 254) 0px 0px 4px 0px;  /* ② phantom 仅定义一道阴影 → base 复用同一 glow, 不引契约灰投影 */
+  --stitch-shadow-lg:   rgb(226, 223, 254) 0px 0px 8px 0px;  /* ② 派生: 浮层用略大 glow(4→8px 模糊), 保持扁平/on-brand, 不引契约灰投影 */
+
+  /* 字阶（可选; phantom 招牌是 96px 巨型 display）*/
+  --stitch-font-size-display: 96px;  /* ② phantom display(招牌 80-96px 巨标)*/
+
+  /* 未列(不写, 用 contract 定义):
+     · 字号 sm/base/lg: phantom base 16(=契约默认)、subheading/lg 20(=默认)、caption 13≈默认 sm 14 → 仅 display 96 是真实杠杆, 余者与契约一致不覆盖
+     · 间距 xs-xl(4/8/12/16/24): phantom base unit 4px + density comfortable, 与契约默认逐档一致 → 不覆盖(区块留白节奏属构图 → 归 rules.md Layout)
+     · font-mono: phantom 单一字体, 无等宽需求 → 不写
+     · 反馈色 danger/success/warning/info: DESIGN 仅 Mint Signal #2ec08b(装饰式 success 徽章, 白字对底 <AA)。按 §9.4.2 纪律"反馈色不在本站 adapter 编造", 全部沿用契约 AA 达标稳定默认层; Mint 只作 rules.md 徽章样式 + cat-6, 不覆盖 --stitch-success
+     · 派生(accent-hover/active、text-disabled、focus-ring): 契约 color-mix/var 活表达式, 随 accent/text-muted 自动重算
+       ⚠ 复核注意: --stitch-focus-ring = accent = #e2dffe(极浅淡紫), 白底上聚焦环可见度偏低 —— 属契约派生层问题, 如需可在契约层为浅 accent 站调整, 不在本 adapter 硬改
+     · 恒定(border-width、line-height-base、height-*、motion-*、mask-bg、bg-disabled): 契约常量, 跨站不变 */
+}

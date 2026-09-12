@@ -18,8 +18,9 @@
 ## 执行 prompt（复制，把 `<site>` 全部换成站名）
 
 ```text
-你在 stitch-design-system/ 目录内执行。对 <site> 执行 multi-site-theming §9.6 的抽取步骤，
+你在本仓库根目录执行。对 <site> 执行 docs/design-system/multi-site-theming.md §9.6 的抽取步骤，
 产出该站【两个产物】——sites/<site>/adapter.css（值）+ sites/<site>/rules.md（规则）。
+（下文所有 §x.y 章节号都指 docs/design-system/multi-site-theming.md，先读该文件对应节再动手。）
 
 输入：
 - sites/<site>/source/DESIGN.md（主力·超集：Quick Color Reference 已做好语义映射；色表带 Role 列；
@@ -50,7 +51,7 @@
 派复核 agent 的 prompt（复制，把 `<site>` 换成站名）：
 
 ```text
-你在 stitch-design-system/ 目录内复核 <site> 的两个产物 sites/<site>/adapter.css + sites/<site>/rules.md，
+你在本仓库根目录复核 <site> 的两个产物 sites/<site>/adapter.css + sites/<site>/rules.md，
 执行 docs/contributing/onboard-site-review.md 的清单逐条走，
 重点裁 adapter.css 里的 ③（尤其 CTA 文字色冲突，先算对比度再定），
 产出「通过/需改动 + 必改项」结论。只出结论，不改产物（除非维护者授权按必改项落地）。

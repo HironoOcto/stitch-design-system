@@ -504,33 +504,10 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/22
 
 ## #20（AFK）：ChatMessage 气泡统一 elevated 表面 —— 修 received 在 `bg-card==canvas` 站隐形
 
-> phantom `--stitch-bg-card == --stitch-bg-canvas`（Card 靠边框分层），received 气泡 `background: var(--stitch-bg-card)` 又无边框/浮起 → canvas-on-canvas（1.00:1）隐形。两气泡统一 elevated 表面，只填充色不同。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 20 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：ChatMessage 的 sent / received 两气泡统一同一种表面处理 = elevated（显形靠 var(--stitch-shadow-base)），仅填充色不同——sent 保留 cat-1 兑色底（本方身份）、received 保留 var(--stitch-bg-card)。照 docs/design-system/design-rules.md（角色变量 + 阴影/扁平规则）与 ChatMessage 现有 JSDoc 执行，本段不复述步骤。
-
-改动清单（组件 · 选择器 · 改前 → 改后）：
-- ChatMessage .bubble（sent/received 共用块） : 无 box-shadow → 新增一行 box-shadow: var(--stitch-shadow-base);
-共 1 组件 / 1 行新增。不动：两气泡 background/color 填充配方（sent=cat-1 兑色底+ink、received=var(--stitch-bg-card)）、.variant-system、头像位、元信息。
-
-本 issue 特殊点：phantom 的 shadow-base = 其允许的 4px violet glow，故 elevated 在 phantom 天然 on-brand、不破「除 4px violet glow 外无投影」硬规则；其余站用各自 shadow-base。留意别让 received 气泡的紫光晕过度冒充「主 CTA 信号」——可接受但实测确认观感。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 --stitch-* 角色变量、不硬编码 hex/阴影；无新增契约 token；无 emoji/裸 svg/Unicode。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. sent/received 用同一 elevated 表面（--stitch-shadow-base），仅填充色不同（sent=cat-1 兑色底、received=--stitch-bg-card）；grep 证两气泡表面处理一致。
-2. phantom demo 真实浏览器：received 气泡明显与 canvas 分离（靠 violet glow 浮起）、sent 保留 cat-1 身份、两者成对一致；跨站抽查 seline/steep received 用各自 shadow-base 正常显形无回退。
-3. 过 #29 skill-acceptance.md 相关节（props==源、无 hex）。
-4. 执行报告两块表：① 结构 Hook（H2、契约不动、扁平规则）全 🟢；② 真实 case dry_run（phantom received 气泡：改前 1.00:1 隐形 → 改后靠 shadow-base 浮起可辨，开篇+结尾达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#20) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `f8e6b08`，2026-09-12，用户验收通过）。ChatMessage 共享 `.bubble` 块新增一行 `box-shadow: var(--stitch-shadow-base)`——sent/received 从此统一同一 elevated 表面（独立浮起面），仅填充色分身份（received=`--stitch-bg-card`、sent=cat-1 兑色底+ink，填充配方零改动）。修 `--stitch-bg-card == --stitch-bg-canvas` 的站（phantom `#fdfcfe`）上 received 气泡 canvas-on-canvas（1.00:1）隐形。phantom `--stitch-shadow-base` = 其允许的 4px violet glow → 浮起天然 on-brand、不破「除 4px violet glow 外无投影」硬规则；seline/steep 取各自 shadow-base。**① 结构 Hook**：box-shadow 落在共享 `.bubble`（两 variant 表面逐字节一致、仅 background 不同）、H2 阴影只读 `var(--stitch-shadow-base)` 无硬编码 hex/裸阴影、无新增契约 token、注释不点站名（`check:boundary ✓ 三层零越界`）、无 emoji/裸 svg/Unicode，`npm run ci` 七步全绿（含 `test:a11y 147/147`、`check:skill 59/59`，pre-commit EXIT 0）🟢。**② 真实 case dry_run**（demo 真实浏览器 computed style）：phantom received `box-shadow=rgb(226,223,254) 0 0 4px`（改前 1.00:1 隐形 → 改后靠 4px violet glow 浮起可辨）、sent 同一道 glow + 保留 cat-1 兑色底、两者成对一致；跨站抽查 steep received=该站 `oklab(…)1px + 0 8px 40px rgba(0,0,0,.1)`、seline=`rgba(0,0,0,.05) 0 4px 16px`，各站取本站 shadow-base 无回退无泄漏；观感确认 violet glow 未过度冒充「主 CTA 信号」。两块表见 GH #20 评论。**迁移笔记（预建笔记.md 轮 11）**：登记新原创取舍「气泡定为独立浮起面（shadow-base，两 variant 一致）」，并**推翻轮 8-9『气泡 = Card filled 逐字节相同』**——气泡现有影、Card filled 无影，逐字节相同只剩「填充配方 bg+ink」两条属性（轮 8/9 行已就地标注）。**给后续**：chat 族气泡表面处理判据已立（浮起靠 shadow-base、身份靠填充），后续 chat 件沿此。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
-依赖：无，可立即领取。可与 #19/#21 并行。
+依赖：无。已与 #19/#21 并行完成。
 
 ---
 

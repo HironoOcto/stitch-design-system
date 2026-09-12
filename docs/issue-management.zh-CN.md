@@ -484,31 +484,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/17
 
 > 组件把「填充角色」`--stitch-accent`（契约明写「主行动色，可为浅色」）当成内容链接文字色——phantom accent = Ghost Lavender `#e2dffe` 当链接 on 白 canvas = 1.27:1 隐形。链接本就该走 `--stitch-link`（各站已各自填对：phantom `#3c315b` / seline `#3398e1` / steep `#777b86`）。**范围只限真链接 `<a>`；nav 当前项 / Select 选中项等「品牌前景强调」不在此——见 ADR 0011 + #22。**
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 19 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：正文内容链接 <a> 从 var(--stitch-accent) 改读 var(--stitch-link)，共 2 处组件——Collapse 面板内容链接、ChatMessage 气泡内链接（各含 base + hover）。照 docs/design-system/design-rules.md 角色变量硬规则 + §5 对比度执行，本段不复述步骤。
-
-改动清单（组件 · 选择器 · 改前 → 改后）：
-- Collapse  .content a          : color var(--stitch-accent)       → var(--stitch-link)
-- Collapse  .content a:hover    : color var(--stitch-accent-hover) → color-mix(in srgb, var(--stitch-link), black 12%)
-- ChatMessage .bubble a         : color var(--stitch-accent)       → var(--stitch-link)
-- ChatMessage .bubble a:hover   : color var(--stitch-accent-hover) → color-mix(in srgb, var(--stitch-link), black 12%)
-共 2 组件 / 4 行。不动：nav 当前项 / Select 选中项·箭头·勾 / Form 校验中 / 任何 border-color / Button 家族。
-
-本 issue 特殊点：hover 原走 --stitch-accent-hover，因无 --stitch-link-hover 契约槽，改内联 color-mix(in srgb, var(--stitch-link), black 12%)（照 accent-hover 同款配方，不新增契约 token）。严格只碰 <a>：nav 当前项 / Select 选中项·箭头·勾 / Form 校验中 / 任何 border-color / Button 家族 一律不动（那些是「品牌前景强调 vs 主行动」的建模问题，归 ADR 0011 + #22，误动会破坏 seline「青色 active links = accent」本意）。
-
-红线（结构 Hook，须全绿，可 grep）：H2 组件只读 --stitch-* 角色变量、不硬编码主题值；无新增契约 token（contract.css 零 diff）；涉 UI 无 emoji/裸 svg/Unicode。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. Collapse / ChatMessage 的 <a> base 读 --stitch-link、hover 用 color-mix(... --stitch-link, black 12%)；grep 证「只碰这 2 处 <a>」，nav/Select/Form/border/Button 的 accent 用法零改动。
-2. phantom demo 真实浏览器：Collapse「支付说明」、ChatMessage 气泡链接 呈 Aubergine #3c315b（≥4.5:1）、hover 加深 + 下划线正常；跨站抽查 seline(#3398e1)/steep(#777b86) 链接无回退。
-3. 过 #29 skill-acceptance.md 的 §5（props/生成块无 hex 不受影响）。
-4. 执行报告两块表：① 结构 Hook（H2、契约不动）全 🟢；② 真实 case dry_run（phantom Collapse 链接：改前 #e2dffe/1.27:1 → 改后 #3c315b/11.52:1，开篇+结尾达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#19) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `ed308f0`，2026-09-12，用户验收通过）。Collapse 面板 + ChatMessage 气泡正文 `<a>`：`var(--stitch-accent)` → `var(--stitch-link)`，hover 因无 `--stitch-link-hover` 契约槽走内联 `color-mix(in srgb, var(--stitch-link), black 12%)`（不新增 token，contract.css 零 diff）。**验收中根治 issue 前提漏洞**：原断言「各站已各自填对 `--stitch-link`」对 **steep 不成立**——steep `--stitch-link=#777b86` 是它的**次要文本槽**（on 白 4.23:1、与 helper 撞色），而 DESIGN 组件规格 **Text Link=#17191c**。根因：`multi-site-theming §9.4.2` 抽取示例把「链接」从 **Colors 表 Role 列**抽（图例把 链接/helper/footer 并成一档）、错例被固化，且 `--stitch-link` 在本件前无内容链接消费者 → 潜伏。**修法新增规则 B**（`§9.4.2` + `§9.4.3` 示例 + `§9.5.2` 模板 + [onboard-site-review.md](./contributing/onboard-site-review.md) §2）：**色角色归属以 DESIGN 组件规格为准、非 Colors 表 Role 列；冲突组件规格赢、缺则 ③；前景文字色先按组件规格定值再按 §5 验对比度**。重跑 onboard 修 steep：`--stitch-link` `#777b86` → `#17191c`（组件 Text Link，15.74:1 on card）+ 同步 `sites/steep/rules.md` + 再生成 steep skill preset。**① 结构 Hook**：contract.css 零 diff、`check:boundary` 三层零越界、`check:skill` 59/59（build:skill 幂等）、`check:docs` ✓、`npm run ci` EXIT 0（pre-commit）、a11y 147/147、无 emoji/裸svg/Unicode，复核 subagent 判定 steep 两产物**通过** 🟢。**② 真实 case dry_run**（真实浏览器逐站）：phantom link `#3c315b`/**11.52:1**（改前 accent `#e2dffe`/1.29 隐形）、**steep** link `#17191c`/**15.74:1**（曾被迁成灰 `#777b86`/4.23，规则 B 定对无回退）、seline link `#3398e1`/**3.13:1** 🟡 保持（品牌唯一彩色声音的 §5 固有张力，非本次引入，用户裁决豁免）🟢。两块表见 GH #19 评论。**顺带发现（非本件，另行跟进）**：steep `--stitch-text-muted:#979799` vs DESIGN placeholder `#a3a6af` 可能该对齐（muted/placeholder 归属，不碰链接）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/19
 依赖：无，可立即领取。与 #20/#21 并行；与 #22 互不阻塞（本件只碰 `<a>`）。

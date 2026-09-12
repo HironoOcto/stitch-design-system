@@ -4,7 +4,7 @@ import { NavigationMenu } from '@octohirono/stitch-design-system';
 export const meta = {
   title: 'NavigationMenu',
   description:
-    '站点导航菜单：顶栏一排导航项，部分项 hover/focus 展开一块面板。对外 items 数组，每项按字段渲染成纯链接（href 无 content → NavigationMenu.Link，可跳转、可标 active=当前项）或带展开面板（content → Trigger + Content，面板内容自由 ReactNode）。组合底层 Root/List/Item/Trigger/Content/Link/Viewport，根渲染 <nav> landmark。vs Tabs：Tabs 页内切换面板内容（同页多视图、无跳转）；NavigationMenu 站点导航（链接为主，跳转/展开导航面板）。vs Menubar：Menubar 触发动作命令，NavigationMenu 导航链接。链接项 = 一行安静导航文字（中性字，hover 深字，当前项走 --stitch-accent）；展开面板 = 浮起层（--stitch-bg-elevated + --stitch-radius-card + --stitch-shadow-base），换肤 seline↔steep 时颜色/圆角/字体/阴影随之变化。开合态用底层 data-state，键盘/焦点/ARIA/定位由底层原语保证。',
+    '站点导航菜单：顶栏一排导航项，部分项 hover/focus 展开一块面板。对外 items 数组，每项按字段渲染成纯链接（href 无 content → NavigationMenu.Link，可跳转、可标 active=当前项）或带展开面板（content → Trigger + Content，面板内容自由 ReactNode）。组合底层 Root/List/Item/Trigger/Content/Link/Viewport，根渲染 <nav> landmark。vs Tabs：Tabs 页内切换面板内容（同页多视图、无跳转）；NavigationMenu 站点导航（链接为主，跳转/展开导航面板）。vs Menubar：Menubar 触发动作命令，NavigationMenu 导航链接。链接项 = 一行安静导航文字（中性字，hover 深字，当前项走品牌前景强调 --stitch-brand）；展开面板 = 浮起层（--stitch-bg-elevated + --stitch-radius-card + --stitch-shadow-base），换肤 seline↔steep 时颜色/圆角/字体/阴影随之变化。开合态用底层 data-state，键盘/焦点/ARIA/定位由底层原语保证。',
 };
 
 // Demo 平台是 hash 路由（页面在 #/NavigationMenu）。真实站点里导航项的 href 是各自页面地址；
@@ -117,8 +117,8 @@ export default function NavigationMenuDemo() {
             color: 'var(--stitch-text-muted)',
           }}
         >
-          「首页」标为当前项（走 --stitch-accent）；「产品 / 资源」hover 或
-          focus 后展开面板；「定价 / 关于」为纯跳转链接。
+          「首页」标为当前项（走 --stitch-brand）；「产品 / 资源」hover 或 focus
+          后展开面板；「定价 / 关于」为纯跳转链接。
         </p>
       </div>
     </div>

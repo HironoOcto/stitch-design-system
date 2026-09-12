@@ -88,17 +88,18 @@
   );
 }
 
-// 正文内链接：同库内内容链接惯例（accent 色 + 无下划线 + medium 字重，hover 加下划线），
+// 正文内链接：同库内内容链接惯例（link 色 + 无下划线 + medium 字重，hover 加下划线），
 // 与其它组件的文本链接一致，不落回浏览器默认蓝链。
 .bubble a {
-  color: var(--stitch-accent);
+  color: var(--stitch-link);
   text-decoration: none;
   font-weight: var(--stitch-font-weight-medium);
   transition: color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
 }
 
 .bubble a:hover {
-  color: var(--stitch-accent-hover);
+  // 无 --stitch-link-hover 契约槽,内联 color-mix(照 accent-hover 同款配方)
+  color: color-mix(in srgb, var(--stitch-link), black 12%);
   text-decoration: underline;
 }
 

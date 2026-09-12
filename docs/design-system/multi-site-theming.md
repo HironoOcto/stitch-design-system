@@ -271,6 +271,8 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
    - **反馈色**（danger/success/warning）：DESIGN.md 基本都没有 → **别在这个站的 adapter 里自己编一版**，adapter 里根本不写这几行，直接沿用**契约的稳定默认**（一次性设计好、对比度达标的全局值，不是"编"）。仅当站的冷暖极明显时，AI 才微调色相并标 `需确认`。
      > 注意它和 CTA 缺失**处理不同**：accent/CTA 缺了要**判断补**（③），因为品牌色本就每站不同；反馈色是功能色，缺了**不补**、用全局默认（红色错误在哪个站都该是红）。
 
+**规则 B —— 色角色的归属看「组件规格」段，不看 Colors 表的 Role 列。** Colors 表的 Role 列是人写的摘要，常把多个功能并成一档（如「slate-gray = 链接 / helper / footer」）；真正「哪个色扮演哪个角色」以 DESIGN.md 的**组件规格段**（Components / Example Prompts 里逐组件的像素值）为准。例：steep Colors 表把「链接」标给 slate-gray `#777b86`，但组件规格 **Text Link 写 `#17191c`** → `--stitch-link = #17191c`（图例输给组件规格）。冲突时**组件规格赢**；某角色在组件规格里**根本没出现**才回退 Colors 表描述，并标 `③` 人确认。尤其一切「前景文字色」角色（`link` / `text-*`）：先按组件规格定值，再按全局硬规则 §5 验对比度。
+
 **每个值标来源**（AI 生成时自动打标，你一眼知道复核哪些）：
 
 | 层 | 做法 | 可靠度 | 谁定 |
@@ -305,7 +307,7 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
   /* 强调 / 链接 */
   --stitch-accent:      #17191c;  /* ③ 需确认: steep 无彩色 CTA,主按钮=黑填充 → ink-black */
   --stitch-accent-text: #ffffff;  /* ① 填充按钮文字 */
-  --stitch-link:        #777b86;  /* ① slate-gray（Role: link color）*/
+  --stitch-link:        #17191c;  /* ① Text Link 组件=ink-black（规则B:归属看组件规格,非 Colors「link=slate-gray」；#777b86 是它的次要文本/helper 槽）*/
 
   /* 分类色槽（steep 近单色 → 全部取自它自己的调色板 + 从中 color-mix 派生,不外部手挑;禁鲜艳彩虹以守 97% achromatic）*/
   --stitch-cat-1: #fbe1d1;  /* ① blush-peach（bundle）*/
@@ -404,7 +406,7 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
 ## 一句话风格        ← DESIGN.md 顶部 tagline + 概览散文
 > 例:serif analytics on warm paper;编辑感、近单色、桃色点缀
 
-## 调色板用法        ← Colors 表(Role 列) + Do/Don't 颜色条
+## 调色板用法        ← Colors 表(Role 列) + Do/Don't 颜色条（Role 列与组件规格冲突时以组件规格为准,见 §9.4.2 规则B）
 - 角色→站里哪个色;用量规则(如"peach 一页最多一次,当点缀不当背景")
 
 ## 排版规则          ← Tokens—Typography + Do/Don't 字体条

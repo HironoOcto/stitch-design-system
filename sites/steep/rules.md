@@ -10,7 +10,7 @@
 - **accent（黑填充 #17191c ink-black）**：主 CTA / 填充按钮 / nav logo，是系统里唯一的深色表面；每个 CTA 与正文标题都归到这个近黑。桃色不是 accent，只是稀有 surface。
 - **bg-accent（桃 #fbe1d1 blush-peach）**：系统唯一的彩色表面，制造编辑式暖意。**一页最多一次**，当稀有点缀不当背景；须坐在 paper-white / card-mist 面上（**绝不**放非白区块背景）。
 - **text-on-accent（sienna #5d2a1a）**：只用在桃色面（字 / 描边 / 图表线），像 kraft 纸上的墨。**绝不**当白底正文。
-- 中性梯（steep 4 档灰 → 收敛契约 3 档）：ink-black #17191c（标题/强调）、slate-gray #777b86（链接 / 次要 helper / footer，= muted text）、ash-gray #979799（三级标签 / 分类 tag，取作 text-muted）；smoke-gray #a3a6af 归 placeholder/disabled。
+- 中性梯（steep 4 档灰 → 收敛契约 3 档）：ink-black #17191c（标题/强调；内联文字链接亦归此近黑，见「组件规格 · Text Link」）、slate-gray #777b86（次要 helper / footer，= muted text）、ash-gray #979799（三级标签 / 分类 tag，取作 text-muted）；smoke-gray #a3a6af 归 placeholder/disabled。
 - 表面层级：canvas #ffffff（L0 页底）、card-mist #f2f2f3（L1 嵌套内容）、section-fog #fafafb（L2 交替区块带）、accent-blush #fbe1d1（L3）、elevated-white #ffffff（L4 浮动产品卡）。
 - **除桃/棕外不引入任何彩色**（蓝/绿/紫都破坏 97% achromatic 的编辑克制，Don't）。
 

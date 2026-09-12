@@ -17,7 +17,7 @@
   /* 强调 / 链接 */
   --stitch-accent:      #17191c;  /* ③ 需确认: Quick Ref「primary action: #17191c (filled action)」可抽取此值;待复核的是角色判断——steep 无彩色品牌强调色,由「黑填充药丸」担当 accent 角色(桃色 blush 只是 surface,不是 accent)*/
   --stitch-accent-text: #ffffff;  /* ① 填充按钮文字 */
-  --stitch-link:        #777b86;  /* ① slate-gray（Role: link color）*/
+  --stitch-link:        #17191c;  /* ① ink-black（组件规格 Text Link=#17191c；规则B:归属看组件规格,非 Colors 表「link=slate-gray」——#777b86 是次要文本/helper 槽,当链接色 on 白仅 4.23:1 且与 helper 撞色）*/
 
   /* 分类色槽（steep 近单色 → 全部取自它自己的调色板 + 从中 color-mix 派生,不外部手挑;禁鲜艳彩虹以守 97% achromatic）*/
   --stitch-cat-1: #fbe1d1;  /* ① blush-peach（bundle）*/

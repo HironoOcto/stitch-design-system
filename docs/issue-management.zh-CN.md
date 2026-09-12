@@ -513,35 +513,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
 
 ## #21（AFK）：图表图例文字走中性 `--stitch-text-primary`、色卡留分类色（Pie/Bar/Line）
 
-> recharts `<Legend>` 默认把图例文字也染成系列色（= 分类填充色 `--stitch-cat-*`），当白底文字不可读（phantom Firefox=Buttercream 1.01:1 隐形）。颜色由左侧色卡承载、文字走中性墨色。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 21 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：PieChart / BarChart 图例遵循无障碍惯例——色卡（swatch）保留 var(--stitch-cat-*) 分类色，标签文字改 var(--stitch-text-primary) 中性墨色；LineChart 无 Legend（用末端标名，已 text-primary），仅确认。落库原则：分类色是「色块/填充色」，永不当「文字色」。照 docs/design-system/design-rules.md §5（对比度）+ WCAG 1.4.1（不单靠颜色）执行，本段不复述步骤。
-
-改动清单（组件 · 位置 · 改前 → 改后）：
-- PieChart  <Legend>（PieChart.tsx）              : 仅 wrapperStyle → 加 formatter=(value)=><span style={{color:'var(--stitch-text-primary)'}}>{value}</span>
-- BarChart  <Legend>（BarChart.tsx，多系列时出）  : 同上
-- LineChart （无 <Legend>，多系列靠末端标名）      : 只确认末端标名已 text-primary、无需改
-色卡（recharts 默认=系列色）不动，只把标签文字拉成中性墨色。
-
-本 issue 特殊点：这是通用问题（鲜艳/极淡分类色当白底文字都低对比），非 phantom 独有——三图统一修，各站受益。recharts Legend 每项文字默认吃系列色，需以 formatter 之类把标签裹成 --stitch-text-primary，色卡色不动。
-
-红线（结构 Hook，须全绿，可 grep）：H2 只读 --stitch-* 角色变量；无新增契约 token；无 emoji/裸 svg/Unicode（svg 由 recharts 出）。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 三图图例：色卡保留 var(--stitch-cat-*)、标签文字改 var(--stitch-text-primary)；分类靠「色卡 + 文字」双通道（守 WCAG 1.4.1）。
-2. phantom demo 真实浏览器：原本隐形的 Firefox/Edge 图例文字变可读墨色、色卡仍显各自分类色、色彩编码不丢；跨站抽查 seline/steep 图例文字亦为中性色。
-3. 过 #29 skill-acceptance.md 相关节。
-4. 执行报告两块表：① 结构 Hook（H2、契约不动）全 🟢；② 真实 case dry_run（phantom 图例 Firefox 文字：改前 #ffffc4/1.01:1 隐形 → 改后 text-primary 可读，开篇+结尾达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#21) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
-
-Issue: https://github.com/HironoOcto/stitch-design-system/issues/21
-依赖：无，可立即领取。可与 #19/#20 并行。
+> ✅ 已完成并 close（commit `2771912`，2026-09-12，用户验收通过）。recharts `<Legend>` 默认把每项文字也染成系列色（= 分类填充色 `--stitch-cat-*`）——鲜艳/极淡分类色当白底文字对比极低（phantom Firefox=Buttercream 1.01:1 隐形）。**落库原则：分类色是「色块/填充色」，永不当「文字色」。** 两处 inline formatter 本相同 → 抽进 `_internal/dataviz` 私有原语 [`renderLegendLabel`](../packages/react/src/components/_internal/dataviz/ChartLegendLabel.tsx)（同 `catColor`/`ChartTooltip`/`ChartFrame` 单一来源、可 jsdom 直测），把 Legend **标签文字**裹成 `var(--stitch-text-primary)`；**色卡**（recharts 默认 svg `<path fill>` = 系列色）不碰 → 分类靠「色卡 + 文字」双通道（守 WCAG 1.4.1）。[PieChart](../packages/react/src/components/PieChart/PieChart.tsx) / [BarChart](../packages/react/src/components/BarChart/BarChart.tsx) `<Legend>` 改 `formatter={renderLegendLabel}`，**顺删原 `wrapperStyle` 容器色**（per-label 显式着色已完全盖过，留着是死断言——用户验收拍板删）。[LineChart](../packages/react/src/components/LineChart/LineChart.tsx) 无 `<Legend>`、末端标名 `.endLabel` 已 `text-primary`，仅确认无改。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（文字接 `--stitch-text-primary`、swatch 仍 `--stitch-cat-*`、源零 hex）🟢、contract.css 零 diff（无新增 token）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出）🟢、`check:boundary` 三层零越界 / `check:docs` ✓ / `check:skill` 59/59 / `npm run ci` 八步 **EXIT 0**（pre-commit）🟢、test:run 709/709 + test:a11y 147/147（含新增 1 case）🟢。**② 真实 case dry_run**（真实浏览器 recharts 实渲染 computed 值）：**phantom Pie · Firefox** 图例文字 改前 Buttercream `rgb(255,255,196)`/**1.01:1** 隐形 → 改后 ink `#1c1c1c`(text-primary)/**16.66:1** 可读、swatch 仍 `var(--stitch-cat-3)`（开篇 Chrome…结尾 其他 全 5 项达预期）🟢、跨站 **seline** `#0c0a09` / **steep** `#17191c` 图例文字亦 text-primary、swatch 留 cat 色 🟢、**BarChart 多系列**（phantom/seline 独立访客·页面浏览）标签 = text-primary / swatch = cat 🟢、console 无 error/warn 🟢；过 #29 skill-acceptance §5 相关节（`props==源码` 无变、data-viz.md 无 diff）🟢。两块表见 GH #21 评论。
 
 ---
 

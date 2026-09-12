@@ -519,33 +519,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/19
 
 > 落地 [ADR 0011](./adr/0011-brand-foreground-vs-action-accent.md)（**已接受**）。契约只有一个品牌槽 `--stitch-accent`（填充，可为浅色），组件却用它兼任「品牌前景强调」（nav 当前项 / Select 选中项·勾·箭头）。对 steep(黑)/seline(青，DESIGN 明写 active links=accent)正确且是本意，唯 phantom 把品牌拆成脊 Aubergine + 行动 Ghost Lavender → accent 当前景 1.27:1 隐形。**修法：契约加 `--stitch-brand: var(--stitch-accent)`（默认继承，steep/seline 零变化）、phantom 覆盖 `#3c315b`、组件前景强调迁 `--stitch-brand`。**
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 22 --repo HironoOcto/stitch-design-system --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：按 ADR 0011 给契约新增前景品牌角色 --stitch-brand（默认继承 accent），phantom 覆盖为 Aubergine，组件「品牌前景强调」从 accent 迁到 brand。照 docs/adr/0011-brand-foreground-vs-action-accent.md + design-rules.md 执行，本段不复述步骤。
-
-改动清单（文件/组件 · 位置 · 改前 → 改后）：
-- contract.css「强调/链接」区块        : 新增 --stitch-brand: var(--stitch-accent);  【派生·默认跟随 accent；站可覆盖】
-- sites/phantom/adapter.css「强调」区块 : 新增 --stitch-brand: #3c315b;  (Aubergine 覆盖默认，标 ②/③ 理由)
-- NavigationMenu .link[data-active]     : color var(--stitch-accent) → var(--stitch-brand)
-- Select .optionSelected                : color var(--stitch-accent) → var(--stitch-brand)
-- Select .checkMark                     : color var(--stitch-accent) → var(--stitch-brand)
-- Select .arrowOpen                     : color var(--stitch-accent) → var(--stitch-brand)
-- design-rules.md 角色清单              : 补 --stitch-brand 一行（与 accent/link 分工）
-不动：Form .item-is-validating（状态语义，保持 accent）、--stitch-focus-ring（维持 accent）、任何 border-color、Button 家族、steep/seline adapter（不写 --stitch-brand → 继承 accent）。
-
-红线（结构 Hook，须全绿，可 grep）：H2 新角色是公开 API、组件只读 --stitch-*；H4 派生 var()/color-mix 合并后未求值；无 emoji/裸 svg/Unicode。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. 契约含 --stitch-brand: var(--stitch-accent)，mergeTokens 产物里为未求值 var()（H4）；phantom adapter 覆盖 Aubergine；steep/seline adapter 无 --stitch-brand（grep 证，继承 accent）。
-2. 4 处组件前景强调读 --stitch-brand；Form 校验中 / focus-ring / border-color / Button 家族零改动（grep 双证）。
-3. phantom demo 真实浏览器：nav 当前项「首页」、Select 选中项+勾、展开箭头 呈 Aubergine #3c315b（≥4.5:1 文字 / ≥3:1 图标）、与常态/hover 可区分；跨站抽查 seline(青)/steep(黑) 当前项/选中项零变化。
-4. design-rules.md 补 --stitch-brand 角色行（doc↔源同步）。过 #29 skill-acceptance 相关节。
-5. 执行报告两块表：① 结构 Hook（H2、H4）全 🟢；② 真实 case dry_run（phantom nav 当前项：改前 #e2dffe/1.27:1 → 改后 #3c315b/11.52:1，开篇+结尾达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#22) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `1a80745`，2026-09-12）。落地 ADR 0011：契约新增 `--stitch-brand: var(--stitch-accent)`（派生·默认跟随 accent，站可覆盖；经 `mergeTokens` 保留未求值 `var()`，H4 不破）；phantom adapter 覆盖 `#3c315b`（Aubergine 脊色，on canvas 11.52:1），steep/seline 不写 → 继承 accent、零变化；组件「品牌前景强调」从 accent 迁到 brand 共 **4 处**（`NavigationMenu .link[data-active]` · `Select .optionSelected/.checkMark/.arrowOpen`）；`design-rules.md` 补硬规则 8（accent/brand/link 三角色分工）+ `NavigationMenu` JSDoc 同步；再生成 seline/steep preset `tokens.css`。**明确不动**（grep 双证）：`Form .item-is-validating` 仍 accent、`--stitch-focus-ring` 仍 `var(--stitch-accent)`、`Select` border-color、Button 家族。**① 结构 Hook**：H2 新角色落 `contract.css :root`（公开 API）+ 组件只读 `--stitch-*`（`check:boundary` 三层零越界）🟢；H4 seline/steep preset 为 `var(--stitch-accent)` 非 hex 🟢；`check:skill` 59/59、a11y 147、unit 708、lint clean、无 emoji/裸svg/Unicode 🟢。**② 真实 case dry_run**（phantom demo 真实浏览器）：nav 当前项「首页」`#e2dffe`/1.27:1 → `#3c315b`/**11.52:1**（开篇↔结尾达 ADR 预期），Select 选中项+勾+展开箭头同 `#3c315b`/11.52:1、与常态 `#1c1c1c`+加粗可区分；跨站实测 seline `brand=accent=#3ba6f1`（青）、steep `brand=accent=#17191c`（黑）零回退 🟢。两块表见 GH #22 评论。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/22
 依赖：ADR 0011 已接受，可立即领取（与 #19/#20/#21 并行；本件独占 contract.css 一行新增）。

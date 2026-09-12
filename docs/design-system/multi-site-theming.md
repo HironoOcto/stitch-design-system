@@ -301,7 +301,7 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
   /* 文字（steep 4 档灰 → 收敛到契约 3 档）*/
   --stitch-text-primary:   #17191c;  /* ① ink-black（Quick Ref: text）*/
   --stitch-text-secondary: #777b86;  /* ① slate-gray（secondary/helper）*/
-  --stitch-text-muted:     #979799;  /* ② 多选一: 取 ash-gray 作更弱的 muted（smoke #a3a6af 归 disabled）*/
+  --stitch-text-muted:     #a3a6af;  /* ① smoke-gray（组件 Input placeholder=#a3a6af；规则B:本槽角色=占位符/弱化,看组件规格。ash #979799 是 DESIGN 三级标签/分类 tag,非本槽；disabled 由 text-muted 派生）*/
   --stitch-text-on-accent: #5d2a1a;  /* ① sienna-brown（桃色面上的字/描边）*/
 
   /* 强调 / 链接 */

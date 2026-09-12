@@ -480,6 +480,144 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/17
 
 ---
 
+## #19（AFK）：内容链接 `<a>` 从 `--stitch-accent` 改读 `--stitch-link`（仅链接）
+
+> 组件把「填充角色」`--stitch-accent`（契约明写「主行动色，可为浅色」）当成内容链接文字色——phantom accent = Ghost Lavender `#e2dffe` 当链接 on 白 canvas = 1.27:1 隐形。链接本就该走 `--stitch-link`（各站已各自填对：phantom `#3c315b` / seline `#3398e1` / steep `#777b86`）。**范围只限真链接 `<a>`；nav 当前项 / Select 选中项等「品牌前景强调」不在此——见 ADR 0011 + #22。**
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 19 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：正文内容链接 <a> 从 var(--stitch-accent) 改读 var(--stitch-link)，共 2 处组件——Collapse 面板内容链接、ChatMessage 气泡内链接（各含 base + hover）。照 docs/design-system/design-rules.md 角色变量硬规则 + §5 对比度执行，本段不复述步骤。
+
+改动清单（组件 · 选择器 · 改前 → 改后）：
+- Collapse  .content a          : color var(--stitch-accent)       → var(--stitch-link)
+- Collapse  .content a:hover    : color var(--stitch-accent-hover) → color-mix(in srgb, var(--stitch-link), black 12%)
+- ChatMessage .bubble a         : color var(--stitch-accent)       → var(--stitch-link)
+- ChatMessage .bubble a:hover   : color var(--stitch-accent-hover) → color-mix(in srgb, var(--stitch-link), black 12%)
+共 2 组件 / 4 行。不动：nav 当前项 / Select 选中项·箭头·勾 / Form 校验中 / 任何 border-color / Button 家族。
+
+本 issue 特殊点：hover 原走 --stitch-accent-hover，因无 --stitch-link-hover 契约槽，改内联 color-mix(in srgb, var(--stitch-link), black 12%)（照 accent-hover 同款配方，不新增契约 token）。严格只碰 <a>：nav 当前项 / Select 选中项·箭头·勾 / Form 校验中 / 任何 border-color / Button 家族 一律不动（那些是「品牌前景强调 vs 主行动」的建模问题，归 ADR 0011 + #22，误动会破坏 seline「青色 active links = accent」本意）。
+
+红线（结构 Hook，须全绿，可 grep）：H2 组件只读 --stitch-* 角色变量、不硬编码主题值；无新增契约 token（contract.css 零 diff）；涉 UI 无 emoji/裸 svg/Unicode。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. Collapse / ChatMessage 的 <a> base 读 --stitch-link、hover 用 color-mix(... --stitch-link, black 12%)；grep 证「只碰这 2 处 <a>」，nav/Select/Form/border/Button 的 accent 用法零改动。
+2. phantom demo 真实浏览器：Collapse「支付说明」、ChatMessage 气泡链接 呈 Aubergine #3c315b（≥4.5:1）、hover 加深 + 下划线正常；跨站抽查 seline(#3398e1)/steep(#777b86) 链接无回退。
+3. 过 #29 skill-acceptance.md 的 §5（props/生成块无 hex 不受影响）。
+4. 执行报告两块表：① 结构 Hook（H2、契约不动）全 🟢；② 真实 case dry_run（phantom Collapse 链接：改前 #e2dffe/1.27:1 → 改后 #3c315b/11.52:1，开篇+结尾达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#19) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/19
+依赖：无，可立即领取。与 #20/#21 并行；与 #22 互不阻塞（本件只碰 `<a>`）。
+
+---
+
+## #22（AFK）：契约新增 `--stitch-brand` 前景品牌角色（默认=accent）+ phantom 覆盖 + 组件品牌强调迁移
+
+> 落地 [ADR 0011](./adr/0011-brand-foreground-vs-action-accent.md)（**已接受**）。契约只有一个品牌槽 `--stitch-accent`（填充，可为浅色），组件却用它兼任「品牌前景强调」（nav 当前项 / Select 选中项·勾·箭头）。对 steep(黑)/seline(青，DESIGN 明写 active links=accent)正确且是本意，唯 phantom 把品牌拆成脊 Aubergine + 行动 Ghost Lavender → accent 当前景 1.27:1 隐形。**修法：契约加 `--stitch-brand: var(--stitch-accent)`（默认继承，steep/seline 零变化）、phantom 覆盖 `#3c315b`、组件前景强调迁 `--stitch-brand`。**
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 22 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：按 ADR 0011 给契约新增前景品牌角色 --stitch-brand（默认继承 accent），phantom 覆盖为 Aubergine，组件「品牌前景强调」从 accent 迁到 brand。照 docs/adr/0011-brand-foreground-vs-action-accent.md + design-rules.md 执行，本段不复述步骤。
+
+改动清单（文件/组件 · 位置 · 改前 → 改后）：
+- contract.css「强调/链接」区块        : 新增 --stitch-brand: var(--stitch-accent);  【派生·默认跟随 accent；站可覆盖】
+- sites/phantom/adapter.css「强调」区块 : 新增 --stitch-brand: #3c315b;  (Aubergine 覆盖默认，标 ②/③ 理由)
+- NavigationMenu .link[data-active]     : color var(--stitch-accent) → var(--stitch-brand)
+- Select .optionSelected                : color var(--stitch-accent) → var(--stitch-brand)
+- Select .checkMark                     : color var(--stitch-accent) → var(--stitch-brand)
+- Select .arrowOpen                     : color var(--stitch-accent) → var(--stitch-brand)
+- design-rules.md 角色清单              : 补 --stitch-brand 一行（与 accent/link 分工）
+不动：Form .item-is-validating（状态语义，保持 accent）、--stitch-focus-ring（维持 accent）、任何 border-color、Button 家族、steep/seline adapter（不写 --stitch-brand → 继承 accent）。
+
+红线（结构 Hook，须全绿，可 grep）：H2 新角色是公开 API、组件只读 --stitch-*；H4 派生 var()/color-mix 合并后未求值；无 emoji/裸 svg/Unicode。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. 契约含 --stitch-brand: var(--stitch-accent)，mergeTokens 产物里为未求值 var()（H4）；phantom adapter 覆盖 Aubergine；steep/seline adapter 无 --stitch-brand（grep 证，继承 accent）。
+2. 4 处组件前景强调读 --stitch-brand；Form 校验中 / focus-ring / border-color / Button 家族零改动（grep 双证）。
+3. phantom demo 真实浏览器：nav 当前项「首页」、Select 选中项+勾、展开箭头 呈 Aubergine #3c315b（≥4.5:1 文字 / ≥3:1 图标）、与常态/hover 可区分；跨站抽查 seline(青)/steep(黑) 当前项/选中项零变化。
+4. design-rules.md 补 --stitch-brand 角色行（doc↔源同步）。过 #29 skill-acceptance 相关节。
+5. 执行报告两块表：① 结构 Hook（H2、H4）全 🟢；② 真实 case dry_run（phantom nav 当前项：改前 #e2dffe/1.27:1 → 改后 #3c315b/11.52:1，开篇+结尾达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#22) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/22
+依赖：ADR 0011 已接受，可立即领取（与 #19/#20/#21 并行；本件独占 contract.css 一行新增）。
+
+---
+
+## #20（AFK）：ChatMessage 气泡统一 elevated 表面 —— 修 received 在 `bg-card==canvas` 站隐形
+
+> phantom `--stitch-bg-card == --stitch-bg-canvas`（Card 靠边框分层），received 气泡 `background: var(--stitch-bg-card)` 又无边框/浮起 → canvas-on-canvas（1.00:1）隐形。两气泡统一 elevated 表面，只填充色不同。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 20 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：ChatMessage 的 sent / received 两气泡统一同一种表面处理 = elevated（显形靠 var(--stitch-shadow-base)），仅填充色不同——sent 保留 cat-1 兑色底（本方身份）、received 保留 var(--stitch-bg-card)。照 docs/design-system/design-rules.md（角色变量 + 阴影/扁平规则）与 ChatMessage 现有 JSDoc 执行，本段不复述步骤。
+
+改动清单（组件 · 选择器 · 改前 → 改后）：
+- ChatMessage .bubble（sent/received 共用块） : 无 box-shadow → 新增一行 box-shadow: var(--stitch-shadow-base);
+共 1 组件 / 1 行新增。不动：两气泡 background/color 填充配方（sent=cat-1 兑色底+ink、received=var(--stitch-bg-card)）、.variant-system、头像位、元信息。
+
+本 issue 特殊点：phantom 的 shadow-base = 其允许的 4px violet glow，故 elevated 在 phantom 天然 on-brand、不破「除 4px violet glow 外无投影」硬规则；其余站用各自 shadow-base。留意别让 received 气泡的紫光晕过度冒充「主 CTA 信号」——可接受但实测确认观感。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 --stitch-* 角色变量、不硬编码 hex/阴影；无新增契约 token；无 emoji/裸 svg/Unicode。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. sent/received 用同一 elevated 表面（--stitch-shadow-base），仅填充色不同（sent=cat-1 兑色底、received=--stitch-bg-card）；grep 证两气泡表面处理一致。
+2. phantom demo 真实浏览器：received 气泡明显与 canvas 分离（靠 violet glow 浮起）、sent 保留 cat-1 身份、两者成对一致；跨站抽查 seline/steep received 用各自 shadow-base 正常显形无回退。
+3. 过 #29 skill-acceptance.md 相关节（props==源、无 hex）。
+4. 执行报告两块表：① 结构 Hook（H2、契约不动、扁平规则）全 🟢；② 真实 case dry_run（phantom received 气泡：改前 1.00:1 隐形 → 改后靠 shadow-base 浮起可辨，开篇+结尾达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#20) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
+依赖：无，可立即领取。可与 #19/#21 并行。
+
+---
+
+## #21（AFK）：图表图例文字走中性 `--stitch-text-primary`、色卡留分类色（Pie/Bar/Line）
+
+> recharts `<Legend>` 默认把图例文字也染成系列色（= 分类填充色 `--stitch-cat-*`），当白底文字不可读（phantom Firefox=Buttercream 1.01:1 隐形）。颜色由左侧色卡承载、文字走中性墨色。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 21 --repo HironoOcto/stitch-design-system --comments
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：PieChart / BarChart 图例遵循无障碍惯例——色卡（swatch）保留 var(--stitch-cat-*) 分类色，标签文字改 var(--stitch-text-primary) 中性墨色；LineChart 无 Legend（用末端标名，已 text-primary），仅确认。落库原则：分类色是「色块/填充色」，永不当「文字色」。照 docs/design-system/design-rules.md §5（对比度）+ WCAG 1.4.1（不单靠颜色）执行，本段不复述步骤。
+
+改动清单（组件 · 位置 · 改前 → 改后）：
+- PieChart  <Legend>（PieChart.tsx）              : 仅 wrapperStyle → 加 formatter=(value)=><span style={{color:'var(--stitch-text-primary)'}}>{value}</span>
+- BarChart  <Legend>（BarChart.tsx，多系列时出）  : 同上
+- LineChart （无 <Legend>，多系列靠末端标名）      : 只确认末端标名已 text-primary、无需改
+色卡（recharts 默认=系列色）不动，只把标签文字拉成中性墨色。
+
+本 issue 特殊点：这是通用问题（鲜艳/极淡分类色当白底文字都低对比），非 phantom 独有——三图统一修，各站受益。recharts Legend 每项文字默认吃系列色，需以 formatter 之类把标签裹成 --stitch-text-primary，色卡色不动。
+
+红线（结构 Hook，须全绿，可 grep）：H2 只读 --stitch-* 角色变量；无新增契约 token；无 emoji/裸 svg/Unicode（svg 由 recharts 出）。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. 三图图例：色卡保留 var(--stitch-cat-*)、标签文字改 var(--stitch-text-primary)；分类靠「色卡 + 文字」双通道（守 WCAG 1.4.1）。
+2. phantom demo 真实浏览器：原本隐形的 Firefox/Edge 图例文字变可读墨色、色卡仍显各自分类色、色彩编码不丢；跨站抽查 seline/steep 图例文字亦为中性色。
+3. 过 #29 skill-acceptance.md 相关节。
+4. 执行报告两块表：① 结构 Hook（H2、契约不动）全 🟢；② 真实 case dry_run（phantom 图例 Firefox 文字：改前 #ffffc4/1.01:1 隐形 → 改后 text-primary 可读，开篇+结尾达预期）🟢。
+
+收尾门：用户验收通过后才 commit(#21) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/21
+依赖：无，可立即领取。可与 #19/#20 并行。
+
+---
+
 # 待建 issue（依赖未就位，暂不领取）
 
 > 依赖到位后补建 GH issue（`[stitch]` 前缀 + `ready-for-agent`），并把 AFK prompt 挪到上面「各 issue 的 prompt」。

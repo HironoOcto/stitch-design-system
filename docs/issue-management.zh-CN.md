@@ -545,24 +545,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/24
 
 > 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 3/3 步：让**运行时切 `/themes/<site>`** 与 **demo 切站**时页面尺度层（layout/间距/字阶）也随之重排 —— `scope-theme.mjs` 连 `layout.css` 一起作用域化到 `[data-site]`、包 `/themes/<site>` 层含新层、`demo/theme.ts` glob `layout.css`。依赖 #23。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 25 --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
-
-目标：运行时 /themes/<site> + demo 切站时页面尺度层一致重排。照 ADR 0012（决策 6）+ packaging.md + demo-site.md 执行，本段不复述步骤。
-
-本 issue 特殊点 —— 只碰【作用域化/运行时/demo】，不碰预置（#24）：scopeAdapter 要把 adapter + layer 的每站值都写进 [data-site] 块；恒定/派生仍留 /style 的 :root 靠 var() 跟随，不得重复进分层。demo 按「有 adapter.css」发现站、layout.css 只对可发布站生成 → 两集合可能不等，demo glob layout.css 必须【容缺】（某站没有就跳过、只 scope 它的 adapter），绝不假设每个 demo 站都有 layout.css。
-
-红线（结构 Hook，须全绿，可 grep）：H2/H6（/themes 与 demo 作用域化块只含 --stitch-*、新层每站值正确落 [data-site]、恒定/派生不重复）；H1（demo/scope 脚本零写死站名、走动态发现 / listPublishableSites）；运行时「组件产物不变、只 :root/分层变」仍成立。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. npm run build → dist/style.css :root 含新层；/themes/<site> 分层块含该站 scoped --stitch-space-*/--stitch-text-*/layout 四键，且不含恒定/派生。
-2. demo 真实浏览器：npm run demo，顶栏在 section-gap 不同的两站切换（steep 80 ↔ seline 96），肉眼 + computed style 确认用 var(--stitch-section-gap) 的外壳/样例间距随切站重排；console 无 error。
-3. npm run test:units（scope-theme 测试）+ npm run ci 全绿。
-4. 执行报告两块表：① 结构 Hook（H2/H6/H1）全 🟢；② 真实 case dry_run（demo 切站 layout 重排，开篇 steep ↔ 结尾 seline 的某 section-gap/字阶 computed 值达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#25) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `70f40cf`，2026-09-13，用户验收通过）。落地 ADR 0012 第 3/3 步（运行时 + demo 页面尺度层重排），并**纠正 #23 的判据建模**（作为修正提交，不回退 #23 产物）。**核心模型修正**：`layout.css` 与 `adapter.css` **同级、成对，永远配对**——① `build:layout` 对**每个有 `adapter.css` 的站**（新增 `listAdapterSites`）生成，**不 gated 在可发布**；② 「可发布站」判据 `TRIAD`→**四件套 `QUARTET` {adapter, layout, rules, blurb}**；③ demo 发现站 = **有 adapter ∩ 有 layout**；④ **「容缺」整个删除**（被展示/发布的站按判据本就必有 `layout.css`；无循环：先有 adapter→生成 layout→四件套才齐）。落地：`scope-theme.mjs` `scopeAdapter` 折 `adapter+layer` 入 `[data-site]`、`layerPath` 必需（去 `existsSync`）；`vite-plugin` `load` 折入 activeSite layer（`style.css :root` 含新层）、`generateBundle` scope 传 layer；`demo/theme.ts` glob `layout.css` 取交集发现。**① 结构 Hook**：**H6**（`build:layout` 集=`listAdapterSites`、可发布=`QUARTET`、demo=adapter∩layout、无容缺；`publishable-sites.test` 断言 `no-layout` 站被排除）/ **H2**（三站 `/themes` 块非 `--stitch-*`=0、恒定/派生 accent-hover/border-width=0）/ **H1**（改动源零写死站名，走 `listAdapterSites`/`listPublishableSites`/glob）全 🟢。**② 真实 dry_run**：`build:layout` 三站 layout.css byte 零变化、生成集 `{phantom,seline,steep}` 🟢；可发布集不变 `[phantom,seline,steep]`（判据升四件套）🟢；demo 真实浏览器三站在、切站 `--stitch-section-gap` computed steep 80 / seline 96 / phantom 64 重排、console 无 error 🟢；`test:units` 96/96 + `npm run ci` 八步 EXIT 0（check:docs ✓ / check:skill 76/76 / check:boundary ✓ / test:run 709 / test:a11y 147 / build）🟢。**范围**：只碰作用域化/运行时/demo/判据，不碰 #24 预置。两块表见 GH #25 评论。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/25
 依赖：#23（页面尺度层地基）。与 #24 可并行。

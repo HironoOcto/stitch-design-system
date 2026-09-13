@@ -29,6 +29,7 @@ test('parses the family roster with members', () => {
       'navigation',
       'feedback',
       'data-display',
+      'chat',
       'data-viz',
       'Form',
       'Notification',

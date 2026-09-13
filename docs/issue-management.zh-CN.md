@@ -570,7 +570,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/24
 
 目标：运行时 /themes/<site> + demo 切站时页面尺度层一致重排。照 ADR 0012（决策 6）+ packaging.md + demo-site.md 执行，本段不复述步骤。
 
-本 issue 特殊点 —— 只碰【作用域化/运行时/demo】，不碰预置（#24）：scopeAdapter 要把 adapter + layer 的每站值都写进 [data-site] 块；恒定/派生仍留 /style 的 :root 靠 var() 跟随，不得重复进分层。
+本 issue 特殊点 —— 只碰【作用域化/运行时/demo】，不碰预置（#24）：scopeAdapter 要把 adapter + layer 的每站值都写进 [data-site] 块；恒定/派生仍留 /style 的 :root 靠 var() 跟随，不得重复进分层。demo 按「有 adapter.css」发现站、layout.css 只对可发布站生成 → 两集合可能不等，demo glob layout.css 必须【容缺】（某站没有就跳过、只 scope 它的 adapter），绝不假设每个 demo 站都有 layout.css。
 
 红线（结构 Hook，须全绿，可 grep）：H2/H6（/themes 与 demo 作用域化块只含 --stitch-*、新层每站值正确落 [data-site]、恒定/派生不重复）；H1（demo/scope 脚本零写死站名、走动态发现 / listPublishableSites）；运行时「组件产物不变、只 :root/分层变」仍成立。
 

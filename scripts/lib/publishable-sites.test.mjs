@@ -1,20 +1,33 @@
-// node --test — behavior of listPublishableSites against the real sites/ and
-// throwaway fixtures. A site is "publishable" iff all three of the triad
-// {adapter.css, rules.md, skill-blurb.md} are present (§ issue #7).
+// node --test — behavior of listAdapterSites / listPublishableSites against the
+// real sites/ and throwaway fixtures.
+//   • listAdapterSites: a site is "has values" iff it has adapter.css (layout.css
+//     is its generated peer — see build:layout).
+//   • listPublishableSites: a site is "publishable" iff all four of the quartet
+//     {adapter.css, layout.css, rules.md, skill-blurb.md} are present (ADR 0012 修正).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { listPublishableSites } from './publishable-sites.mjs';
+import {
+  listAdapterSites,
+  listPublishableSites,
+} from './publishable-sites.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', '..'); // stitch-design-system/
 
-test('real sites/ → only the triad-complete sites, stably sorted', () => {
-  // phantom + seline + steep carry the full triad {adapter.css, rules.md,
-  // skill-blurb.md}; saybriefly only has {README.md, source/} and is excluded.
+test('real sites/ → listAdapterSites = every site with an adapter.css', () => {
+  // phantom + seline + steep have adapter.css; saybriefly only has {README.md,
+  // source/} and is excluded (no adapter → no values).
+  assert.deepEqual(listAdapterSites(root), ['phantom', 'seline', 'steep']);
+});
+
+test('real sites/ → listPublishableSites = the quartet-complete sites, stably sorted', () => {
+  // Today phantom + seline + steep carry the full quartet {adapter.css,
+  // layout.css, rules.md, skill-blurb.md} (layout.css committed by build:layout),
+  // so the publishable set is unchanged — only the criterion widened to quartet.
   assert.deepEqual(listPublishableSites(root), ['phantom', 'seline', 'steep']);
 });
 
@@ -34,15 +47,16 @@ function makeFixture(sites) {
   };
 }
 
-const TRIAD = ['adapter.css', 'rules.md', 'skill-blurb.md'];
+const QUARTET = ['adapter.css', 'layout.css', 'rules.md', 'skill-blurb.md'];
 
-test('missing any one triad member → site excluded', () => {
+test('missing any one quartet member → site excluded from publishable', () => {
   const { fixtureRoot, cleanup } = makeFixture([
-    ['whole', TRIAD], // complete → kept
-    ['no-adapter', ['rules.md', 'skill-blurb.md']],
-    ['no-rules', ['adapter.css', 'skill-blurb.md']],
-    ['no-blurb', ['adapter.css', 'rules.md']],
-    ['bare', ['README.md']], // phantom/saybriefly shape → excluded
+    ['whole', QUARTET], // complete → kept
+    ['no-adapter', ['layout.css', 'rules.md', 'skill-blurb.md']],
+    ['no-layout', ['adapter.css', 'rules.md', 'skill-blurb.md']], // values half-paired
+    ['no-rules', ['adapter.css', 'layout.css', 'skill-blurb.md']],
+    ['no-blurb', ['adapter.css', 'layout.css', 'rules.md']],
+    ['bare', ['README.md']], // saybriefly shape → excluded
   ]);
   try {
     assert.deepEqual(listPublishableSites(fixtureRoot), ['whole']);
@@ -51,11 +65,32 @@ test('missing any one triad member → site excluded', () => {
   }
 });
 
+test('adapter-only / adapter+docs-minus-layout → in listAdapterSites, out of publishable', () => {
+  const { fixtureRoot, cleanup } = makeFixture([
+    ['whole', QUARTET],
+    ['adapter-only', ['adapter.css']], // has values, mid-onboarding
+    ['no-layout', ['adapter.css', 'rules.md', 'skill-blurb.md']],
+    ['bare', ['README.md']], // no adapter → out of both
+  ]);
+  try {
+    // discovered by "has adapter" (what demo/build:layout key off)
+    assert.deepEqual(listAdapterSites(fixtureRoot), [
+      'adapter-only',
+      'no-layout',
+      'whole',
+    ]);
+    // but only the quartet-complete one is publishable
+    assert.deepEqual(listPublishableSites(fixtureRoot), ['whole']);
+  } finally {
+    cleanup();
+  }
+});
+
 test('output is stably sorted regardless of on-disk creation order', () => {
   const { fixtureRoot, cleanup } = makeFixture([
-    ['zeta', TRIAD],
-    ['alpha', TRIAD],
-    ['mid', TRIAD],
+    ['zeta', QUARTET],
+    ['alpha', QUARTET],
+    ['mid', QUARTET],
   ]);
   try {
     assert.deepEqual(listPublishableSites(fixtureRoot), [

@@ -1,5 +1,6 @@
-// node --test — build-layout: writes one sites/<site>/layout.css per publishable
-// site from that site's source/variables.css. Guards structural Hook H6's file-level
+// node --test — build-layout: writes one sites/<site>/layout.css per site that has
+// an adapter.css (layout is adapter's value-file peer) from that site's
+// source/variables.css. Guards structural Hook H6's file-level
 // clauses: DO NOT EDIT header, only --stitch-*, idempotent, no site-name/foreign leak,
 // and that the COMMITTED file stays in sync with a regeneration (like check:skill does
 // for presets). ADR 0012.
@@ -9,14 +10,14 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { layoutFileFor, LAYOUT_HEADER } from './build-layout.mjs';
-import { listPublishableSites } from './lib/publishable-sites.mjs';
+import { listAdapterSites } from './lib/publishable-sites.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SITES = listPublishableSites(root);
+const SITES = listAdapterSites(root);
 const committed = (s) => resolve(root, 'sites', s, 'layout.css');
 
-test('there is at least one publishable site to build', () => {
-  assert.ok(SITES.length >= 1, 'expected ≥1 publishable site');
+test('there is at least one adapter site to build a layer for', () => {
+  assert.ok(SITES.length >= 1, 'expected ≥1 site with an adapter.css');
 });
 
 test('first line is exactly the generated / DO NOT EDIT header', () => {

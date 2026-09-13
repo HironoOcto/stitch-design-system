@@ -33,28 +33,36 @@ export function stitchTheme() {
       const { activeSite } = JSON.parse(
         readFileSync(repoRoot + 'stitch.config.json', 'utf8'),
       );
-      // 合并出单份 :root（adapter 覆盖 contract、派生 color-mix 原样保留）。
-      // layer=null：页面尺度层暂不折入运行时 style.css，产物与本 issue 前逐字节一致
-      //（运行时/demo 纳入页面尺度层重排 = #25，ADR 0012 决策6）。
+      // 合并出单份 :root（contract → layer → adapter；adapter 覆盖 contract、
+      // 派生 color-mix 原样保留）。ADR 0012（#25）：把 activeSite 的页面尺度层
+      // (sites/<site>/layout.css，build:layout 产物、adapter 的成对值文件) 折进运行时
+      // style.css 的 :root，使烤死主题也带 --stitch-space-*/字阶/layout 全键。activeSite
+      // 必是可发布站（四件套齐），故 layout.css 必在，直接传。
       return mergeTokens(
         repoRoot + 'packages/tokens/contract.css',
-        null,
+        repoRoot + `sites/${activeSite}/layout.css`,
         repoRoot + `sites/${activeSite}/adapter.css`,
         activeSite,
       );
     },
     // themes/* 导出（issue #8 / ADR 0009）——与 style.css 原子产出。让使用方
-    // 零重发布就能自选/运行时切主题。每个「可发布站」（#7 listPublishableSites，
-    // 三件套齐全）emit 一份 dist/themes/<站>.css：该站 adapter 的每站值作用域化成
-    // [data-site="<站>"]。opt-in 覆盖层：不 import themes/*、不设 data-site 的
-    // 消费者拿到的仍是 style.css 里烤死的 activeSite 那套（零配置默认单套）。
-    // 站名零写死——集合由磁盘动态解析，故永不劈叉、无越界。
+    // 零重发布就能自选/运行时切主题。每个「可发布站」（listPublishableSites，
+    // 四件套齐全＝adapter+layout+rules+blurb）emit 一份 dist/themes/<站>.css：该站
+    // adapter 的每站值 + 页面尺度层
+    // (layout.css) 一起作用域化成 [data-site="<站>"]（ADR 0012 决策6 / #25），故
+    // 运行时切主题连 layout/间距/字阶一并重排。opt-in 覆盖层：不 import themes/*、
+    // 不设 data-site 的消费者拿到的仍是 style.css 里烤死的 activeSite 那套（零配置
+    // 默认单套）。站名零写死——集合由磁盘动态解析，故永不劈叉、无越界。
     generateBundle() {
       for (const site of listPublishableSites(repoRoot)) {
         this.emitFile({
           type: 'asset',
           fileName: `themes/${site}.css`,
-          source: scopeAdapter(repoRoot + `sites/${site}/adapter.css`, site),
+          source: scopeAdapter(
+            repoRoot + `sites/${site}/adapter.css`,
+            site,
+            repoRoot + `sites/${site}/layout.css`,
+          ),
         });
       }
     },

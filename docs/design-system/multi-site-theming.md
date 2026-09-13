@@ -349,7 +349,7 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
 
 契约 `contract.css` 只收「经真实组件验证的基线字段」，把**页面级**的 layout 度量 / 全间距尺度 / 全字阶挡在 token 层外。AI 做**页面/布局**且无适用组件时，`--stitch-*` 里找不到 >24px 间距、无 layout 度量、只有 4 档字号。为此新增一层 **页面尺度层**，仍用 `--stitch-*` 前缀（同一套设计系统），**从每站 `source/variables.css` 确定性生成**。
 
-**这层是生成，不是手写**——区别于要大量判断的 `adapter.css`（多档灰收敛、accent 角色裁定、对比度复核），本层几乎零判断：角色名直映、值直搬。生成器 `scripts/build-layout.mjs`（`npm run build:layout`）对**每个可发布站**（`listPublishableSites`）写 `sites/<site>/layout.css`，首行 `/* generated from source/variables.css by build:layout. DO NOT EDIT. */`，committed。纯映射核心是 `scripts/lib/extract-layout.mjs` 的 `extractLayout(css)`。
+**这层是生成，不是手写**——区别于要大量判断的 `adapter.css`（多档灰收敛、accent 角色裁定、对比度复核），本层几乎零判断：角色名直映、值直搬。`layout.css` 是 `adapter.css` 的**成对值文件**（一个站的两份值文件，永远成对）：生成器 `scripts/build-layout.mjs`（`npm run build:layout`）对**每个有 `adapter.css` 的站**（`listAdapterSites`）写 `sites/<site>/layout.css`——**不 gated 在可发布**（可发布判据本身就要求 `layout.css`）。首行 `/* generated from source/variables.css by build:layout. DO NOT EDIT. */`，committed。纯映射核心是 `scripts/lib/extract-layout.mjs` 的 `extractLayout(css)`。因两份值文件成对，「可发布站」判据即**四件套** `{adapter.css, layout.css, rules.md, skill-blurb.md}`（`listPublishableSites`）；demo 发现站 = 有 adapter ∩ 有 layout——被展示/发布的站必有 `layout.css`，无「容缺」。
 
 **收（Tier 1）**——命名/角色词表是稳定公开清单，**缺则不提供**（某站没有的档就是没有，不发明默认）：
 

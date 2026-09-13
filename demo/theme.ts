@@ -8,23 +8,46 @@
 // 契约默认值（全局兜底，作用域块之前）
 import contract from '/packages/tokens/contract.css?raw';
 
-// 扫 sites/*/adapter.css 原文（键=路径，值=CSS 文本）。站点列表判据 = 有 adapter.css。
+// 扫每站的两份【成对值文件】原文（键=路径，值=CSS 文本）。
+// - adapter.css：手写值（颜色/字体/圆角/阴影…）
+// - layout.css：页面尺度层（build:layout 产物，adapter 的成对值文件，ADR 0012）
 const adapters = import.meta.glob('/sites/*/adapter.css', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>;
+const layoutRaw = import.meta.glob('/sites/*/layout.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const layouts: Record<string, string> = {};
+for (const [path, css] of Object.entries(layoutRaw)) {
+  layouts[path.match(/sites\/([^/]+)\/layout\.css$/)![1]] = css;
+}
 
 export interface Site {
   name: string;
   scoped: string;
 }
 
-// 目录名 → 作用域化后的 CSS（:root 改写为 [data-site="<name>"]），按目录名排序稳定。
+// 站点列表判据 = 【有 adapter.css ∩ 有 layout.css】（两份值文件成对）。二者本就成对，
+// 交集只在建站途中（写了 adapter 尚未 build:layout）短暂不等；缺 layout 的站不进
+// demo（切过去会缺页面尺度层）。目录名 → 作用域化后的 CSS：每站块 = layout + adapter
+// 依次拼接，adapter 排后 → 同名键 adapter 覆盖 layer（与 scopeAdapter / mergeTokens
+// 同序）；两份 :root 一起改写成 [data-site="<name>"]，切站时 layout/间距/字阶随每站值
+// 一并重排。按目录名排序稳定。
 export const sites: Site[] = Object.entries(adapters)
-  .map(([path, css]) => {
+  .filter(([path]) => {
     const name = path.match(/sites\/([^/]+)\/adapter\.css$/)![1];
-    const scoped = css.replace(/:root\b/g, `[data-site="${name}"]`);
+    return name in layouts;
+  })
+  .map(([path, adapterCss]) => {
+    const name = path.match(/sites\/([^/]+)\/adapter\.css$/)![1];
+    const scoped = `${layouts[name]}\n${adapterCss}`.replace(
+      /:root\b/g,
+      `[data-site="${name}"]`,
+    );
     return { name, scoped };
   })
   .sort((a, b) => a.name.localeCompare(b.name));

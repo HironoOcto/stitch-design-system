@@ -1,7 +1,9 @@
 // scripts/build-layout.mjs — build:layout (ADR 0012).
-// Writes sites/<site>/layout.css (the page-scale layer) for EVERY publishable site
-// (#7 listPublishableSites — zero hardcoded site names), from that site's
-// source/variables.css via the pure extractLayout(). Deterministic & idempotent:
+// Writes sites/<site>/layout.css (the page-scale layer) for EVERY site that has an
+// adapter.css (listAdapterSites — zero hardcoded site names): layout.css is the
+// value-file PEER of adapter.css, always paired, so it is generated wherever an
+// adapter exists — NOT gated on "publishable" (which itself requires layout.css).
+// From that site's source/variables.css via the pure extractLayout(). Deterministic & idempotent:
 // re-running with the same frozen source is byte-for-byte identical. The file is
 // committed, carries a DO NOT EDIT header, and contains only --stitch-* (H6).
 //
@@ -16,7 +18,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { extractLayout } from './lib/extract-layout.mjs';
-import { listPublishableSites } from './lib/publishable-sites.mjs';
+import { listAdapterSites } from './lib/publishable-sites.mjs';
 
 // Path-neutral (no site name) so it never trips the boundary/H6 no-leak clause.
 export const LAYOUT_HEADER =
@@ -32,12 +34,12 @@ export function layoutFileFor(root, site) {
 }
 
 /**
- * Write layout.css for the given sites (default: every publishable site).
+ * Write layout.css for the given sites (default: every site that has an adapter.css).
  * @param {{ root: string, sites?: string[] }} opts
  * @returns {{ sites: string[], files: string[] }}
  */
 export function buildLayout({ root, sites } = {}) {
-  const targets = sites ?? listPublishableSites(root);
+  const targets = sites ?? listAdapterSites(root);
   const files = [];
   for (const site of targets) {
     const outPath = join(resolve(root, 'sites', site), 'layout.css');

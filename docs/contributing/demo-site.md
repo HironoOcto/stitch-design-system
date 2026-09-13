@@ -26,32 +26,42 @@ Demo 站有两个职责：
 
 两条边界，记牢：
 
-- **引源，不引产物**：demo 直接 import `packages/tokens/contract.css` 和 `sites/*/adapter.css` 这些**源文件**（改一下立刻热更新），**不**引 `dist/style.css`（那是发布产物，改主题得先 `build` 才变，dev 体验差）。
+- **引源，不引产物**：demo 直接 import `packages/tokens/contract.css`、`sites/*/adapter.css` 及页面尺度层 `sites/*/layout.css` 这些**源文件**（改一下立刻热更新），**不**引 `dist/style.css`（那是发布产物，改主题得先 `build` 才变，dev 体验差）。
 - **源保持纯 `:root`，作用域化只在 demo 侧做**：`adapter.css` 的正式形状是"静态 `:root`"（§9.4.2），包与 skill 都依赖这个纯 `:root` 才能无脑合并。demo 要同屏多站，就得把每份 `:root` 作用域化成 `[data-site=x]`——**这个改写只发生在 demo 这一侧的内存里，源文件一个字不动**。
 
 ## 多站切换器怎么工作
 
 三步：**动态发现 → 作用域化 → 切换**（落地：`demo/theme.ts`，切换器 UI 在 `demo/App.tsx` 顶栏）。
 
-1. **动态发现**：用 `import.meta.glob('/sites/*/adapter.css', { query: '?raw', eager: true })` 扫目录拿到每份 adapter 的**原文**。站点列表 = **有 `adapter.css` 的目录**（不是有 `source/` 的——目前只有 steep + seline 有 adapter；只有 `source/` 的站切过去会是空白）。站名取目录名。
-2. **作用域化**：把每份原文里的 `:root` 选择器替换成 `[data-site="<目录名>"]`，拼成一份、注入 `<head>` 的 `<style>`。contract.css 的 `:root` 默认值原样保留在最前（作全局兜底）。
+1. **动态发现**：分别 glob 每站的两份【成对值文件】原文——`import.meta.glob('/sites/*/adapter.css', …)`（手写值）与 `import.meta.glob('/sites/*/layout.css', …)`（页面尺度层，`build:layout` 产物，ADR 0012）。站点列表 = **有 `adapter.css` ∩ 有 `layout.css` 的目录**（站名取目录名）。二者本就成对，交集只在建站途中（写了 `adapter` 尚未 `build:layout`）短暂不等；缺 `layout` 的站不进 demo（切过去会缺页面尺度层）。有 `source/` 无值文件的站也不进（切过去会空白）。
+2. **作用域化**：每站块 = 该站 `layout.css` + `adapter.css` 依次拼接，把两份原文里的 `:root` 选择器都替换成 `[data-site="<目录名>"]`（adapter 排后 → 同名键 adapter 覆盖 layer，与 `scopeAdapter`/`mergeTokens` 同序）；拼成一份、注入 `<head>` 的 `<style>`。contract.css 的 `:root` 默认值原样保留在最前（作全局兜底，恒定/派生靠 `var()` 跟随）。故切站时 layout/间距/字阶随每站值一并重排。
 3. **切换**：在 `<html>`（`documentElement`）上设 `data-site="seline"`，顶栏切换器改这个属性即换站。因为每站变量已被 `[data-site=x]` 作用域化，改属性就换整套值，外壳与组件零改动跟着变。
 
 ```ts
 // demo/theme.ts —— dev 期动态挂全部站、作用域化、暴露切换
 import contract from '/packages/tokens/contract.css?raw';
 
+// 两份成对值文件：adapter.css（手写）+ layout.css（build:layout 产物）。
 const adapters = import.meta.glob('/sites/*/adapter.css', {
     query: '?raw', import: 'default', eager: true,
 }) as Record<string, string>;
+const layoutRaw = import.meta.glob('/sites/*/layout.css', {
+    query: '?raw', import: 'default', eager: true,
+}) as Record<string, string>;
+const layouts: Record<string, string> = {};
+for (const [p, css] of Object.entries(layoutRaw))
+    layouts[p.match(/sites\/([^/]+)\/layout\.css$/)![1]] = css;
 
-export const sites = Object.entries(adapters).map(([path, css]) => {
-    const name = path.match(/sites\/([^/]+)\/adapter\.css$/)![1];
-    const scoped = css.replace(/:root\b/g, `[data-site="${name}"]`);
-    return { name, scoped };
-});
+// 判据 = 有 adapter ∩ 有 layout（值文件成对）。每站块 = layout + adapter 作用域化。
+export const sites = Object.entries(adapters)
+    .filter(([path]) => path.match(/sites\/([^/]+)\/adapter\.css$/)![1] in layouts)
+    .map(([path, adapterCss]) => {
+        const name = path.match(/sites\/([^/]+)\/adapter\.css$/)![1];
+        const scoped = `${layouts[name]}\n${adapterCss}`.replace(/:root\b/g, `[data-site="${name}"]`);
+        return { name, scoped };
+    });
 
-// contract 的 :root 默认值在前作兜底，随后拼上每站作用域块
+// contract 的 :root 默认值在前作兜底，随后拼上每站作用域块（layer + adapter）
 const themeCss = [contract, ...sites.map(s => s.scoped)].join('\n');
 // 注入 <head><style>，再 document.documentElement.dataset.site = 'seline'
 ```
@@ -79,8 +89,8 @@ const themeCss = [contract, ...sites.map(s => s.scoped)].join('\n');
 ## 硬约束速查
 
 - 外壳/侧栏/组件一律只读 `var(--stitch-*)`（红线 **H2**）；自包含、不引父目录/外部路径（红线 **H1**）。
-- 站点列表按 `sites/*/adapter.css` **动态**，不写死；判据是"有 adapter"而非"有 source"。
-- `:root → [data-site=x]` 的作用域化**只在 demo 侧**；`sites/<站>/adapter.css` 源永远是纯 `:root`。
+- 站点列表按 `sites/*/adapter.css` ∩ `sites/*/layout.css` **动态**，不写死；判据是"两份值文件都在"而非"有 source"。`layout.css` 是 `adapter.css` 的成对值文件（`build:layout` 产物），二者成对，无容缺分支。
+- `:root → [data-site=x]` 的作用域化**只在 demo 侧**（adapter + layout 两份一起改写）；`sites/<站>/adapter.css`、`sites/<站>/layout.css` 源永远是纯 `:root`。
 - demo 引**源文件**（`?raw` / 直接 import），不引 `dist/` 产物。
 - 侧栏分组读 `scripts/component-families.md`，与 `build:refs` 同源，别另搞一套。
 - demo 不读、不受 `stitch.config.json` 的 `activeSite` 影响。

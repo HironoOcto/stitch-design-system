@@ -27,7 +27,7 @@
 - **静态**：grep / wc（名字、长度、无残留、无 hex…）。
 - **从源算期望再比**（针对生成物）：用**纯函数**从源算出「本该长这样」，跟产物比——`mergeTokens(contract, adapter, 当前站)` 之于 tokens.css、`renderCatalog(builtFamilyRows(parseFamilies(…), 组件参考目录))` 之于 catalog（**只列已落盘的族**，族表里列了、但源码尚无对应组件的族不出链）、抽 `<X>Props` 之于组件参考、`diff 拷贝 vs 源` 之于 rules/design-rules。**调纯函数算期望，不是跑 `build:*` 编排**（那会写文件、要还原 git）。这些纯函数**必须复用 `build:*` 用的同一份 lib**（别各写一份，否则期望值自己就漂）。
 
-> **`<发布默认>` = 本仓库 `stitch.config.json` 的 `activeSite`**；**`<可发布站>` = `listPublishableSites()`**（三件套齐全，判据里的占位符）。全程**不写死某站**——预置逐站核时对 `<可发布站>` 每一站跑同一组判据。
+> **`<发布默认>` = 本仓库 `stitch.config.json` 的 `activeSite`**；**`<可发布站>` = `listPublishableSites()`**（四件套 `{adapter.css, layout.css, rules.md, skill-blurb.md}` 齐全，判据里的占位符）。全程**不写死某站**——预置逐站核时对 `<可发布站>` 每一站跑同一组判据。
 >
 > **本验收在源仓库内跑**：判据要读上游源（`contract.css`/adapter/组件源码/`component-families.md`/`docs/`/`sites/`）。验一份已拷进 `~/.claude/skills/` 的**脱源副本**不在本文范围。
 
@@ -130,8 +130,8 @@
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| 预置站集合 == 可发布站 | `theme-presets/` 下的子目录名（排序）== `listPublishableSites()`（#7 三件套判据）——不多一站、不缺一站 | 机器 | 某可发布站漏出预置；或多出个残留站目录 |
-| 发布默认站有预置 | 发布默认（本仓库 `activeSite`）∈ 预置站集合 | 机器 | 默认站三件套不全、却被当默认 |
+| 预置站集合 == 可发布站 | `theme-presets/` 下的子目录名（排序）== `listPublishableSites()`（四件套判据）——不多一站、不缺一站 | 机器 | 某可发布站漏出预置；或多出个残留站目录 |
+| 发布默认站有预置 | 发布默认（本仓库 `activeSite`）∈ 预置站集合 | 机器 | 默认站四件套不全、却被当默认 |
 
 > §6 / §8 / §9 对 **`<可发布站>` 每一站的预置** 各跑一遍（占位符即 `theme-presets/<站>/…`），全站全绿才算过。§7 design-rules 是全局单份、不进预置。
 

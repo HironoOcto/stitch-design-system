@@ -1,0 +1,39 @@
+/* generated from source/variables.css by build:layout. DO NOT EDIT. */
+:root {
+  --stitch-text-caption: 13px;
+  --stitch-leading-caption: 1.35;
+  --stitch-text-body-sm: 15px;
+  --stitch-leading-body-sm: 1.4;
+  --stitch-tracking-body-sm: -0.375px;
+  --stitch-text-subheading: 20px;
+  --stitch-leading-subheading: 1.35;
+  --stitch-tracking-subheading: -0.5px;
+  --stitch-text-heading-sm: 24px;
+  --stitch-leading-heading-sm: 1.25;
+  --stitch-tracking-heading-sm: -0.6px;
+  --stitch-text-heading: 30px;
+  --stitch-leading-heading: 1.21;
+  --stitch-tracking-heading: -0.75px;
+  --stitch-text-heading-lg: 64px;
+  --stitch-leading-heading-lg: 1.1;
+  --stitch-tracking-heading-lg: -1.6px;
+  --stitch-text-display: 96px;
+  --stitch-leading-display: 1;
+  --stitch-tracking-display: -2.4px;
+  --stitch-space-unit: 4px;
+  --stitch-space-4: 4px;
+  --stitch-space-8: 8px;
+  --stitch-space-12: 12px;
+  --stitch-space-16: 16px;
+  --stitch-space-20: 20px;
+  --stitch-space-24: 24px;
+  --stitch-space-32: 32px;
+  --stitch-space-48: 48px;
+  --stitch-space-64: 64px;
+  --stitch-space-96: 96px;
+  --stitch-space-128: 128px;
+  --stitch-page-max-width: 1200px;
+  --stitch-section-gap: 64px;
+  --stitch-card-padding: 48px;
+  --stitch-element-gap: 8px;
+}

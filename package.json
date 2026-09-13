@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "demo": "vite",
+    "build:layout": "node scripts/build-layout.mjs",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:refs": "node scripts/build-refs.mjs",
     "build:blurb": "node scripts/build-blurb.mjs",

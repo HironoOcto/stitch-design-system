@@ -343,6 +343,31 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
 }
 ```
 
+#### 9.4.4 页面尺度层 `layout.css`（生成，非手写）
+
+> 正本决策见 [ADR 0012](../adr/0012-page-scale-layer.md)；本节讲「是什么 / 怎么生成 / 怎么合并」。落地分 3 步：本层地基（生成器 + 三输入合并 + 契约间距别名）→ 折入 skill 预置 → 运行时/demo 重排。
+
+契约 `contract.css` 只收「经真实组件验证的基线字段」，把**页面级**的 layout 度量 / 全间距尺度 / 全字阶挡在 token 层外。AI 做**页面/布局**且无适用组件时，`--stitch-*` 里找不到 >24px 间距、无 layout 度量、只有 4 档字号。为此新增一层 **页面尺度层**，仍用 `--stitch-*` 前缀（同一套设计系统），**从每站 `source/variables.css` 确定性生成**。
+
+**这层是生成，不是手写**——区别于要大量判断的 `adapter.css`（多档灰收敛、accent 角色裁定、对比度复核），本层几乎零判断：角色名直映、值直搬。生成器 `scripts/build-layout.mjs`（`npm run build:layout`）对**每个可发布站**（`listPublishableSites`）写 `sites/<site>/layout.css`，首行 `/* generated from source/variables.css by build:layout. DO NOT EDIT. */`，committed。纯映射核心是 `scripts/lib/extract-layout.mjs` 的 `extractLayout(css)`。
+
+**收（Tier 1）**——命名/角色词表是稳定公开清单，**缺则不提供**（某站没有的档就是没有，不发明默认）：
+
+| 源（`variables.css`） | → 页面尺度层 | 说明 |
+|---|---|---|
+| `--text-<角色>` / `--leading-<角色>` / `--tracking-<角色>` | `--stitch-text-*` / `--stitch-leading-*` / `--stitch-tracking-*` | 角色词表 = `micro/caption/body-sm/body/body-lg/subheading/heading-sm/heading/heading-lg/display`（超集，站填子集；词表外的名不生成） |
+| `--spacing-<n>` | `--stitch-space-<n>` | 全间距（4px 网格超集，可到 128/160px） |
+| `--spacing-unit` | `--stitch-space-unit` | 元数据 |
+| `--page-max-width` / `--section-gap` / `--card-padding` / `--element-gap` | `--stitch-page-max-width` / `--stitch-section-gap` / `--stitch-card-padding` / `--stitch-element-gap` | layout 四键，仅加前缀 |
+
+**不收**（留 `rules.md` 散文 / 现契约）：原始圆角 `--radius-*` + named radii、阴影、字重、颜色、字体族、surfaces。
+
+**归一化三条**（生成器内，唯一的「判断」）：① phantom `--element-gap: 8-16px` 区间 → 取下界 `8px`（「8–16 弹性」留散文）；② saybriefly 8px 基 → 直落 4px 网格超集（8 的倍数天然落格，直映）；③ `--spacing-unit` → `--stitch-space-unit` 作元数据带上。
+
+**三输入合并**：`mergeTokens` 从 `(contract, adapter)` 扩为 `(contract, layer, adapter, site)`，合并顺序 contract → layer → adapter，**adapter 仍最后胜**，仍输出单一 `:root` + `DO NOT EDIT` 头 + 派生 `var()`/`color-mix()` 原样保留（H4）。`layerPath` 可空（falsy → 跳过该层，产物 = 旧的 contract+adapter 合并）——skill 预置（`build:skill`）与运行时（vite 虚拟模块）本步传 `null`、产物逐字节不变；折入预置属折入步、折入运行时属运行时/demo 重排步。
+
+**P1：全量尺度为唯一真相，组件旧名退化为别名**：`contract.css` 的间距 5 行改成带字面量兜底的别名 `--stitch-spacing-md: var(--stitch-space-12, 12px);`……组件**一字不改**（仍读 `--stitch-spacing-md`），值解析恒等；缺 `space-4` 的站（saybriefly）兜底回旧字面量。字号/行高**不动**——组件的 `--stitch-font-size-*` 是控件文字尺寸接口，与页面字阶 `--stitch-text-<角色>` 分层并存。**给 AI 的心智**：写页面用 `--stitch-space-*` / `--stitch-text-<角色>` / layout 四键这套完整尺度；`spacing-xs..xl` 与 `font-size-*` 是组件内部接口，写页面不用管。
+
 ### 9.5 规则层：全局规则 + 每站规则
 
 和值层对称：规则也分**全局一份**（框架级、跟站无关）+ **每站一份**（该站风格）。AI 生成某站页面时加载**两者**。

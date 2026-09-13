@@ -34,8 +34,11 @@ export function stitchTheme() {
         readFileSync(repoRoot + 'stitch.config.json', 'utf8'),
       );
       // 合并出单份 :root（adapter 覆盖 contract、派生 color-mix 原样保留）。
+      // layer=null：页面尺度层暂不折入运行时 style.css，产物与本 issue 前逐字节一致
+      //（运行时/demo 纳入页面尺度层重排 = #25，ADR 0012 决策6）。
       return mergeTokens(
         repoRoot + 'packages/tokens/contract.css',
+        null,
         repoRoot + `sites/${activeSite}/adapter.css`,
         activeSite,
       );

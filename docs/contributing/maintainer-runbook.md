@@ -15,11 +15,12 @@
 一个站的风格 = **值**（`adapter.css`）+ **规则**（`rules.md`）。加站就是产出这两份、让 demo 认出它，（要生效时）再嵌进 skill。正本：[接入新站 playbook](./onboard-site.md)、[Demo 站](./demo-site.md)、[skill 构建流程](./skill-build-pipeline.md)。
 
 1. **放 bundle**：把该站的 Refero bundle 放进 `sites/<site>/source/`（主力 `DESIGN.md`）。
-2. **抽两个产物**：按 [onboard-site playbook](./onboard-site.md) 从 `DESIGN.md` 生成 `sites/<site>/adapter.css`（值·单段静态 `:root`，只填 `--stitch-*` 角色名）+ `sites/<site>/rules.md`（Do/Don't + 长相规则）。**AI 生成 + 人复核**，非确定脚本；复核清单见 [onboard-site-review.md](./onboard-site-review.md)。
-3. **demo 肉眼验证**：`npm run demo`，顶栏切到 `<site>` 看整站换肤。demo **动态发现**——凡 `sites/*/adapter.css` 存在即自动上架，无需改配置、不受 `activeSite` 限制（见 [demo-site.md](./demo-site.md)）。
-4. **设为生效主题**（仅当要把它嵌进 skill / 发布时）：把 `stitch.config.json` 的 `activeSite` 改成 `<site>`。用 `npm run build:tokens` 自证 `contract + 该站 adapter` 合并结果（产物 gitignore，只作核对）。
-5. **嵌进 skill**：按 [skill 构建流程 §4.5](./skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（为**每个可发布站**各备一套预置 `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `references/theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`）。「哪套生效」由消费项目 `.agent/stitch.theme.json` 指针读时解析（[ADR 0010](../adr/0010-consume-time-theme-choice.md)）；本仓库 `activeSite` 定发布默认。
-6. **验收**：按 [skill 结构验收标准](./skill-acceptance.md) 核当前生效主题的 skill（9 产物节；`tokens.css == mergeTokens`、`rules.md == 源逐字`、无他站风格残留）。
+2. **抽两份手写产物**：按 [onboard-site playbook](./onboard-site.md) 从 `DESIGN.md` 生成 `sites/<site>/adapter.css`（值·单段静态 `:root`，只填 `--stitch-*` 角色名）+ `sites/<site>/rules.md`（Do/Don't + 长相规则）。**AI 生成 + 人复核**，非确定脚本；复核清单见 [onboard-site-review.md](./onboard-site-review.md)。
+3. **生成一份页面尺度层**：`npm run build:layout`（可发布站全量；单站 `npm run build:layout -- --site <site>`）从 `sites/<site>/source/variables.css` **确定性生成** `sites/<site>/layout.css`（committed，首行 `DO NOT EDIT`，只含 `--stitch-*`）。**零裁值**——机械改名 + 三条归一化（见 [multi-site-theming §9.4.4](../design-system/multi-site-theming.md) / [ADR 0012](../adr/0012-page-scale-layer.md)），改完 `variables.css` 重跑即可，别手改产物。
+4. **demo 肉眼验证**：`npm run demo`，顶栏切到 `<site>` 看整站换肤。demo **动态发现**——凡 `sites/*/adapter.css` 存在即自动上架，无需改配置、不受 `activeSite` 限制（见 [demo-site.md](./demo-site.md)）。
+5. **设为生效主题**（仅当要把它嵌进 skill / 发布时）：把 `stitch.config.json` 的 `activeSite` 改成 `<site>`。用 `npm run build:tokens` 自证 `contract + layer + 该站 adapter` 三输入合并结果（产物 gitignore，只作核对）。
+6. **嵌进 skill**：按 [skill 构建流程 §4.5](./skill-build-pipeline.md) 先 `build:blurb <site>`（每站一次，人审风格 blurb）→ 再 `build:skill`（为**每个可发布站**各备一套预置 `references/theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `references/theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`）。「哪套生效」由消费项目 `.agent/stitch.theme.json` 指针读时解析（[ADR 0010](../adr/0010-consume-time-theme-choice.md)）；本仓库 `activeSite` 定发布默认。
+7. **验收**：按 [skill 结构验收标准](./skill-acceptance.md) 核当前生效主题的 skill（9 产物节；`tokens.css == mergeTokens`、`rules.md == 源逐字`、无他站风格残留）。
 
 > 硬红线：`adapter.css` 只写 `--stitch-*` 角色名、绝不引原始 `--color-*`；`:root → [data-site=x]` 的作用域化只发生在 demo 内存里，源文件永远是纯 `:root`。
 
@@ -148,7 +149,8 @@ npx skills remove stitch-design-system reset-theme -y
 
 | 命令 | 什么触发它（你改了什么） | 执行目录 | 作用 |
 | --- | --- | --- | --- |
-| `npm run build:tokens` | 改了 `contract.css` / 某站 `adapter.css` 的值，想**肉眼核对**「合并出的变量表」对不对 | 仓库根 | 把契约占位 + 当前 `activeSite` 的 adapter 值合并成一份最终 `:root`，写到 `packages/tokens/dist/tokens.css`。**纯派生、谁都不 import**（发布靠 `build`、skill 靠 `build:skill` 各自当场重算），所以 gitignore、不发布、看完可删 |
+| `npm run build:layout` | **加 / 换一个站**，或改了某站 `source/variables.css`（页面尺度层的源）| 仓库根 | 从每个**可发布站**（`-- --site <s>` 可指定单站）的 `source/variables.css` **确定性生成** `sites/<site>/layout.css`（页面尺度层：`--stitch-space-*` / `--stitch-text-<角色>` / layout 四键）。committed、首行 `DO NOT EDIT`、只含 `--stitch-*`；零裁值（机械改名 + 三条归一化，见 [ADR 0012](../adr/0012-page-scale-layer.md)）——别手改产物 |
+| `npm run build:tokens` | 改了 `contract.css` / 某站 `adapter.css` / `layout.css` 的值，想**肉眼核对**「合并出的变量表」对不对 | 仓库根 | 把契约占位 + 当前 `activeSite` 的 `layout.css`（页面尺度层）+ adapter 值三输入合并成一份最终 `:root`，写到 `packages/tokens/dist/tokens.css`。**纯派生、谁都不 import**（发布靠 `build`、skill 靠 `build:skill` 各自当场重算），所以 gitignore、不发布、看完可删 |
 | `npm run build:blurb <site>` | **加 / 换一个站**，要给它写风格招牌（每站一次；该站 `DESIGN.md` 变了也重跑） | 仓库根 | **读** `sites/<site>/source/DESIGN.md` 抽三段 → 组固定 prompt → **调 LLM**（`claude -p`，非确定）**生成** `sites/<site>/skill-blurb.md` 草稿（description + style-paragraph 两段），等人复核签字冻盘。整条链唯一「非确定 / LLM」的一步就隔离在这，下游 `build:skill` 只**读**这份冻结草稿、不再 re-roll（保幂等）——**注意方向：本命令产出 `skill-blurb.md`，不是读它** |
 | `npm run build:skill` | **切了 `activeSite`**（换发布默认），或任一可发布站的 token/rules/blurb 变了 | 仓库根 | 纯确定编排（无 LLM）：对**每个可发布站** `mergeTokens` **算出** `theme-presets/<站>/tokens.css`、**逐字拷** `rules.md`、**读** `skill-blurb.md` 两段写 `style.md`；**逐字拷**全局 `design-rules.md` 进 `references/theme/`；把发布默认站名注入 `SKILL.md` 的 `SLOT:default-site`（[ADR 0010](../adr/0010-consume-time-theme-choice.md)）。（消费 `build:blurb` + `build:refs` 的产物，故这俩要先备好） |
 

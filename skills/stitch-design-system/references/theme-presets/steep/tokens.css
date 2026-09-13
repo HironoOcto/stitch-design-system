@@ -63,11 +63,11 @@
   --stitch-text-disabled: color-mix(in srgb, var(--stitch-text-muted), var(--stitch-bg-canvas) 45%);
   --stitch-bg-disabled: #f0f0f0;
   --stitch-focus-ring: var(--stitch-accent);
-  --stitch-spacing-xs: 4px;
-  --stitch-spacing-sm: 8px;
-  --stitch-spacing-md: 12px;
-  --stitch-spacing-lg: 16px;
-  --stitch-spacing-xl: 24px;
+  --stitch-spacing-xs: var(--stitch-space-4, 4px);
+  --stitch-spacing-sm: var(--stitch-space-8, 8px);
+  --stitch-spacing-md: var(--stitch-space-12, 12px);
+  --stitch-spacing-lg: var(--stitch-space-16, 16px);
+  --stitch-spacing-xl: var(--stitch-space-24, 24px);
   --stitch-mask-bg: rgba(0,0,0,.45);
   --stitch-height-sm: 32px;
   --stitch-height-base: 40px;

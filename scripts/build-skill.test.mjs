@@ -79,6 +79,7 @@ test('each preset tokens.css == mergeTokens(contract, that site adapter) with H4
     );
     const expected = mergeTokens(
       resolve(root, 'packages/tokens/contract.css'),
+      null, // build:skill folds no page-scale layer this issue (#24)
       resolve(root, 'sites', s, 'adapter.css'),
       s,
     );

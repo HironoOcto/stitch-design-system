@@ -444,14 +444,11 @@ for (const s of PRESET_SITES) {
     src !== null ? true : `missing ${presetFile(s, 'tokens.css')}`,
   );
   if (src === null) continue;
-  check(
-    '§6 tokens.css',
-    '§6',
-    `[${s}] == mergeTokens(contract, adapter)`,
-    () =>
-      src === mergeTokens(P.contract, adapter, s)
-        ? true
-        : 'tokens.css != recomputed mergeTokens',
+  check('§6 tokens.css', '§6', `[${s}] == mergeTokens(contract, adapter)`, () =>
+    // layer=null matches build:skill this issue (page-scale layer fold-in is #24).
+    src === mergeTokens(P.contract, null, adapter, s)
+      ? true
+      : 'tokens.css != recomputed mergeTokens',
   );
   check('§6 tokens.css', '§6', `[${s}] 首行含 generated + DO NOT EDIT`, () =>
     /generated.*DO NOT EDIT/.test(src.split('\n')[0])

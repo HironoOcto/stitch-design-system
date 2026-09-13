@@ -7,7 +7,9 @@
 // Publish time defines the DEFAULT; consume time picks the active preset (read-time
 // resolution, see scripts/lib/resolve-preset.mjs + SKILL.md "Current style"). So build:skill
 // emits a preset for EVERY publishable site (#7 listPublishableSites), not just one:
-//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, adapter, site) (§4.1, H4)
+//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, null, adapter, site) (§4.1, H4)
+//      (layer=null → preset output byte-identical this issue; folding the page-scale
+//       layer into presets is #24 / ADR 0012 决策5.)
 //   ② references/theme-presets/<site>/rules.md    = sites/<site>/rules.md               (verbatim)
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
 //   ④ references/theme/design-rules.md            = docs/.../design-rules.md            (global, once)
@@ -98,7 +100,10 @@ export function buildSkill({ root, site, skillDir }) {
     );
     const dir = join(presetsRoot, s);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'tokens.css'), mergeTokens(contract, adapter, s));
+    writeFileSync(
+      join(dir, 'tokens.css'),
+      mergeTokens(contract, null, adapter, s),
+    );
     copyFileSync(rules, join(dir, 'rules.md'));
     writeFileSync(
       join(dir, 'style.md'),

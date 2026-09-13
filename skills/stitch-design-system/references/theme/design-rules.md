@@ -7,6 +7,9 @@
 1. 只用角色变量，不硬编码主题值
    - ❌ `color:#17191c;` / `border-radius:24px;` / `font-family:'Signifier';`
    - ✅ `color:var(--stitch-text-primary);` / `var(--stitch-radius-card)` / `var(--stitch-font-display)`
+   - **页面/布局尺度也走 token**：间距、区块留白、页宽、字阶有页面尺度层（`--stitch-space-*`、layout 四键 `--stitch-page-max-width`/`--stitch-section-gap`/`--stitch-card-padding`/`--stitch-element-gap`、`--stitch-text-<角色>`/`--stitch-leading-*`/`--stitch-tracking-*`，见 [multi-site-theming §9.4.4](./multi-site-theming.md) / [ADR 0012](../adr/0012-page-scale-layer.md)）。别写死 `padding:80px` / `gap:24px` / `font-size:90px`——换站不重排。
+     - ❌ `margin-top:80px;` / `max-width:1200px;` / `font-size:90px;`
+     - ✅ `margin-top:var(--stitch-section-gap);` / `max-width:var(--stitch-page-max-width);` / `font-size:var(--stitch-text-display);`
    - 例外：非主题的结构值（`z-index`、`1px` 发丝线、布局 `%`）可写字面量。
 
 2. 不读某站的长相变量（换站即失效）

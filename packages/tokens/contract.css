@@ -94,10 +94,12 @@
   --stitch-bg-disabled:    #f0f0f0;  /* 【恒定】 */
   --stitch-focus-ring:     var(--stitch-accent);  /* 【派生·跟随 accent】 */
 
-  /* 间距（Refero 有此类目;4px 基准格通常不动,但密度是风格杠杆 → 可每站覆盖。
-     "区块留白用多少"属构图,归 rules.md 的 Layout,不在 token 层）*/
-  --stitch-spacing-xs: 4px;  --stitch-spacing-sm: 8px;  --stitch-spacing-md: 12px;   /* 【每站·可选】 */
-  --stitch-spacing-lg: 16px; --stitch-spacing-xl: 24px;                              /* 【每站·可选】 */
+  /* 间距（组件内部别名 → 页面尺度层 --stitch-space-*，见 ADR 0012）。
+     旧名不改、组件一字不动;值退化为带字面量兜底的别名 → 缺 space-N 的站(如 saybriefly
+     无 space-4)兜底回旧字面量(= 今日行为)。写页面用完整的 --stitch-space-* 尺度,不用这几档。
+     "区块留白用多少"属构图,归 rules.md 的 Layout / 页面尺度层 layout 四键。*/
+  --stitch-spacing-xs: var(--stitch-space-4, 4px);   --stitch-spacing-sm: var(--stitch-space-8, 8px);   --stitch-spacing-md: var(--stitch-space-12, 12px);
+  --stitch-spacing-lg: var(--stitch-space-16, 16px); --stitch-spacing-xl: var(--stitch-space-24, 24px);
 
   /* 遮罩 / 控件高度 / 动效（Refero 都不提供 → 只能用契约默认;低风格信号,恒定）*/
   --stitch-mask-bg:        rgba(0,0,0,.45);         /* 【恒定】弹窗蒙层,可每站微调色调 */

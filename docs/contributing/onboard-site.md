@@ -6,14 +6,15 @@
 
 新增一个站的长相时。**前置**：该站 Refero bundle 已放进 `sites/<site>/source/`（主力 `DESIGN.md`，超集）。
 
-## 产出（两份，缺一不可）
+## 产出（两份手写 + 一份生成）
 
-见 [§9.2 一个站的风格 = 值 + 规则](../design-system/multi-site-theming.md#92-一个站的风格--值--规则)：只换值不够，还要换规则。
+见 [§9.2 一个站的风格 = 值 + 规则](../design-system/multi-site-theming.md#92-一个站的风格--值--规则)：只换值不够，还要换规则。前两份**本 playbook 手写**（要判断）；第三份**确定性生成**（零判断），不在本 prompt 范围——加站后跑一条 `npm run build:layout` 即得。
 
-| 产物 | 内容 | 消费路径 | 正本规则 |
-|---|---|---|---|
-| `sites/<site>/adapter.css` | 该站值填进 `--stitch-*` 角色变量（静态 `:root`） | 渲染（组件 `var()`） | [§9.4.2](../design-system/multi-site-theming.md#942-适配-adaptercss) |
-| `sites/<site>/rules.md` | Do/Don't + 组件规格 + 用法 | 生成（AI 生成页面时） | [§9.5.2 模板](../design-system/multi-site-theming.md#952-每站-rulesmd-模板从-designmd-抽) |
+| 产物 | 内容 | 手写 / 生成 | 消费路径 | 正本规则 |
+|---|---|---|---|---|
+| `sites/<site>/adapter.css` | 该站值填进 `--stitch-*` 角色变量（静态 `:root`） | 手写（本 playbook） | 渲染（组件 `var()`） | [§9.4.2](../design-system/multi-site-theming.md#942-适配-adaptercss) |
+| `sites/<site>/rules.md` | Do/Don't + 组件规格 + 用法 | 手写（本 playbook） | 生成（AI 生成页面时） | [§9.5.2 模板](../design-system/multi-site-theming.md#952-每站-rulesmd-模板从-designmd-抽) |
+| `sites/<site>/layout.css` | 页面尺度层：`--stitch-space-*` / `--stitch-text-<角色>` / layout 四键 | **生成**（`npm run build:layout`，从 `source/variables.css`） | 渲染 + 生成（页面尺度） | [§9.4.4](../design-system/multi-site-theming.md#944-页面尺度层-layoutcss生成非手写) |
 
 ## 执行 prompt（复制，把 `<site>` 全部换成站名）
 
@@ -24,7 +25,8 @@
 
 输入：
 - sites/<site>/source/DESIGN.md（主力·超集：Quick Color Reference 已做好语义映射；色表带 Role 列；
-  组件像素规格；Do/Don't；Layout/Imagery；Example Prompts）。tokens.json / variables.css 留作值核对。
+  组件像素规格；Do/Don't；Layout/Imagery；Example Prompts）。tokens.json 留作值核对；
+  variables.css 既留作值核对、又是页面尺度层 layout.css 的生成源（build:layout 机械抽取，不在本 prompt 范围）。
 - packages/tokens/contract.css（角色契约：所有 --stitch-* 名字 + 【每站】/【每站·可选】/【派生】/【恒定】标记。契约是"有哪些变量"的唯一真相——新增变量只落契约，本 playbook 不逐一列）。
 - sites/steep/ 的 adapter.css + rules.md（现成样例，照它们的结构/注释风格写）。
 

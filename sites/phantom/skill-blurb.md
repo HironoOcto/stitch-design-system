@@ -1,0 +1,11 @@
+<!-- sites/phantom/skill-blurb.md — generated once from source/DESIGN.md by build:blurb.
+     Status: human-approved — reviewed for fidelity to source/DESIGN.md (2026-09-12).
+     build:skill copies these two sections verbatim into the site's preset style.md
+     (references/theme-presets/<site>/style.md). Do not hand-edit the preset copy —
+     edit here and re-run build:skill. -->
+
+## description
+Build React UIs in the Phantom style — a monochromatic violet crypto-wallet world where everything is a soft pill on a near-white plane: whisper-weight 350 type with aggressive negative tracking and sculptural 96px hero lines, 100px-radius pill nav, buttons and tags beside soft 24px cards, flat surfaces with no elevation beyond a single lavender glow on the primary CTA, a light Ghost-Lavender action fill against a narrow pastel accent set, and a ghost mascot that replaces a vowel in headlines.
+
+## style-paragraph
+Phantom is a monochromatic violet world — a near-white canvas that bleeds into deep aubergine sections, so the page oscillates between an airy light mode and an intimate dark mode, both equally native. Typography carries everything at an unconventional whisper weight (350) with tight negative tracking, letting massive display lines of 80–96px float with sculptural, near-collapsed line-height. The defining silhouette is the pill: navigation, buttons and tags all dissolve into 100px-radius capsules, while cards stay soft at 24px and nothing sharp under 16px is allowed. One primary violet does all the structural work and the palette stays deliberately narrow, punctuated only by a small candy set of pastel button tints and a periwinkle ghost mascot that stands in for a vowel in headlines. Surfaces are resolutely flat — separated by 1px borders and generous 48px padding, with no shadow anywhere except a single soft lavender glow that reveals the light-on-light primary CTA. The layout breathes on a 64px section rhythm, letting type and color, not ornament, do all the work.

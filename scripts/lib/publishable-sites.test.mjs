@@ -13,9 +13,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', '..'); // stitch-design-system/
 
 test('real sites/ → only the triad-complete sites, stably sorted', () => {
-  // seline + steep carry the full triad; phantom + saybriefly only have
-  // {README.md, source/} and must be excluded.
-  assert.deepEqual(listPublishableSites(root), ['seline', 'steep']);
+  // phantom + seline + steep carry the full triad {adapter.css, rules.md,
+  // skill-blurb.md}; saybriefly only has {README.md, source/} and is excluded.
+  assert.deepEqual(listPublishableSites(root), ['phantom', 'seline', 'steep']);
 });
 
 // Build a throwaway root/sites/ so the real publish products stay untouched.

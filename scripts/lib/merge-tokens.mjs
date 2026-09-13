@@ -6,9 +6,10 @@
 // color-mix()/var() values are copied verbatim (NOT evaluated). ADR 0012 § three-input.
 //
 // `layerPath` is NULLABLE: falsy → the page-scale layer is skipped and the output
-// is exactly the old contract+adapter merge. That keeps the skill-preset (build:skill /
-// check:skill) and runtime (vite virtual module) products byte-identical this issue —
-// folding the layer into those call points is #24 (presets) / #25 (runtime).
+// is exactly the old contract+adapter merge. The skill presets (build:skill / check:skill)
+// now pass a REAL layer — the page-scale layer is folded into each preset's tokens.css
+// (#24, ADR 0012 决策5). The runtime (vite virtual module) still passes null until #25
+// rescopes it, which is why the nullable path stays.
 //
 // Shared by both build paths (ADR 0007): the package's dist/style.css and the
 // skill's references/theme/tokens.css. Header is path-neutral for that reason.

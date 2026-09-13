@@ -69,7 +69,7 @@ test('global design-rules.md still lands once under references/theme/', () => {
   );
 });
 
-test('each preset tokens.css == mergeTokens(contract, that site adapter) with H4 features', () => {
+test('each preset tokens.css == mergeTokens(contract, layer, that site adapter) with H4 features', () => {
   const skillDir = seedSkillDir();
   buildSkill({ root, site: 'steep', skillDir });
   for (const s of SITES) {
@@ -77,9 +77,11 @@ test('each preset tokens.css == mergeTokens(contract, that site adapter) with H4
       join(skillDir, 'references/theme-presets', s, 'tokens.css'),
       'utf8',
     );
+    // ADR 0012 决策5: build:skill folds the page-scale layer (sites/<s>/layout.css)
+    // INTO the one preset tokens.css — three-input mergeTokens, adapter still wins.
     const expected = mergeTokens(
       resolve(root, 'packages/tokens/contract.css'),
-      null, // build:skill folds no page-scale layer this issue (#24)
+      resolve(root, 'sites', s, 'layout.css'),
       resolve(root, 'sites', s, 'adapter.css'),
       s,
     );
@@ -87,6 +89,57 @@ test('each preset tokens.css == mergeTokens(contract, that site adapter) with H4
     assert.equal(css.match(/:root\s*\{/g).length, 1, `${s}: single :root`);
     assert.match(css.split('\n')[0], /generated.*DO NOT EDIT/, `${s}: header`);
     assert.match(css, /color-mix\(/, `${s}: color-mix verbatim`);
+  }
+});
+
+test('the folded preset carries the whole page-scale layer + resolvable spacing aliases', () => {
+  const skillDir = seedSkillDir();
+  buildSkill({ root, site: 'steep', skillDir });
+  const decls = (css) =>
+    new Map(
+      [...css.matchAll(/^\s*(--stitch-[\w-]+):\s*(.+?);\s*$/gm)].map((m) => [
+        m[1],
+        m[2],
+      ]),
+    );
+  for (const s of SITES) {
+    const tokens = decls(
+      readFileSync(
+        join(skillDir, 'references/theme-presets', s, 'tokens.css'),
+        'utf8',
+      ),
+    );
+    // (a) every --stitch-* the site's layout.css defines is present in the fold-in.
+    const layer = decls(
+      readFileSync(resolve(root, 'sites', s, 'layout.css'), 'utf8'),
+    );
+    for (const prop of layer.keys())
+      assert.ok(
+        tokens.has(prop),
+        `${s}: layer prop ${prop} folded into tokens.css`,
+      );
+    // (b) the stable layout schema (four keys) is present.
+    for (const k of [
+      '--stitch-page-max-width',
+      '--stitch-section-gap',
+      '--stitch-card-padding',
+      '--stitch-element-gap',
+    ])
+      assert.ok(tokens.has(k), `${s}: layout key ${k} present`);
+    // (c) the P1 spacing aliases resolve: each --stitch-spacing-* is a var(--stitch-space-N,…)
+    //     whose referenced --stitch-space-N is now defined in the SAME file.
+    for (const [prop, val] of tokens) {
+      if (!/^--stitch-spacing-/.test(prop)) continue;
+      const ref = val.match(/var\((--stitch-space-\d+)/);
+      assert.ok(
+        ref,
+        `${s}: ${prop} is a var(--stitch-space-N,…) alias, got "${val}"`,
+      );
+      assert.ok(
+        tokens.has(ref[1]),
+        `${s}: alias ${prop} → ${ref[1]} resolves within tokens.css`,
+      );
+    }
   }
 });
 

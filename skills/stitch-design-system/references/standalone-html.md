@@ -40,6 +40,12 @@ library API. For a real React project, use [react-project.md](react-project.md) 
 - Shadows / radii / typography weights / any shape (clip-path): take from the theme's
   `tokens.css` + `rules.md`; never write literal values in this file.
   Shadow application is the most-misapplied rule — follow the theme's `rules.md` exactly.
+- Page scale is tokens too — the folded-in `tokens.css` carries the full spacing scale
+  (`var(--stitch-space-*)`), the four layout keys (`var(--stitch-page-max-width)`,
+  `var(--stitch-section-gap)`, `var(--stitch-card-padding)`, `var(--stitch-element-gap)`),
+  and the type scale (`var(--stitch-text-<role>)` + `var(--stitch-leading-*)`). Use them for
+  padding, gaps, page width, and headings — never a bare `px` or point size. (Skip
+  `--stitch-spacing-*` / `--stitch-font-size-*`; those are the components' internal aliases.)
 - If the theme uses an SVG clip-path shape (see the theme's `rules.md`), inject its `<defs>`
   once at the top of `<body>` so `clip-path: url(#…)` resolves.
 

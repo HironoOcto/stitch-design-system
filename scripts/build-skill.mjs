@@ -7,9 +7,13 @@
 // Publish time defines the DEFAULT; consume time picks the active preset (read-time
 // resolution, see scripts/lib/resolve-preset.mjs + SKILL.md "Current style"). So build:skill
 // emits a preset for EVERY publishable site (#7 listPublishableSites), not just one:
-//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, null, adapter, site) (§4.1, H4)
-//      (layer=null → preset output byte-identical this issue; folding the page-scale
-//       layer into presets is #24 / ADR 0012 决策5.)
+//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, layer, adapter, site) (§4.1, H4)
+//      layer = sites/<site>/layout.css (the page-scale layer, build:layout output). Per ADR 0012
+//      决策5 the layer is FOLDED INTO this one tokens.css (no separate layout.css in the skill) —
+//      so the AI reads one token file and sees the complete scale (--stitch-space-*, the full
+//      --stitch-text-<role> type scale, the four layout keys) alongside the component roles.
+//      Three-input merge, adapter still wins; the contract's --stitch-spacing-* aliases now
+//      resolve to the folded-in --stitch-space-N.
 //   ② references/theme-presets/<site>/rules.md    = sites/<site>/rules.md               (verbatim)
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
 //   ④ references/theme/design-rules.md            = docs/.../design-rules.md            (global, once)
@@ -90,6 +94,11 @@ export function buildSkill({ root, site, skillDir }) {
       resolve(root, 'sites', s, 'adapter.css'),
       `sites/${s}/adapter.css`,
     );
+    // Page-scale layer (build:layout output). Committed per publishable site; folded in here.
+    const layer = must(
+      resolve(root, 'sites', s, 'layout.css'),
+      `sites/${s}/layout.css (run build:layout first)`,
+    );
     const rules = must(
       resolve(root, 'sites', s, 'rules.md'),
       `sites/${s}/rules.md`,
@@ -102,7 +111,7 @@ export function buildSkill({ root, site, skillDir }) {
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, 'tokens.css'),
-      mergeTokens(contract, null, adapter, s),
+      mergeTokens(contract, layer, adapter, s),
     );
     copyFileSync(rules, join(dir, 'rules.md'));
     writeFileSync(

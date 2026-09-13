@@ -139,10 +139,12 @@
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| == contract + 该站 adapter 合并 | `mergeTokens(contract, sites/<站>/adapter, 站)` 的输出（含头部 `generated for site: … DO NOT EDIT` 行 + `:root` 体）== 该站预置 `tokens.css`（纯函数算期望、比对；**不跑 build:skill、不动 git**） | 机器 | 手改 hex、与合并结果不符 |
+| == contract + 该站 layer + 该站 adapter 三输入合并 | `mergeTokens(contract, sites/<站>/layout.css, sites/<站>/adapter, 站)` 的输出（含头部 `generated for site: … DO NOT EDIT` 行 + `:root` 体）== 该站预置 `tokens.css`（页面尺度层已**折入这一个 tokens.css**，ADR 0012 决策5；adapter 仍最后胜。纯函数算期望、比对；**不跑 build:skill、不动 git**） | 机器 | 手改 hex；或 layer 没折进去、与三输入合并结果不符 |
+| 含全量页面尺度（layer 全折入 + layout 四键） | 该站 `sites/<站>/layout.css` 的每个 `--stitch-*` 都在预置 `tokens.css` 里（`layer ⊆ tokens`，证明页面尺度层已折入——完整 `--stitch-space-*`、全字阶 `--stitch-text-<角色>`、`--stitch-space-unit`），且四个 layout 键（`--stitch-page-max-width` / `--stitch-section-gap` / `--stitch-card-padding` / `--stitch-element-gap`）均在 | 机器 | 只合了 contract+adapter、页面尺度层没折入；或漏了某个 layout 键 |
+| 间距别名 `--stitch-spacing-*` 解析到 `--stitch-space-*` | 每个 `--stitch-spacing-{xs,sm,md,lg,xl}` 的值是 `var(--stitch-space-N, 字面量)` 别名（P1，ADR 0012 决策2），且它引用的 `--stitch-space-N` 在**同一份** tokens.css 里已定义（层折入后别名可解析、不悬空） | 机器 | 别名引用的 `--stitch-space-N` 缺失、只能兜底回字面量（层没折入）；或别名被改成写死值 |
 | 顶部 DO NOT EDIT 行 | grep 首行含 `generated`+`DO NOT EDIT` | 机器 | 缺标记 → 验收 grep 兜不住 |
-| 单个 `:root` | `grep -c '^:root'` == 1 | 机器 | contract/adapter 两个 `:root` 直接拼 |
-| 全 `--stitch-*` 前缀 | 所有自定义属性名匹配 `^--stitch-` | 机器 | 混进 `--refero-*`/`--ant-*` |
+| 单个 `:root` | `grep -c '^:root'` == 1 | 机器 | contract/layer/adapter 多个 `:root` 直接拼 |
+| 全 `--stitch-*` 前缀（含折入的新层，即 H6） | 所有自定义属性名匹配 `^--stitch-`——折入的页面尺度层也只含 `--stitch-*`，不泄漏 `--text-*`/`--spacing-*`/站名/源 hex（H6 就在这条兜） | 机器 | 混进 `--refero-*`/`--ant-*`；或 layer 泄漏了源前缀 |
 | 派生 `color-mix()` 未被求值 | contract 里以 `color-mix()` 定义的派生 token，合并输出里**逐一仍是 `color-mix()`**（对派生集合**逐项**核，非「全文含 `color-mix` 即过」；某主题若 adapter 把某派生 token 覆盖成静态值，则该 token 不参与此检查） | 机器 | 派生被算成静态 `#...` → 换主题不跟随 |
 
 ### 7. `references/theme/design-rules.md`（生成 · 拷贝 · 全局单份）

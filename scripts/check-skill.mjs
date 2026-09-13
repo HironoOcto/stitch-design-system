@@ -80,8 +80,9 @@ const P = {
   reactTsconfig: resolve(root, 'packages/react/tsconfig.json'),
   skillsRefBin: resolve(root, 'node_modules/.bin/skills-ref'),
 };
-// Per-site source paths (adapter / rules / blurb), for recomputing each preset's expected.
+// Per-site source paths (layer / adapter / rules / blurb), for recomputing each preset's expected.
 const siteSrc = (s) => ({
+  layer: resolve(root, 'sites', s, 'layout.css'),
   adapter: resolve(root, 'sites', s, 'adapter.css'),
   rules: resolve(root, 'sites', s, 'rules.md'),
   blurb: resolve(root, 'sites', s, 'skill-blurb.md'),
@@ -439,16 +440,67 @@ check('§Presets', '§Presets', '发布默认站有 preset', () =>
 // =====================================================================
 for (const s of PRESET_SITES) {
   const src = readMaybe(presetFile(s, 'tokens.css'));
-  const { adapter } = siteSrc(s);
+  const { layer, adapter } = siteSrc(s);
   check('§6 tokens.css', '§6', `[${s}] exists`, () =>
     src !== null ? true : `missing ${presetFile(s, 'tokens.css')}`,
   );
   if (src === null) continue;
-  check('§6 tokens.css', '§6', `[${s}] == mergeTokens(contract, adapter)`, () =>
-    // layer=null matches build:skill this issue (page-scale layer fold-in is #24).
-    src === mergeTokens(P.contract, null, adapter, s)
-      ? true
-      : 'tokens.css != recomputed mergeTokens',
+  check(
+    '§6 tokens.css',
+    '§6',
+    `[${s}] == mergeTokens(contract, layer, adapter)`,
+    () =>
+      // Three-input fold-in (ADR 0012 决策5): the page-scale layer sits between contract
+      // and adapter, adapter still wins. layer = sites/<s>/layout.css (build:layout output).
+      src === mergeTokens(P.contract, layer, adapter, s)
+        ? true
+        : 'tokens.css != recomputed mergeTokens',
+  );
+  check(
+    '§6 tokens.css',
+    '§6',
+    `[${s}] 含全量页面尺度（layer 全折入 + layout 四键）`,
+    () => {
+      // The whole page-scale layer must be present in the one tokens.css — proven by
+      // layer ⊆ tokens (every --stitch-* the site's layout.css defines is folded in),
+      // so the AI reads one file and sees the complete scale (--stitch-space-*, the full
+      // --stitch-text-<role> type scale, --stitch-space-unit). Plus the stable four-key
+      // layout schema, which every publishable site carries.
+      const tokens = rootDecls(src);
+      const missing = [...rootDecls(readFileSync(layer, 'utf8')).keys()].filter(
+        (p) => !tokens.has(p),
+      );
+      const layoutKeys = [
+        '--stitch-page-max-width',
+        '--stitch-section-gap',
+        '--stitch-card-padding',
+        '--stitch-element-gap',
+      ].filter((k) => !tokens.has(k));
+      return missing.length || layoutKeys.length
+        ? `not folded in — layer props: [${missing.join(', ')}]; layout keys: [${layoutKeys.join(', ')}]`
+        : true;
+    },
+  );
+  check(
+    '§6 tokens.css',
+    '§6',
+    `[${s}] 间距别名 --stitch-spacing-* 解析到 --stitch-space-*`,
+    () => {
+      // P1 (ADR 0012 决策2): the contract's --stitch-spacing-{xs,sm,md,lg,xl} are aliases
+      // var(--stitch-space-N, 字面量). With the layer folded in, each referenced
+      // --stitch-space-N is now DEFINED in the same file → the alias resolves (no dangle).
+      const tokens = rootDecls(src);
+      const bad = [];
+      for (const [prop, val] of tokens) {
+        if (!/^--stitch-spacing-/.test(prop)) continue;
+        const ref = val.match(/var\((--stitch-space-\d+)/);
+        if (!ref)
+          bad.push(`${prop} not a var(--stitch-space-N,…) alias ("${val}")`);
+        else if (!tokens.has(ref[1]))
+          bad.push(`${prop} → ${ref[1]} unresolved (space token missing)`);
+      }
+      return bad.length ? bad.join('; ') : true;
+    },
   );
   check('§6 tokens.css', '§6', `[${s}] 首行含 generated + DO NOT EDIT`, () =>
     /generated.*DO NOT EDIT/.test(src.split('\n')[0])

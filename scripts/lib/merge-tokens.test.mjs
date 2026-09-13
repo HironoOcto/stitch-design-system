@@ -1,8 +1,9 @@
 // node --test — behavior of mergeTokens against the real contract + adapters.
-// Signature is now THREE inputs: mergeTokens(contract, layer, adapter, site),
+// Signature is THREE inputs: mergeTokens(contract, layer, adapter, site),
 // merge order contract → layer → adapter (adapter still wins). layer is nullable
-// (falsy → skipped) so the skill-preset / runtime call points keep their products
-// byte-identical this issue (ADR 0012; layer fold-in is #24 / #25). Guards H6 / H4.
+// (falsy → skipped): the skill presets now fold in a real layer (#24), while the
+// vite runtime call point still passes null until #25. Both paths covered below
+// (real-layer fold-in + nullable omission). ADR 0012. Guards H6 / H4.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';

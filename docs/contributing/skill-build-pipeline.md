@@ -329,7 +329,9 @@ stitch-design-system/
 
 ## 四、`build:skill` 生成逻辑（换主题重跑）
 
-> **⚠ [ADR 0010](../adr/0010-consume-time-theme-choice.md) 起产物结构已改（本节 §4.0–4.2/§4.4 为历史草稿）**：`build:skill` 不再只烤发布默认那**单套** `references/theme/{tokens.css,rules.md}` + 注入 SKILL.md 的 description/style-paragraph 两槽。现改为**预置全备**——为**每个可发布站**（#7）各生成 `references/theme-presets/<站>/{tokens.css, rules.md, style.md}`，全局 `design-rules.md` 单份留在 `references/theme/`，SKILL.md 只注入 `SLOT:default-site`（发布默认站名）；招牌散文下沉各预置 `style.md`、`description` 转主题中性、「哪套生效」由消费项目指针**读时解析**（[resolve-preset.mjs](../../scripts/lib/resolve-preset.mjs)）。合并/拷贝/注入的**确定性、幂等**性质不变。权威落点以 [ADR 0010](../adr/0010-consume-time-theme-choice.md) + [check-skill.mjs](../../scripts/check-skill.mjs) + [skill-acceptance.md](./skill-acceptance.md) 为准；下面单套描述保留作背景。
+> **⚠ [ADR 0010](../adr/0010-consume-time-theme-choice.md) 起产物结构已改（本节 §4.0–4.2/§4.4 为历史草稿）**：`build:skill` 不再只烤发布默认那**单套** `references/theme/{tokens.css,rules.md}` + 注入 SKILL.md 的 description/style-paragraph 两槽。现改为**预置全备**——为**每个可发布站**（#7）各生成 `references/theme-presets/<站>/{tokens.css, rules.md, style.md}`，全局 `design-rules.md` 单份留在 `references/theme/`，SKILL.md 只注入 `SLOT:default-site`（发布默认站名）；招牌散文下沉各预置 `style.md`、`description` 转主题中性、「哪套生效」由消费项目指针**读时解析**（[resolve-preset.mjs](../../scripts/lib/resolve-preset.mjs)）。合并/拷贝/注入的**确定性、幂等**性质不变。
+>
+> **⚠ [ADR 0012](../adr/0012-page-scale-layer.md) 决策5 起 `tokens.css` 是三输入折入**：每站预置 `tokens.css` = `mergeTokens(contract, sites/<站>/layout.css, sites/<站>/adapter.css, 站)`——页面尺度层（`build:layout` 产的 `layout.css`：完整 `--stitch-space-*`、全字阶 `--stitch-text-<角色>`、四个 layout 键）**折入这同一个文件**（不另开 `layout.css`），adapter 仍最后胜。这样 AI 读一个 token 文件即见完整尺度；契约的 `--stitch-spacing-*` 别名（`var(--stitch-space-N, …)`）也因此在同文件内解析得到。权威落点以 [ADR 0012](../adr/0012-page-scale-layer.md) + [check-skill.mjs](../../scripts/check-skill.mjs) §6 + [skill-acceptance.md](./skill-acceptance.md) §6 为准；下面单套 contract+adapter 描述保留作背景。
 
 `scripts/build-skill.mjs`，挂 `npm run build:skill`。**要点：把"非确定的 LLM 摘要"和"确定的纯文件操作"分开**——摘要每站**一次性**生成并存进 `sites/<站>/`，build:skill 本身只做**确定的合并/拷贝/注入**。这样重跑幂等,"换主题后其余文件 diff 为空"才立得住。
 
@@ -574,7 +576,7 @@ content never crowds the edges.
 |---|---|---|---|
 | **`build:blurb <site>`** | 自动抽 DESIGN.md 三段 → LLM → 写 `sites/<site>/skill-blurb.md`（§4.4①） | ❌ 非确定（含 LLM） | 每站一次 / DESIGN.md 变更时 |
 | **`build:refs`** | 组件源码 + FAMILIES 表 → `references/components/*.md` + 注入 catalog 片段到 SKILL.md/README 的 `<!-- SLOT:catalog -->`（§4.3） | ✅ 确定 | 组件 / 族增改时（主题无关） |
-| **`build:skill`** | 为每个可发布站备预置 `theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`（[ADR 0010](../adr/0010-consume-time-theme-choice.md)；旧版单套见 §4.1–4.4） | ✅ 确定，纯文件操作 | 改可发布站源 / 换发布默认 / 发布前 |
+| **`build:skill`** | 为每个可发布站备预置 `theme-presets/<站>/{tokens.css,rules.md,style.md}` + 全局 `theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`（[ADR 0010](../adr/0010-consume-time-theme-choice.md)；`tokens.css` 为 `mergeTokens(contract, layer, adapter)` **三输入折入页面尺度层**，[ADR 0012](../adr/0012-page-scale-layer.md) 决策5；旧版单套见 §4.1–4.4） | ✅ 确定，纯文件操作 | 改可发布站源 / 换发布默认 / 发布前 |
 
 **依赖关系**：`build:skill` 消费前两者的产物（`skill-blurb.md` 已存在、`references/components/` 已生成）。典型顺序——首次 `build:blurb` + `build:refs` 备好料 → 之后换主题只跑 `build:skill`。
 

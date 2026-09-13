@@ -49,10 +49,20 @@ Use only that one theme. Read its folder — `references/theme-presets/<active-t
 
 - `style.md` — how this theme looks and composes, in one paragraph. Read it first.
 - `tokens.css` — the complete `:root` of `--stitch-*` values. Use these exact values (via
-  `var(--stitch-*)`), never raw hex. Groups: backgrounds (`--stitch-bg-*`), text
-  (`--stitch-text-*`), accent/link (`--stitch-accent*`, `--stitch-link`), borders, radii
-  (`--stitch-radius-*`), shadows, fonts (`--stitch-font-*`), spacing, motion, control
-  heights, feedback (`danger/success/warning/info`), category slots (`--stitch-cat-1…6`).
+  `var(--stitch-*)`), never raw hex or a literal px. Groups: backgrounds (`--stitch-bg-*`),
+  text colors (`--stitch-text-primary/secondary/muted/on-accent/…`), accent/link
+  (`--stitch-accent*`, `--stitch-link`), borders, radii (`--stitch-radius-*`), shadows, fonts
+  (`--stitch-font-*`), motion, control heights, feedback (`danger/success/warning/info`),
+  category slots (`--stitch-cat-1…6`), and the **page-scale layer**: the full spacing scale
+  (`--stitch-space-4` … `--stitch-space-160` on a 4px grid, plus `--stitch-space-unit`), the
+  full type scale (`--stitch-text-<role>` with `--stitch-leading-*` / `--stitch-tracking-*`,
+  roles `caption`…`display`), and the four layout keys (`--stitch-page-max-width`,
+  `--stitch-section-gap`, `--stitch-card-padding`, `--stitch-element-gap`).
+
+  **Which scale to size pages with:** use `--stitch-space-*`, `--stitch-text-<role>`, and the
+  four layout keys — that is the complete page scale, with no upper cap. `--stitch-spacing-xs…xl`
+  and `--stitch-font-size-*` are component-internal aliases (the library's own components read
+  them); you do not reach for those when writing pages or custom UI.
 - `rules.md` — this theme's do/don't look rules (shapes, colors, when to use the accent).
 
 ## Components

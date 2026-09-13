@@ -534,26 +534,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/23
 
 > 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 2/3 步：`build:skill` 把页面尺度层**折入现有预置 `tokens.css` 一个文件** + `check:skill`/`check:boundary` 扩断言守住它 + `SKILL.md`/`react-project.md`/`standalone-html.md` 讲清 AI 心智（写页面用 `--stitch-space-*`/`--stitch-text-<角色>`/layout 键；`spacing-xs..xl`、`font-size-*` 是组件内部接口不用管）。依赖 #23。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 24 --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
-
-目标：页面尺度层折入 skill 预置 + 扩校验 + 消费文档。照 ADR 0012（决策 5：折入一个 tokens.css）+ skill-build-pipeline.md + skill-acceptance.md 执行，本段不复述步骤。
-
-本 issue 特殊点 —— 预置不另开文件：新层折进现有 references/theme-presets/<站>/tokens.css；字号/行高是组件【控件层】、与页面字阶 --stitch-text-<角色> 分层并存（非重复），文档讲清分工、不互相别名。
-
-红线（结构 Hook，须全绿，可 grep）：H3（skill 自包含：零外链、每值嵌 references/、换主题散文零改，check:skill 扩到新层仍全绿）；H6/H4/H2（三输入合并单一 :root、新层只 --stitch-*、别名解析）；SKILL.md 规格不破（name/desc≤1024 / <500 行 / <5000 token / 引用一层深）。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. npm run build:skill 后抽当前生效主题预置 tokens.css：一个文件内同含 --stitch-space-160 / --stitch-text-<角色> 全梯 / layout 四键 / --stitch-spacing-md: var(--stitch-space-12, 12px) 别名。
-2. npm run check:skill 全绿（新断言：tokens==三输入 mergeTokens + 含全量尺度 + 别名可解析）；npm run check:boundary 零越界。
-3. 过 #29 skill-acceptance.md 对应节（tokens.css 断言、props==源不变、幂等、换主题 diff 收敛）。
-4. 读 SKILL.md / react-project.md / standalone-html.md 改后段落，确认 AI 心智表述正确、无 spacing 封顶误导、react-project boilerplate 硬编码示例已改 var()。
-5. npm run ci 八步全绿。
-6. 执行报告两块表：① 结构 Hook（H3/H6/H4/H2）全 🟢；② 真实 case dry_run（预置 tokens.css 折入 + check:skill 开篇↔结尾达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#24) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `5c9419e`，2026-09-13）。落地 ADR 0012 第 2/3 步（决策5，折入一个 `tokens.css`）：① `build:skill` 预置 `tokens.css` 改三输入 `mergeTokens(contract, sites/<站>/layout.css, adapter, 站)`——页面尺度层折入同一文件（不另开 `layout.css`），adapter 仍最后胜，三站预置重生成入库；② `check:skill §6` 合并断言改三输入 + 新增「含全量页面尺度（layer ⊆ tokens + layout 四键）」「间距别名 `--stitch-spacing-*` 解析到 `--stitch-space-*`」两断言（×3 站，70→76）；H6（折入层只 `--stitch-*`）由 §6 前缀断言在合并文件上兜，`check:boundary` 零越界；③ 消费文档 SKILL.md（token 组补全量尺度 + AI 心智：写页面用 `--stitch-space-*`/`--stitch-text-<角色>`/layout 四键，`spacing-xs..xl`/`font-size-*` 是组件内部接口 + 去 spacing 封顶误导）、react-project.md（boilerplate 硬编码 1200/32/16 → `var()` + 页面尺度指引）、standalone-html.md（never-literal 清单点名 spacing/layout/字阶）；④ 契约文档 skill-acceptance.md §6、skill-build-pipeline.md §4 现状注 + §4.5 表行同步三输入折入，merge-tokens 相邻旧注释校准（#24 已折入、vite 待 #25）。**① 结构 Hook**：H3（`check:skill ✓ 76/76`；SKILL.md 98 行/body 1296 tok/desc 730 均达标）/ H6（三站 `grep -v stitch-` 零命中 + `check:boundary ✓`）/ H4（`§6 单 :root`+`color-mix() 未求值`）/ H2（别名解析 ×3 站）全 🟢。**② 真实 dry_run**（生效主题 seline）：预置 `tokens.css` 一个文件内同含 `--stitch-space-160`/全字阶 `--stitch-text-<角色>`/layout 四键/`--stitch-spacing-md: var(--stitch-space-12, 12px)` **+** 其目标 `--stitch-space-12:12px`（改前别名悬空）🟢；`check:skill` 折入后先 RED（3 站 mergeTokens 不符）→ 扩断言后 76/76 🟢；`npm run ci` 八步 EXIT 0（test:run 709 / test:a11y 147 / build）🟢。**范围外**：运行时/demo 重排归 #25。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/24
 依赖：#23（页面尺度层地基）。可与 #25 并行（#24 碰预置/文档、#25 碰运行时/demo，互不重叠）。

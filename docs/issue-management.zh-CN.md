@@ -523,25 +523,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
 
 > 落地 [ADR 0012](./adr/0012-page-scale-layer.md)（已接受）第 1/3 步：页面尺度层地基 = ① `build:layout` 从每站 `source/variables.css` 确定性生成 `sites/<site>/layout.css`（layout 四键 + `--stitch-space-*` + `--stitch-text/leading/tracking-<角色>`，缺则不提供）+ ② `mergeTokens` 扩三输入（contract+layer+adapter，adapter 最后胜）+ ③ `contract.css` 间距旧名退化为 `var(--stitch-space-N, 旧值)` 别名。引入 **H6**；阻塞 #24 / #25。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 23 --comments
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025。
-
-目标：建页面尺度层地基（生成器 + 三输入合并 + 契约间距别名 + 单测 + 正本文档同步）。照 ADR 0012「决策」+ multi-site-theming §9.4（新增 §9.4.4 页面尺度层·生成）执行，本段不复述步骤。
-
-本 issue 特殊点 —— 新层是【生成·非手写】：零裁值判断，仅三条归一化（phantom element-gap 取下界 8px / saybriefly 8px 基走 4px 网格 / spacing-unit 作元数据）。P1：组件一字不改、间距旧名退化别名、值恒等。本 issue 不碰 skill 预置用法（归 #24）/ 运行时·demo（归 #25），但 mergeTokens 签名变更要同步 build-skill/虚拟模块调用点、保持其产物不变使 ci 绿。
-
-红线（结构 Hook，须全绿，可 grep）：H6（layout.css 幂等 + DO NOT EDIT + 只含 --stitch-* + 缺角色不生成；mergeTokens 三输入 adapter 胜）；H4（三输入合并仍单一 :root + 派生 var()/color-mix() 不求值）；H2（新 token 皆 --stitch-*；spacing-xs..xl 别名仍解析出原值、组件零行为变更）；H1（check:boundary 三层零越界、脚本零写死站名走 listPublishableSites）。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. npm run build:layout 出四可发布站 layout.css；抽 steep 核 --stitch-space-160 / --stitch-text-display:90px / --stitch-leading-display:1.3 / --stitch-section-gap:80px、phantom 核 --stitch-element-gap:8px（区间归一）、seline 核无 --stitch-text-body（缺则不提供）。
-2. npm run build:tokens 自证合并 :root 同含 --stitch-space-*（新层）+ --stitch-spacing-md: var(--stitch-space-12, 12px)（别名）+ adapter 覆盖正确。
-3. npm run test:units 全绿（extract-layout / merge-tokens / build-layout 三测）。
-4. npm run ci 八步全绿（尤其 check:boundary / lint / test:run / test:a11y——组件 P1 值恒等反证）。
-5. 执行报告两块表：① 结构 Hook（H6/H4/H2/H1）全 🟢；② 真实 case dry_run（build:layout + build:tokens 开篇↔结尾合并产物达预期）🟢。
-
-收尾门：用户验收通过后才 commit(#23) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + 文档声明的对外契约）。
-```
+> ✅ 已完成并 close（commit `9b8e3a6`，2026-09-13）。页面尺度层地基落地 ADR 0012 第 1/3 步：① 新增 `scripts/lib/extract-layout.mjs`（纯映射 + 三条归一化：phantom element-gap 区间取下界 8px / saybriefly 8px 基走 4px 网格 / spacing-unit 作元数据；缺角色不生成）+ `scripts/build-layout.mjs` + `build:layout`，对每个可发布站（`listPublishableSites`，当前 phantom/seline/steep）写 `sites/<site>/layout.css`（`DO NOT EDIT` 头、只含 `--stitch-*`、committed）；② `mergeTokens` 扩三输入 `(contract, layer, adapter, site)`、`layer` 可空、adapter 最后胜——`build-tokens` 传真 layer 自证，`build-skill`/`check-skill`/`vite` 虚拟模块传 `null`（产物逐字节不变，折入预置归 #24、运行时/demo 重排归 #25）；③ `contract.css` 间距 5 行退化为 `var(--stitch-space-N, 旧值)` 别名（P1 值恒等、组件零行为变更）。文档正本同步：multi-site-theming §9.4.4、design-rules 规则1、maintainer-runbook（build:layout 步 + 命令速查）、onboard-site（两手写 + 一生成）、issue-management H6 校准。**① 结构 Hook**：H6 / H4 / H2 / H1 全 🟢（`build-layout.test`(6)+`extract-layout.test`(13)+`merge-tokens.test`(12) grep 断言；layout.css 落 check:boundary `sites/*` 豁免区）。**② 真实 dry_run**：build:layout（steep `space-160`/`text-display:90px`/`leading-display:1.3`/`section-gap:80px`、phantom `element-gap:8px` 区间归一、seline 无 `text-body`）+ build:tokens（新层 + 别名 `spacing-md: var(--stitch-space-12,12px)` + adapter 覆盖）🟢；`npm run ci` 八步全绿（EXIT 0，test:run 709 / test:a11y 147 反证组件零行为变更）🟢。**范围外**：phantom 的 `skill-blurb.md`/`theme-presets` 属另一在途 WIP，本 commit 未含（`phantom/layout.css` 已含）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/23
 依赖：无（ADR 0012 已接受，可立即领取）。阻塞 #24 / #25。

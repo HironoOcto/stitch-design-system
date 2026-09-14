@@ -73,5 +73,9 @@ _Avoid_: 分类、category（英文文件名用 family）
 SKILL.md / README 里用 HTML 注释圈出的、由 `build:refs` 自动注入"族 → 成员"表的区间。族信息的单一真相是 `component-families.md`。
 
 **Demo 站（可导航平台）**：
-`demo/` —— 本地开发预览平台：侧栏按族分组、顶栏切站、内容区渲染当前组件（hash 路由 `#/<X>`）。外壳（侧栏/顶栏/内容）与组件一律只读角色变量，切站**整站换肤**（方案 B）。侧栏 = **族表 ∩ `demo/components/*`** 自动派生（空族不显示；丢一个 `demo/components/<X>/` 即自动上架）。**全站都挂**、引源不引产物、不受 `activeSite` 限制。见 [demo 站文档](./docs/contributing/demo-site.md)。
-_Avoid_: 最小渲染台（旧范围，已升级）；把切换器当运行时换肤（那是不做的 A 方案）
+`demo/` —— 本地开发预览平台：侧栏按**二级大类**分组（`COMPONENTS` / `LAYOUT`）、顶栏切站、内容区渲染当前条目（hash 路由 `#/<X>`）。外壳（侧栏/顶栏/内容）与组件一律只读角色变量，切站**整站换肤**（方案 B）。`COMPONENTS` 大类 = **族表 ∩ `demo/components/*`** 自动派生（空族不显示；丢一个 `demo/components/<X>/` 即自动上架）；`LAYOUT` 大类 = **`demo/layouts/*` 直接列**（独立发现支路，不经族表，见 **版式样例**）。**全站都挂**、引源不引产物、不受 `activeSite` 限制。见 [demo 站文档](./docs/contributing/demo-site.md)。
+_Avoid_: 最小渲染台（旧范围，已升级）；把切换器当运行时换肤（那是不做的 A 方案）；把 `LAYOUT` 大类混进族表（版式样例不是组件、不属于任何族）
+
+**版式样例（layout showcase）**：
+demo `LAYOUT` 大类下的一条条目：把**真组件**（从 `@octohirono/stitch-design-system` import，非手写重写）组合成一个**整页**，压满**页面尺度层**四键 + 整条字阶，跨主题切站看**综合换肤效果**。区别于展示**孤立组件**的组件页——版式样例看的是「一整个网站页面在各主题下长什么样」。落 `demo/layouts/<slug>/index.tsx`（`default` 示例 + 具名 `meta`，与组件页对称），走 **full-bleed**（内容区不套 `.page` 框、不注入标题、贴边全宽，样例自己收 `page-max-width` 居中）。**demo-only**：不进 `build:refs`/skill、不碰族表、不新增结构 Hook；验收走独立文档 [layout-showcase-acceptance.md](./docs/contributing/layout-showcase-acceptance.md)。首个样例 = **落地页（landing）**。连接件（hero 外壳 / section 网格）可手写但**只读 `var(--stitch-*)`**。
+_Avoid_: 把它当组件页（那是孤立组件 + `.page` 框）；塞进 `demo/components/` 或族表；连接件里硬编码主题值

@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { sites, setSite, getSite } from './theme';
-import { nav, demos } from './registry';
+import { nav, layouts, layoutMembers, allDemos } from './registry';
 import './shell.less';
 
 function useHashRoute(): string {
@@ -33,34 +33,50 @@ export default function App() {
 
   // 默认落到第一个已建组件（没有路由或路由无效时）
   const firstKey = nav[0]?.members[0]?.key;
-  const activeKey = demos[route] ? route : firstKey;
-  const active = activeKey ? demos[activeKey] : undefined;
+  const activeKey = allDemos[route] ? route : firstKey;
+  const active = activeKey ? allDemos[activeKey] : undefined;
+  // 版式样例走 full-bleed 分支（内容区不套 .page 框、贴边全宽）。
+  const isLayout = activeKey ? activeKey in layouts : false;
+
+  const renderMember = (m: { key: string; label: string }) => (
+    <li key={m.key}>
+      <a
+        href={`#/${m.key}`}
+        className={
+          'shell__member' +
+          (m.key === activeKey ? ' shell__member--active' : '')
+        }
+      >
+        {m.label}
+      </a>
+    </li>
+  );
 
   return (
     <div className="shell">
       <aside className="shell__sidebar">
         <div className="shell__brand">stitch</div>
         <nav className="shell__nav">
+          <div className="shell__cat">COMPONENTS</div>
           {nav.map((group) => (
             <div key={group.family} className="shell__group">
               <div className="shell__group-title">{group.family}</div>
               <ul className="shell__member-list">
-                {group.members.map((m) => (
-                  <li key={m.key}>
-                    <a
-                      href={`#/${m.key}`}
-                      className={
-                        'shell__member' +
-                        (m.key === activeKey ? ' shell__member--active' : '')
-                      }
-                    >
-                      {m.label}
-                    </a>
-                  </li>
-                ))}
+                {group.members.map(renderMember)}
               </ul>
             </div>
           ))}
+
+          {layoutMembers.length > 0 && (
+            <>
+              <div className="shell__cat">LAYOUT</div>
+              <div className="shell__group">
+                <ul className="shell__member-list">
+                  {layoutMembers.map(renderMember)}
+                </ul>
+              </div>
+            </>
+          )}
         </nav>
       </aside>
 
@@ -85,15 +101,24 @@ export default function App() {
           </label>
         </header>
 
-        <main className="shell__content">
+        <main
+          className={
+            'shell__content' + (isLayout ? ' shell__content--bleed' : '')
+          }
+        >
           {active ? (
-            <article className="page">
-              <h1 className="page__title">{active.meta.title}</h1>
-              <p className="page__desc">{active.meta.description}</p>
-              <div className="page__examples">
-                <active.Component />
-              </div>
-            </article>
+            isLayout ? (
+              // 版式样例：full-bleed，不注入标题/描述，贴边全宽，样例自收居中。
+              <active.Component />
+            ) : (
+              <article className="page">
+                <h1 className="page__title">{active.meta.title}</h1>
+                <p className="page__desc">{active.meta.description}</p>
+                <div className="page__examples">
+                  <active.Component />
+                </div>
+              </article>
+            )
           ) : (
             <p className="shell__empty">
               还没有已建的 demo 组件。丢一个 demo/components/&lt;X&gt;/

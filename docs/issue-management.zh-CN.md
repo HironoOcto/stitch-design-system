@@ -552,6 +552,17 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/25
 
 ---
 
+## #26（AFK）：版式样例 —— demo 二级导航 + 落地页 showcase + 验收文档
+
+> 一个交付 = demo 二级导航（COMPONENTS/LAYOUT）+ 落地页版式样例（真组件组合、full-bleed）+ 独立验收文档 `layout-showcase-acceptance.md`。
+
+> ✅ 已完成并 close（commit `83d1b23`，2026-09-14，用户验收通过）。版式样例（layout showcase）三块一并：**demo 二级导航** COMPONENTS/LAYOUT（LAYOUT = 独立发现支路 `demo/layouts/*/index.tsx`、不经族表、丢文件夹即自动上架，与组件页对称；shell 内容分支 components 套 `.page` / layout 走 **full-bleed**——零 padding、贴边全宽、不注入标题描述）+ **落地页** `demo/layouts/landing/`（全真组件组合，仅连接件 `Band`/`Brand`/网格手写且只读 `var(--stitch-*)`；压满页面尺度层四键 + display→caption 整条字阶；三站 seline/steep/phantom 综合换肤含**图表 cat 色跟随**；fluid-graceful 折行不破版）+ **验收文档** `docs/contributing/layout-showcase-acceptance.md`（8 维度，结构照 demo-acceptance.md）。CONTEXT.md 落「版式样例」术语。**demo-only**：不进 build:refs/skill、不碰族表、不新增结构 Hook（`check:boundary` 本就豁免 `demo/`，连接件红线靠人眼+grep 兜）。**结构 Hook**（可 grep）：H2 连接件无硬编码主题值 / H1 无源主题残留 / 无 emoji·裸 svg·Unicode（中文「」全角）全 🟢；`npm run ci` EXIT 0。**用户验收轮修（连接件内，未越界）**：导航条 tight bar + `Brand` 徽标 logo；页脚多列 + 列标题 `subheading` + 标题/链接左对齐 + 去 space-between 空谷；区块节奏每带各出半个 `section-gap`（去 2× 松垮）；眉标 `caption`→body kicker；Feature 图标块改中性面（修 seline `bg-accent`+`text-on-accent` 2.29:1 低对比）；CTA 改 `bg-inverted` 暗带 + 浅色 `default` 按钮（修 phantom `accent`≈`bg-accent` 按钮隐形）；StatGroup 去重复 18；证言全角「」；高亮定价卡 accent 环 + `shadow-lg` 抬升 + `Tag`「最受欢迎」角标；Hero `text-wrap: balance` 消孤字；验收文档同步补强维度 3（层级不倒挂/caption 不当标题）、4（逐站对比可读）、8（节奏均衡 + 骨架件成型）。**待另开 issue**（根在 site adapter / 组件层，本 demo-only issue 不动手，showcase 忠实暴露各站 token/组件真实对比问题）：steep `--stitch-cat-*` 图表对白底不可辨（高）/ phantom `--stitch-accent` 太浅 primary 角色失效（高，连带高亮卡 CTA / 主次不分）/ primary 按钮外轮廓 <3:1（中）/ steep soft Tag 无色块边界（中）。两块表见 GH #26 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/26
+依赖：#23–#25（页面尺度层四件套 + demo 切站重排）均已完成，可立即领取。
+
+---
+
 # 待建 issue（依赖未就位，暂不领取）
 
 > 依赖到位后补建 GH issue（`[stitch]` 前缀 + `ready-for-agent`），并把 AFK prompt 挪到上面「各 issue 的 prompt」。

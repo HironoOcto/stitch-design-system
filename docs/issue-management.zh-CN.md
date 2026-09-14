@@ -563,6 +563,88 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/26
 
 ---
 
+## #27（AFK）：landing 分发管道 + steep 版 —— 按 active-site 分结构支
+
+> 一个交付 = demo「Landing」按 active-site 分发到 per-site 落地页 + steep 版（**读 skill 自行设计**，不喂设计）。#28/#29 依赖它。Parent #26。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 27 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：把 demo「Landing」showcase 改为**按 active-site 分发到 per-site 落地页**，并交付 **steep 版**。① 分发管道：demo/layouts/landing/ 按 data-site 反应式分发（切站即切该站 landing；seline/phantom 由 #28/#29 补，本 issue 先占位/回退）。② steep 落地页：真组件（基元 Button/Card/Avatar/Stat/Line·BarChart/Accordion/Tag/Icon/Divider…，经 @octohirono/stitch-design-system import，即 demo 既有引入方式）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer）；区块外壳等连接件手写、只读 var(--stitch-*)。区块不是可 import 的组件，是真组件+连接件组合出来的。
+
+关键（站在使用者角度）：设计一律你自己读 skill 得出——本 prompt 与 issue 刻意都不喂任何设计决定。像真实 skill 使用者那样，读 skills/stitch-design-system/references/theme-presets/steep/（style.md 先读、再 rules.md），自己判定 steep 的导航形态/卡片/阴影/配色/字重/强调手法，自己设计、自己踩坑——这正是本 issue 要验的：agent 读 skill 能否建对该站 UI。
+
+边界：demo-only——不进 build:refs/skill、不碰族表、不新增结构 Hook；「连接件读 data-site」是 demo showcase 的受控例外。尊重原站长相：不改 sites/*/adapter.css、不按通用 a11y「纠正」steep 刻意的配色/对比（原站设计）。
+
+红线（可 grep）：连接件只读 var(--stitch-*)、无硬编码主题值（hex/圆角/字体）；无源主题残留；无 emoji/裸 svg/Unicode（图标走 <Icon>）。
+
+验收（真实验收禁糊弄）：
+1. demo 真实浏览器：切 steep，「Landing」是完整落地页、全真组件、连接件只读 var；console 无 warn/error。
+2. 逐条对照 theme-presets/steep/rules.md 的 Do/Don't 自证符合（都由你读 skill 判定，非照抄本 prompt）。
+3. 分发管道就位：切主题切换器即切该站 landing。
+4. 未改任何 adapter.css；npm run ci 全绿。
+
+收尾门：用户验收通过后才 commit(#27) + close + GH 评论登记执行报告（含逐条 rules.md 对照）。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 分发管道 + steep 落地页逐条贴 theme-presets/steep/rules.md）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/27
+依赖：#26（版式样例地基，已完成）。#28/#29 依赖本 issue 的分发管道。可立即领取。
+
+---
+
+## #28（AFK）：landing · seline 版 —— 读 skill 完成 seline 落地页
+
+> 在 #27 分发管道之上，**读 skill 的 seline 主题自行设计**并完成 seline 落地页。Parent #26。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 28 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+前置：#27 的 landing 分发管道须已并入（切站即切 per-site landing）。
+
+目标：为 seline 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer），连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
+
+关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。读 theme-presets/seline/（style.md 先、rules.md 后），像真实使用者那样自行判定 seline 的一切长相，自己设计、自己踩坑。
+
+边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」seline 刻意配色、只读 var、无 emoji/裸 svg/Unicode）。
+
+验收：切 seline，Landing 完整落地页、全真组件、连接件只读 var、console 干净；逐条对照 theme-presets/seline/rules.md 自证；未改 adapter；npm run ci 全绿。
+
+收尾门：用户验收通过才 commit(#28)+close+GH 登记执行报告（含逐条 rules.md 对照）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
+依赖：#27（landing 分发管道）。
+
+---
+
+## #29（AFK）：landing · phantom 版 —— 读 skill 完成 phantom 落地页
+
+> 在 #27 分发管道之上，**读 skill 的 phantom 主题自行设计**并完成 phantom 落地页。Parent #26。（注：与旧 study 仓 #29 撞号，靠 Issue URL 区分。）
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 29 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+前置：#27 的 landing 分发管道须已并入（切站即切 per-site landing）。
+
+目标：为 phantom 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块，连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
+
+关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。读 theme-presets/phantom/（style.md 先、rules.md 后），像真实使用者那样自行判定 phantom 的一切长相（含 light-on-light 等原站刻意做法），自己设计、自己踩坑。
+
+边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」phantom 刻意配色/对比、只读 var、无 emoji/裸 svg/Unicode）。
+
+验收：切 phantom，Landing 完整落地页、全真组件、连接件只读 var、console 干净；逐条对照 theme-presets/phantom/rules.md 自证；未改 adapter；npm run ci 全绿。
+
+收尾门：用户验收通过才 commit(#29)+close+GH 登记执行报告（含逐条 rules.md 对照）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/29
+依赖：#27（landing 分发管道）。
+
+---
+
 # 待建 issue（依赖未就位，暂不领取）
 
 > 依赖到位后补建 GH issue（`[stitch]` 前缀 + `ready-for-agent`），并把 AFK prompt 挪到上面「各 issue 的 prompt」。

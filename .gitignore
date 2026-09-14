@@ -13,3 +13,6 @@ packages/react/dist/
 # 构建期本地台账（从不入库、绝不删除、逐条清账；见 issue-management.zh-CN.md）
 /预建笔记.md
 /迁移笔记.md
+
+# tool artifacts (playwright MCP session dumps)
+.playwright-mcp/

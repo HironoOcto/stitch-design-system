@@ -573,7 +573,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/26
 
 目标：把 demo「Landing」showcase 改为**按 active-site 分发到 per-site 落地页**，并交付 **steep 版**。① 分发管道：demo/layouts/landing/ 按 data-site 反应式分发（切站即切该站 landing；seline/phantom 由 #28/#29 补，本 issue 先占位/回退）。② steep 落地页：真组件（基元 Button/Card/Avatar/Stat/Line·BarChart/Accordion/Tag/Icon/Divider…，经 @octohirono/stitch-design-system import，即 demo 既有引入方式）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer）；区块外壳等连接件手写、只读 var(--stitch-*)。区块不是可 import 的组件，是真组件+连接件组合出来的。
 
-关键（站在使用者角度）：设计一律你自己读 skill 得出——本 prompt 与 issue 刻意都不喂任何设计决定。像真实 skill 使用者那样，读 skills/stitch-design-system/references/theme-presets/steep/（style.md 先读、再 rules.md），自己判定 steep 的导航形态/卡片/阴影/配色/字重/强调手法，自己设计、自己踩坑——这正是本 issue 要验的：agent 读 skill 能否建对该站 UI。
+关键（站在使用者角度）：设计一律你自己读 skill 得出——本 prompt 与 issue 刻意都不喂任何设计决定。像真实 skill 使用者那样，按 SKILL.md 读 steep 主题的全部 preset 文件 skills/stitch-design-system/references/theme-presets/steep/（style.md 先读、rules.md，再 composition.md——合成层补充：氛围铺底/明暗幕/图像材质/字形设备/拒绝清单；**composition.md 可选，按合成层方法论某站可能不存在，存在则必读、不存在就只读前两份**），自己判定 steep 的导航形态/卡片/阴影/配色/字重/强调手法，自己设计、自己踩坑——这正是本 issue 要验的：agent 读 skill 能否建对该站 UI。
 
 边界：demo-only——不进 build:refs/skill、不碰族表、不新增结构 Hook；「连接件读 data-site」是 demo showcase 的受控例外。尊重原站长相：不改 sites/*/adapter.css、不按通用 a11y「纠正」steep 刻意的配色/对比（原站设计）。
 
@@ -605,7 +605,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/27
 
 目标：为 seline 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer），连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
 
-关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。读 theme-presets/seline/（style.md 先、rules.md 后），像真实使用者那样自行判定 seline 的一切长相，自己设计、自己踩坑。
+关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。按 SKILL.md 读 seline 主题的全部 preset 文件 theme-presets/seline/（style.md 先、rules.md，再 composition.md——合成层补充；**composition.md 可选，按方法论某站可能不存在，有则必读、无则只读前两份**），像真实使用者那样自行判定 seline 的一切长相，自己设计、自己踩坑。
 
 边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」seline 刻意配色、只读 var、无 emoji/裸 svg/Unicode）。
 
@@ -631,7 +631,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
 
 目标：为 phantom 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块，连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
 
-关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。读 theme-presets/phantom/（style.md 先、rules.md 后），像真实使用者那样自行判定 phantom 的一切长相（含 light-on-light 等原站刻意做法），自己设计、自己踩坑。
+关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。按 SKILL.md 读 phantom 主题的全部 preset 文件 theme-presets/phantom/（style.md 先、rules.md，再 composition.md——合成层补充；**composition.md 可选，按方法论某站可能不存在，有则必读、无则只读前两份**），像真实使用者那样自行判定 phantom 的一切长相（含 light-on-light 等原站刻意做法），自己设计、自己踩坑。
 
 边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」phantom 刻意配色/对比、只读 var、无 emoji/裸 svg/Unicode）。
 
@@ -642,6 +642,93 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/29
 依赖：#27（landing 分发管道）。
+
+---
+
+## #30（AFK）：合成层「生成+验证」闭环 —— emergent-probe + 验收协议 + onboard-composition playbook + ADR 0013
+
+> 一个交付 = 给任意站产出并验收 composition.md（合成层补充）的可复用闭环，与 adapter/rules 的 onboard-site 生成 + review 验证对齐。只落「能生成+能验证」，不碰出图消费。#31/#32 依赖它。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 30 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+目标：立起「合成层（composition trait）生成 + 验证」的可复用闭环。合成层 = 一个站长相的第二个来源——source/DESIGN.md（Refero 存档）只覆盖值槽，对合成层（氛围铺底/明暗幕/辉光/图像材质处理/字形设备/拒绝清单）系统性漏、甚至写反（steep 把满屏位图渐变+颗粒+暗区判成「no abstract graphics」）。本 issue 只落「能生成+能验证」，不碰出图消费（#31/#32）。照 docs/contributing/emergent-layer-acceptance.md（验收协议·已落）+ CONTEXT.md「值槽 vs 合成层」（已落）执行，本段不复述判据。
+
+交付：① ADR 0013（合成层=第二风格源 + 单槽判据，类比 ADR 0012；含 composition.md 可选·不进四件套、DESIGN.md 存档不改·勘误由 composition.md 覆盖）；② 生成 playbook docs/contributing/onboard-composition.md（严格对齐 onboard-site.md 结构，<site> 换名即用）——**运动员/裁判分离，两份独立 prompt、两个 agent（不得既当运动员又当裁判）**：「## 执行 prompt」运动员=AI 真站→跑 scripts/emergent-probe.js→写 sites/<site>/composition.md（含 DESIGN.md 勘误登记）；「## 复核」裁判=另派 agent 照 docs/contributing/emergent-layer-acceptance.md（已落，扮演 onboard-site-review.md 的裁判清单角色）逐条走、只出「通过/需改动+必改项」结论、不改产物；③ docs/design-system/multi-site-theming.md 补合成层正本节 §9.x；④ 对 steep 跑一遍流程，sites/steep/composition.md（已落首版）过验收协议定稿。
+
+红线（结构 Hook，须全绿，可 grep）：H1 自包含（无迁移源残留/无外来 --var 前缀）；H2 只读 --stitch-*（本 issue 纯文档 + composition.md，不引入组件改动）；探针脚本零写死站名（<site> 参数化）。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. ADR 0013 就位，决策/取舍/替代明确，与 ADR 0012 同构。
+2. onboard-composition.md 可复用（<site> 换名即用），且运动员/裁判分离：「执行 prompt」（跑探针+写 composition.md）与「复核 prompt」（另派 agent 照 emergent-layer-acceptance.md 出结论、不改产物）为两份独立 prompt，对齐 onboard-site.md。
+3. 真跑：对 steep 真站跑 emergent-probe.js → sites/steep/composition.md 过 emergent-layer-acceptance.md（探针每条被反映或显式拒绝，零未回应）。
+4. multi-site-theming §9.x 正本 + CONTEXT.md 术语齐、文档互链无死链；composition.md 明确可选、build:skill/check:skill 不因缺它而红。
+5. 执行报告两块表：① 结构 Hook（H1/H2）全 🟢；② 真实 case（steep 流程跑通 + 过验收）🟢。
+
+收尾门：用户验收通过后才 commit(#30) + close + GH 评论登记执行报告。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 验收协议 + onboard-composition playbook 契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/30
+依赖：无，可立即领取。#31/#32 依赖本 issue。
+
+---
+
+## #31（AFK）：合成层进消费 —— composition.md 自成第 4 个 preset 文件（AI 读它，纯散文通道）
+
+> composition.md 接进 skill 消费通道：自成第 4 个 preset 文件（纯散文，与 rules.md/style.md 同类），AI 生成 UI 时读到合成层。**零 token 槽、零契约/组件改动。** #32 依赖它。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 31 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+前置：#30 的 sites/steep/composition.md 与验收协议须已就位。
+
+目标：把 composition.md（合成层补充）接进 skill 消费通道——纯散文通道，让 AI 生成 UI 时像读 rules.md/style.md 一样读到合成层（氛围铺底/明暗幕/图像材质/字形设备/拒绝清单，即 DESIGN.md 没覆盖、rules.md 也没有的那层）。① composition.md 自成第 4 个 preset 文件：scripts/build-skill.mjs 条件拷贝（sites/<site>/composition.md 存在则拷进 references/theme-presets/<site>/composition.md）、scripts/check-skill.mjs 条件 parity（源在则字节相等、源无则 preset 无）+ 幂等/换主题隔离文件表纳入；② SKILL.md「Active theme」从「读这三个文件（style/tokens/rules）」→ 四个，加一条让 AI 读 composition.md。同步 Hook H7（合成层 preset 不变量）+ skill-acceptance.md（#29 spec）补机器档 + skill-build-pipeline.md 补 ⑥。构建/校验细节照 skill-build-pipeline.md + skill-acceptance.md 正本，本段不复述。
+
+本 issue 特殊点：纯散文通道——不加任何 token 槽、不改 contract/adapter/组件（合成层里可 token 化的部分留作后续，与并行 #27 的字重模型不冲突）；composition.md 可选 → parity 必须条件化（勿升「可发布四件套」）。
+
+红线（结构 Hook，须全绿，可 grep）：H3 skill 自包含（check:skill 全绿）；新增 H7 合成层 preset 不变量；SKILL.md 引用一层深/无外链。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. build:skill 为有 composition.md 的站在 preset 拷出字节相等副本；无源站 preset 无该文件。
+2. check:skill 新增条件 parity + Hook H7 全绿；破坏演示（改 preset 副本/删源留 preset/改源）各触发对应红。
+3. SKILL.md 指引 AI 读 composition.md；引用一层深/自包含/换主题隔离不破。
+4. 过 #29 skill-acceptance.md 对应节（composition.md 机器档）；以 steep 为例（源由 #30 产出），composition.md 在 AI 可读的 preset 文件清单里。
+5. npm run ci 全绿；执行报告两块表：① H3/H7+ci 全 🟢；② 有源站 preset 有副本 / 无源站无 🟢。
+
+收尾门：用户验收通过后才 commit(#31) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + preset parity 契约）。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/31
+依赖：#30（生成方法论 + steep/composition.md 作消费输入）。
+
+---
+
+## #32（AFK）：其余三站产出 composition.md（跑 onboard-composition playbook）
+
+> 跑 #30 的 onboard-composition playbook（运动员/裁判分离），为 seline/phantom/saybriefly 各产出 composition.md，随 #31 preset 通道带进 skill。纯应用方法论、无新机制、零 token 槽。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 32 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+前置：#30 playbook + #31 preset 通道就位。
+
+目标：跑 #30 的 onboard-composition playbook，为 seline/phantom/saybriefly 各产出 sites/<site>/composition.md，随 #31 的 build:skill preset 通道带进 skill。纯应用方法论——不加 token 槽、不改契约/组件。每站按 playbook 的运动员/裁判分离执行：运动员对真站跑 scripts/emergent-probe.js → 写 composition.md（含 DESIGN.md 勘误登记）；另派裁判照 docs/contributing/emergent-layer-acceptance.md 复核、只出结论。（seline 真站已验证合成层基本忠实、补充最少；phantom 明暗摆荡+辉光、saybriefly 手绘铺底+多层 glow 需登记。）照 #30 playbook 执行，本段不复述。
+
+红线（结构 Hook，须全绿，可 grep）：H3 skill 自包含（check:skill 全绿）；H7 合成层 preset 不变量；探针零写死站名（<site> 参数化）。
+
+验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
+1. seline/phantom/saybriefly 三站 composition.md 就位且过验收协议（运动员/裁判分离）；各自 DESIGN.md 勘误登记。
+2. 三站 preset 各含 composition.md 副本（条件 parity 全绿）；check:skill + npm run ci 全绿。
+3. 执行报告两块表：① 结构 Hook（H3/H7 + ci）全 🟢；② 每站一个真实 case（composition.md 过验收 + preset 有副本）🟢。
+
+收尾门：用户验收通过后才 commit(#32) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
+依赖：#31（composition.md 进 preset 的消费通道就位）。
 
 ---
 

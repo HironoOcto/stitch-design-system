@@ -32,8 +32,12 @@ _Avoid_: 把它和**角色契约**混为一谈（契约=组件验证层·手写 
 ### 主题输入
 
 **DESIGN.md**：
-一个站的风格来源文件（Refero 产物、结构固定），是该站 bundle 的超集。adapter.css 的值、rules.md 的规则都从它抽。存档在 `sites/<站>/source/`。
-_Avoid_: 设计稿、spec
+一个站的风格来源文件（Refero 产物、结构固定），是该站 bundle 的超集。adapter.css 的值、rules.md 的规则都从它抽。存档在 `sites/<站>/source/`。**只覆盖值槽**——合成层它系统性漏/写反，由 **composition.md** 补。
+_Avoid_: 设计稿、spec；把它当合成层的真相（合成层看 composition.md）
+
+**composition.md**：
+一个站长相的**第二个来源**——**合成层**补充，`sites/<站>/composition.md`（顶层，**不**在 `source/`，因它非下载、是我们产出）。按 [涌现层验收协议](./docs/contributing/emergent-layer-acceptance.md) 用 [emergent-probe](./scripts/emergent-probe.js) 对真站实测产出，记 DESIGN.md 漏掉的氛围铺底 / 明暗幕 / 辉光 / 图像材质 / 字形设备 / 拒绝清单，并**登记 DESIGN.md 勘误**（存档不改，合成层冲突时以本文件为准）。**可选补充**，不进「可发布四件套」闸门。
+_Avoid_: 改 DESIGN.md 存档来补合成层；把它塞进 `source/`（污染 Refero 存档不变量）；叫它「涌现层.md」（术语统一为合成层）
 
 **design-rules.md**：
 全局规则文档，与皮肤无关的工程纪律（用角色 token、图标来源、缓动、对比度、配色比例）。跨站恒定。区别于每站的 **rules.md**（该站的 Do/Don't + 长相 + 组件规格）。
@@ -58,6 +62,20 @@ _Avoid_: 把它和 adapter.css 混谈（adapter 是源，style.css 是产物）
 
 见 [ADR 0007](./docs/adr/0007-active-site-single-switch.md)（发布默认）+ [ADR 0010](./docs/adr/0010-consume-time-theme-choice.md)（消费侧指针 + 读时解析）。
 _Avoid_: 每条构建各设一个开关；把两层指针当成一处（本仓库定默认、消费项目可覆盖）
+
+### 长相的两层（捕获 / 验收用）
+
+**值槽（token slot）**：
+可用**单个** `--stitch-*` 值表达的长相（色 / 字阶 / 圆角 / 阴影 / 间距）。Refero 抽取的强项，直接进**角色契约** / **页面尺度层**。
+_Avoid_: 原子 token（太泛）
+
+**合成层（composition trait）**：
+需要「**组合**」才成立、单个变量换肤跟不了的长相：多图层 / 定位 / 滤镜 / 混合 / 或**刻意拒绝**（氛围铺底、明暗幕、辉光、图像材质处理、字形设备、拒绝清单…）。是「亮眼」的主要来源，也是 Refero 抽取**系统性漏或写反**的地方。**归宿分流**：能单值表达的进契约新槽；编排/构图的进每站 `rules.md`；内容资产（截图/插画）不 tokenable。
+_Avoid_: 涌现层（早期造词，指同物；统一叫「合成层」）；把它当成一张固定「N 轴清单」（清单不通用——见下判据）
+
+**单槽判据**：
+区分上两者的测试——「**能不能塞进一个 `--stitch-*` 单槽？能 → 值槽；不能（要位置 / 图层 / 多值 / 否定）→ 合成层**」。合成层的**捕获与验收**不靠枚举轴，靠扫**封闭的 CSS 绘制基底**（`scripts/emergent-probe.js` 探针）——通用性来自「浏览器能画的东西有限」，不来自轴表完整。流程见 [涌现层验收协议](./docs/contributing/emergent-layer-acceptance.md)。
+_Avoid_: 用固定轴清单当 schema（第 N 个站的新花样会漏）
 
 ### AI 消费
 

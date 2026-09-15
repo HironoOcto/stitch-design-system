@@ -686,7 +686,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 
 ## #34（AFK）：迁移剥离基建 —— stripTrace + check:boundary 边界守（rules.md 端到端）
 
-> ① prefactor。源 rules.md 保留 DESIGN.md 追溯但规整进可剥位置；build:skill 拷贝时 `stripTrace` 剥离 → preset consumer-clean；check:skill rules parity → `== stripTrace(源)`；check:boundary 加「不引用 `<skill>` 外 + 白名单 `.agent/stitch.theme.json`」边界守（**文本扫描**、种子含 DESIGN.md + docs//scripts//CONTEXT//source//ADR）。照 issue #34 正本执行。
+> ① prefactor。源 rules.md 保留 DESIGN.md 追溯但只落**可剥位置**（标题 `←` 尾注 + 顶部/专用追溯容器，正文不许出现 DESIGN.md）；build:skill 拷贝时 `stripTrace` 剥离 → preset consumer-clean。**核心不变量**：`stripTrace` 剥后**自检零 DESIGN.md 残留、有残留抛错指行、build:skill 失败** → 任何站（含未来新站）放错位置即构建红，**机器强制守格式、不靠自觉**（这才是新站的保障，非手改 3 站 + 文档约定）。check:skill §8 parity → `== stripTrace(源)`；check:boundary 发货面双保险（不引用 `<skill>` 外 + 白名单 `.agent/stitch.theme.json`、文本扫描）；onboard-site.md 补可剥位置写法约定。3 站 rules.md 是**格式规整非重产**（规则内容不变）。照 issue #34 正本执行。
 
 ```text
 先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 34 --comments --repo HironoOcto/stitch-design-system
@@ -694,16 +694,18 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 
 前置：无（本组 prefactor，可立即领）。承接 #32；#33 已作废，本 issue 是其拆分之一。
 
-目标（照 issue #34 正本，本段不复述细节）：建「源留追溯、迁移剥离」基建，用 rules.md 端到端验证。
-- 源 sites/<site>/rules.md 保留 DESIGN.md 追溯，但把所有 DESIGN.md 提及规整进【可确定性剥离位置】（小节标题 ← 尾注 + 顶部专用追溯容器；现顶部把 DESIGN.md 溯源与要保留的 adapter/design-rules 指引混在一句，需拆开）。
-- build:skill 拷 rules.md 进 preset 时新增确定性 stripTrace()（删 ← 尾注 + 删追溯容器）→ preset 零 DESIGN.md。
+目标（照 issue #34 正本，本段不复述细节）：建「源留追溯、迁移剥离」基建 + 强制契约，用 rules.md 端到端验证。
+- 可剥位置定义：源里 DESIGN.md 追溯只能落【小节标题 ← 尾注 + 顶部/专用追溯容器】，正文自由句不许出现 DESIGN.md。
+- 新增通用 stripTrace()（rules.md 与 composition.md 共用，#36 复用）：删 ← 尾注 + 删追溯容器 → 【剥后自检零 DESIGN.md 残留，有残留抛错并指出源哪行】。这是核心不变量。
+- build:skill 拷 rules.md 进 preset：copyFileSync → writeFileSync(stripTrace(源))；残留即 build 失败。→ 任何站放错位置即红，机器强制守格式（新站不用特殊照顾、不靠文档自觉）。
 - check:skill §8 rules parity：字节相等 → == stripTrace(源)。
-- check:boundary 加边界守：skill 发货面（含 theme-presets）不得引用 <skill>/ 外资源（【文本扫描】、种子含 DESIGN.md + docs//scripts//CONTEXT//source//ADR），白名单放行 .agent/stitch.theme.json；sites/ 已 EXEMPT 不误伤源。
-- build-skill.test 相应改。
+- check:boundary 加边界守（发货面双保险）：skill 发货面（含 theme-presets）不得引用 <skill>/ 外资源（【文本扫描】、种子含 DESIGN.md + docs//scripts//CONTEXT//source//ADR），白名单放行 .agent/stitch.theme.json；sites/ 已 EXEMPT 不误伤源。
+- 3 站源 rules.md：格式规整（非重产、规则内容不变）到过自检——顶部溯源句拆开（删 DESIGN.md 溯源、留 adapter/design-rules 指引）、正文散发的 DESIGN.md（如 seline「其余…见 DESIGN.md Components 原文」）挪进 ← 尾注或删。
+- onboard-site.md 补可剥位置写法约定；build-skill.test 相应改。
 
-红线（可 grep）：preset rules.md 零 DESIGN.md；stripTrace 确定/幂等；check:boundary 拦 skill 外引用、放行白名单；build:skill 仍纯确定（无 LLM）。
+红线（可 grep）：preset rules.md 零 DESIGN.md；stripTrace 剥后零残留自检（放错即 build 红）+ 幂等；check:boundary 拦 skill 外引用、放行白名单；build:skill 仍纯确定（无 LLM）。
 
-验收：3 站源 rules.md 的 DESIGN.md 提及全落可剥位置、stripTrace 后 preset 零残留且保留 adapter/design-rules 指引；check:skill parity=stripTrace(源)；check:boundary 绿；check:skill + npm run ci 全绿。
+验收：stripTrace 通用 + 零残留自检单测（含「正文散发 DESIGN.md → 抛错」用例）；3 站源 rules.md 格式规整到过自检（内容不变、追溯仍在只落可剥位置）、preset 零 DESIGN.md；check:skill parity=stripTrace(源)；check:boundary 绿；check:skill + npm run ci 全绿。
 
 收尾门：用户验收通过后才 commit(#34) + close + GH 评论登记两块表。纯机制、可 AFK 到收尾门。
 ```

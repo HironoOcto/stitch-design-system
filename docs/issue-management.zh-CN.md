@@ -678,6 +678,30 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 
 ---
 
+## #33（AFK）：发布件 consumer-clean —— style.md 吸收 composition 修正 + composition.md/rules.md 去 DESIGN.md
+
+> 三类发布件（`style.md` / `composition.md` / `rules.md`，都进 preset、消费方读得到）去掉消费方拿不到的 `DESIGN.md`，并消灭 `style.md`（继承 DESIGN.md 的 austere 框）↔ `composition.md`（真站 rich 真相）的矛盾。契约升级（已认可）：skill-blurb 忠于「DESIGN.md **as corrected by composition.md**」（落地 ADR 0013）。`style.md` 仍是一段式概述、`composition.md` 三站全保留转纯复刻、`rules.md` 一并清来源标注、加 Hook 防复发。#32 已交付 composition.md 原料。
+
+```text
+先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 33 --comments --repo HironoOcto/stitch-design-system
+你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+
+前置：#32 已交付三站 composition.md（发布件原料）。
+
+目标（照 issue #33 正本，本段不复述细节）：把 style.md / composition.md / rules.md 三类发布件做成真正 consumer-clean —— ① 零 DESIGN.md 字面；② 消灭 style.md（austere）↔ composition.md（rich）矛盾。走正规化：
+- 阶段 A：build-blurb.mjs + lib/design-sections.mjs 让 composition.md 成为 build:blurb 输入，prompt 融合「DESIGN 概览 + composition 修正」；依赖顺序改 adapter/rules → composition → blurb；skill-blurb 头注契约升级为「faithful to DESIGN.md as corrected by composition.md」。
+- 阶段 B：重跑 build:blurb 出 phantom/steep（seline 视变化）新 style-paragraph；三站 composition.md 全部重写为纯复刻版（含 seline，不删，去 DESIGN.md/去 override 口吻/勘误转正向事实）；三站 rules.md 一并清 DESIGN.md 来源标注；改 playbook onboard-composition.md:51-52 + emergent-layer-acceptance.md:107（勘误只进执行报告）；加 Hook grep（check:skill 禁三类发布件出字面 DESIGN.md）；重建 preset。
+
+红线（结构 Hook，可 grep）：三类发布件零 DESIGN.md 字面（新 Hook 守）；preset parity 字节相等；build:skill 仍纯确定字节拷贝（不引入 LLM 步）。
+
+收尾门（两道）：① style-paragraph 是 LLM 产物 → 重生成后必须**人审冻盘**（skill-blurb Status: human-approved），非纯 AFK；② 用户验收通过后才 commit(#33) + close + GH 评论登记两块表。验证同样运动员/裁判分离：改完另派裁判核 style.md↔composition.md 零矛盾 + 三类发布件零 DESIGN.md 泄漏。
+```
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/33
+依赖：无（#32 已交付三站 composition.md 原料）。排序：宜在 #28/#29 landing 之前或并行提醒（landing 读 style.md，本 issue 前做会用到旧 austere 框）。
+
+---
+
 # 待建 issue（依赖未就位，暂不领取）
 
 > 依赖到位后补建 GH issue（`[stitch]` 前缀 + `ready-for-agent`），并把 AFK prompt 挪到上面「各 issue 的 prompt」。

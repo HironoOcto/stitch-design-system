@@ -649,25 +649,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/29
 
 > 一个交付 = 给任意站产出并验收 composition.md（合成层补充）的可复用闭环，与 adapter/rules 的 onboard-site 生成 + review 验证对齐。只落「能生成+能验证」，不碰出图消费。#31/#32 依赖它。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 30 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：立起「合成层（composition trait）生成 + 验证」的可复用闭环。合成层 = 一个站长相的第二个来源——source/DESIGN.md（Refero 存档）只覆盖值槽，对合成层（氛围铺底/明暗幕/辉光/图像材质处理/字形设备/拒绝清单）系统性漏、甚至写反（steep 把满屏位图渐变+颗粒+暗区判成「no abstract graphics」）。本 issue 只落「能生成+能验证」，不碰出图消费（#31/#32）。照 docs/contributing/emergent-layer-acceptance.md（验收协议·已落）+ CONTEXT.md「值槽 vs 合成层」（已落）执行，本段不复述判据。
-
-交付：① ADR 0013（合成层=第二风格源 + 单槽判据，类比 ADR 0012；含 composition.md 可选·不进四件套、DESIGN.md 存档不改·勘误由 composition.md 覆盖）；② 生成 playbook docs/contributing/onboard-composition.md（严格对齐 onboard-site.md 结构，<site> 换名即用）——**运动员/裁判分离，两份独立 prompt、两个 agent（不得既当运动员又当裁判）**：「## 执行 prompt」运动员=AI 真站→跑 scripts/emergent-probe.js→写 sites/<site>/composition.md（含 DESIGN.md 勘误登记）；「## 复核」裁判=另派 agent 照 docs/contributing/emergent-layer-acceptance.md（已落，扮演 onboard-site-review.md 的裁判清单角色）逐条走、只出「通过/需改动+必改项」结论、不改产物；③ docs/design-system/multi-site-theming.md 补合成层正本节 §9.x；④ 对 steep 跑一遍流程，sites/steep/composition.md（已落首版）过验收协议定稿。
-
-红线（结构 Hook，须全绿，可 grep）：H1 自包含（无迁移源残留/无外来 --var 前缀）；H2 只读 --stitch-*（本 issue 纯文档 + composition.md，不引入组件改动）；探针脚本零写死站名（<site> 参数化）。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. ADR 0013 就位，决策/取舍/替代明确，与 ADR 0012 同构。
-2. onboard-composition.md 可复用（<site> 换名即用），且运动员/裁判分离：「执行 prompt」（跑探针+写 composition.md）与「复核 prompt」（另派 agent 照 emergent-layer-acceptance.md 出结论、不改产物）为两份独立 prompt，对齐 onboard-site.md。
-3. 真跑：对 steep 真站跑 emergent-probe.js → sites/steep/composition.md 过 emergent-layer-acceptance.md（探针每条被反映或显式拒绝，零未回应）。
-4. multi-site-theming §9.x 正本 + CONTEXT.md 术语齐、文档互链无死链；composition.md 明确可选、build:skill/check:skill 不因缺它而红。
-5. 执行报告两块表：① 结构 Hook（H1/H2）全 🟢；② 真实 case（steep 流程跑通 + 过验收）🟢。
-
-收尾门：用户验收通过后才 commit(#30) + close + GH 评论登记执行报告。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 验收协议 + onboard-composition playbook 契约）。
-```
+> ✅ 已完成并 close（commit `bc76915`，2026-09-15）。立起合成层「能生成+能验证」的可复用闭环。① **ADR 0013**：合成层=第二风格源 + 单槽判据（类比 ADR 0012）；关键取舍——composition.md 是 **consumer-clean 发布件**（体例照 rules.md、随 skill 发给消费方），**流程必跑·产物按需**（核合成层每站必跑因漏是静默的、忠实站无此文件），不进四件套闸门、存档不改、勘误表达成设计事实。② **onboard-composition.md** 生成 playbook（`<site>` 换名即用，对齐 onboard-site.md）：**运动员/裁判分离**——两份独立 prompt、两个 agent；防作弊靠「裁判独立从真站重新求证」而非藏考题；**发布件 vs 维护者报告两分**（探针证据/覆盖面/`:行号` diff/归宿进报告，不进发布件）。③ **multi-site-theming §9.9** 正本（layout.css↔composition.md 对照）+ CONTEXT 术语；`emergent-probe.js` 注释中性化（红线字面全绿）。④ **覆盖面纪律**：探针单页工具、覆盖代表性页面取并集；UNGROUNDED 只在扫过该面才成立（零命中≠不存在），防误删真效果。**① 结构 Hook**：H1 自包含（composition.md 0 内部链接/术语/`:行号`、无外来 `--var` 前缀）/ H2 只读 `--stitch-*`（纯文档零组件改动）/ 存档不改 / 探针零写死站名（字面 grep 全绿）/ 四件套闸门不读 composition.md（缺它构建照绿）全 🟢；`npm run ci` 全绿（check:skill 76/76 / test / a11y / build）🟢。**② 真实 case**（端到端 C 演示，两个独立 agent 各自真驱动浏览器真站真跑）：运动员 agent 对 `steep.app` `/`+`/ai` @1440 真跑探针、独立产出 consumer-clean `sites/steep/composition.md`（0 内部引用）→ 独立裁判 agent（不给 JSON、自己重跑两页）逐条像素级吻合 + 4 条勘误回 DESIGN.md 核实 → **通过、零必改** 🟢；覆盖面=首页(11969)+/ai(8979) 并集、零 UNGROUNDED（全正命中）；三类缺陷 diff（位图铺底 vs :200「no abstract graphics」🔴WRONG、feTurbulence 颗粒 🔴MISSING、暗幕 18/35/26 分档 vs Theme:light 🔴WRONG、blur12-16px 毛玻璃 🟠MISSING、`<em>` 斜体 🟠UNDER）登记进 GH 评论（维护者记录）。**边界**：接进 skill 消费通道（build:skill 拷 composition.md 进 preset）归 #31（已解锁）。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/30
 依赖：无，可立即领取。#31/#32 依赖本 issue。

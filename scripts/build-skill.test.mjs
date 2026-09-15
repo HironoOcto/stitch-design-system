@@ -143,6 +143,45 @@ test('the folded preset carries the whole page-scale layer + resolvable spacing 
   }
 });
 
+test('composition.md is a 4th preset file — copied iff the site has one (#31)', () => {
+  // Pure-prose composition layer (#30/#31): OPTIONAL. build:skill conditionally copies
+  // sites/<site>/composition.md → theme-presets/<site>/composition.md (byte-exact, like
+  // rules.md) when the source exists, and emits NO composition.md for a site without one.
+  const skillDir = seedSkillDir();
+  buildSkill({ root, site: 'steep', skillDir });
+  const bytesEqual = (a, b) => readFileSync(a).equals(readFileSync(b));
+  let sawSource = false;
+  for (const s of SITES) {
+    const src = resolve(root, 'sites', s, 'composition.md');
+    const preset = join(
+      skillDir,
+      'references/theme-presets',
+      s,
+      'composition.md',
+    );
+    if (existsSync(src)) {
+      sawSource = true;
+      assert.ok(
+        existsSync(preset),
+        `${s}: has source composition.md → preset must exist`,
+      );
+      assert.ok(
+        bytesEqual(preset, src),
+        `${s}/composition.md must equal its site source byte-for-byte`,
+      );
+    } else {
+      assert.ok(
+        !existsSync(preset),
+        `${s}: no source composition.md → preset must NOT exist`,
+      );
+    }
+  }
+  assert.ok(
+    sawSource,
+    'expected at least one publishable site with composition.md (steep)',
+  );
+});
+
 test('each preset rules.md is a byte-exact copy of sites/<site>/rules.md', () => {
   const skillDir = seedSkillDir();
   buildSkill({ root, site: 'steep', skillDir });

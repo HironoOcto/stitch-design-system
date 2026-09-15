@@ -16,6 +16,8 @@
 //      resolve to the folded-in --stitch-space-N.
 //   ② references/theme-presets/<site>/rules.md    = sites/<site>/rules.md               (verbatim)
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
+//   ⑥ references/theme-presets/<site>/composition.md = sites/<site>/composition.md (verbatim, OPTIONAL —
+//      the pure-prose composition layer, #30/#31; copied only when the site authored one)
 //   ④ references/theme/design-rules.md            = docs/.../design-rules.md            (global, once)
 //   ⑤ SKILL.md SLOT:default-site                  = the published-default site name
 // The published default = stitch.config.json `activeSite` (override with `--site`), = the
@@ -118,6 +120,14 @@ export function buildSkill({ root, site, skillDir }) {
       join(dir, 'style.md'),
       renderStyleMd(parseBlurb(readFileSync(blurbPath, 'utf8'))),
     );
+    // ⑥ composition.md — the pure-prose composition layer (#30/#31): OPTIONAL, not part
+    //    of the publishable quartet. Copied VERBATIM (byte-exact, like rules.md) only when
+    //    the site has authored one; a site without it gets NO composition.md in its preset.
+    //    Conditional by design → parity in check:skill is likewise conditional (Hook H7);
+    //    it adds no token slot and touches no contract/adapter/component.
+    const composition = resolve(root, 'sites', s, 'composition.md');
+    if (existsSync(composition))
+      copyFileSync(composition, join(dir, 'composition.md'));
   }
 
   // ④ global, theme-neutral rules — one copy, shared by every preset.
@@ -135,6 +145,10 @@ export function buildSkill({ root, site, skillDir }) {
     site,
     presetSites,
     presets: presetSites.map((s) => `references/theme-presets/${s}`),
+    // Which presets received the optional composition.md (source-present sites only).
+    compositionSites: presetSites.filter((s) =>
+      existsSync(resolve(root, 'sites', s, 'composition.md')),
+    ),
     designRules: 'references/theme/design-rules.md',
     slots: ['default-site'],
   };
@@ -147,6 +161,7 @@ function main(argv) {
   const report = buildSkill({ root, site });
   console.log(
     `build:skill ✓ default=${report.site} → presets {${report.presetSites.join(', ')}} ` +
+      `(composition.md: {${report.compositionSites.join(', ') || '—'}}) ` +
       `+ ${report.designRules} + SKILL.md slot {${report.slots.join(', ')}}`,
   );
 }

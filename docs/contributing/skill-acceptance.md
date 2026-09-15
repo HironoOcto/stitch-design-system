@@ -133,7 +133,7 @@
 | 预置站集合 == 可发布站 | `theme-presets/` 下的子目录名（排序）== `listPublishableSites()`（四件套判据）——不多一站、不缺一站 | 机器 | 某可发布站漏出预置；或多出个残留站目录 |
 | 发布默认站有预置 | 发布默认（本仓库 `activeSite`）∈ 预置站集合 | 机器 | 默认站四件套不全、却被当默认 |
 
-> §6 / §8 / §9 对 **`<可发布站>` 每一站的预置** 各跑一遍（占位符即 `theme-presets/<站>/…`），全站全绿才算过。§7 design-rules 是全局单份、不进预置。
+> §6 / §8 / §9 对 **`<可发布站>` 每一站的预置** 各跑一遍（占位符即 `theme-presets/<站>/…`），全站全绿才算过。§9.5 亦逐站跑，但**条件化**（源在才核字节相等、源无则核「预置也无」）。§7 design-rules 是全局单份、不进预置。
 
 ### 6. `references/theme-presets/<站>/tokens.css`（生成 · 每可发布站一份）
 
@@ -170,6 +170,16 @@
 | description ≤ 1024·无 hex / style 一段·无 hex·只招牌尺寸 | `lintBlurb`：`## description` ≤ 1024 且无 hex；`## style-paragraph` 一段、无 hex、只留 hero 字号/卡片圆角/区块间距几个尺寸 | 机器 | 段里写死 `#fbe1d1`；或复述整张 token 表 |
 | 忠实 DESIGN.md、无编造 | LLM 读该站 blurb vs `sites/<站>/source/DESIGN.md`：每句可溯源、没借别站 | agent判 | blurb 编了 DESIGN.md 没有的视觉词 |
 | 人最后定稿签字 | `sites/<站>/skill-blurb.md` 顶部注释含 human-approved；维护者一眼过（唯一人工闸） | 人签 | 未审直接发布 |
+
+### 9.5 `references/theme-presets/<站>/composition.md`（生成 · 拷贝 · **可选** · 每有源站一份）
+
+> 合成层散文补充（#30/#31）：DESIGN.md 没覆盖、`rules.md` 也没有的那层——氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单。**纯散文通道**，不引入任何 token 槽 / 契约 / 组件改动。**可选**（不进「可发布四件套」）：站有 `sites/<站>/composition.md` 才拷进预置，byte-exact（同 `rules.md`）；站无源则预置**无**该文件。因此 parity **条件化**、绝不升级为强制。此条即 **Hook H7（合成层 preset 不变量）**。SKILL.md「Active theme」指引 AI 读它（folder 有才读，无则该主题无合成层、不臆造）。
+
+| 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
+|---|---|---|---|
+| 条件 parity（源在则字节相等·源无则无） | 对每个可发布站：`sites/<站>/composition.md` 存在 → `diff theme-presets/<站>/composition.md sites/<站>/composition.md` == 空（byte-exact）；源不存在 → 预置目录里**无** `composition.md`（`existsSync` == false）。**不跑 build:skill、不动 git** | 机器 | 改了预置副本（与源漂移）；或删源却留着预置副本；或改源没重生成预置 |
+| 幂等纳入（源在的站） | `build:skill` 重跑，源在的站其预置 `composition.md` 逐字节不变（并进幂等快照文件表） | 机器 | 重跑后 composition.md 抖动 |
+| 换主题隔离（不泄漏全局） | composition.md 是**主题专属**散文（`design-rules.md` 的镜像反面）——只在预置目录，**绝不**落到全局 `references/theme/` | 机器 | composition.md 漏进 `references/theme/`（当成全局件） |
 
 ---
 

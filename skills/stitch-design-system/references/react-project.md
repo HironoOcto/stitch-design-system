@@ -85,6 +85,13 @@ export default function App() {
   the components' own internal aliases — don't use them for your app UI.)
 - Exact token values: the active theme's `theme-presets/<active-theme>/tokens.css` (resolve
   `<active-theme>` as in [SKILL.md](../SKILL.md) "Active theme").
+- The **look** of the page shell you compose around the components (page/section backgrounds,
+  hero and section composition, when to use the accent) is not just tokens — follow the active
+  theme's `theme-presets/<active-theme>/rules.md` (do/don't look rules) and, **when that folder
+  has one**, its `theme-presets/<active-theme>/composition.md` (the composition layer:
+  ambient/backdrop treatment, light/dark acts, image/material texture, letterform-as-device
+  typography, reject-list — what tokens alone cannot express). When a `composition.md` is
+  present it is load-bearing; if absent, the theme has no composition layer — don't invent one.
 - Do NOT hard-code hex/px; use the `--stitch-*` role variables only.
 
 ## Scenario-specific rules

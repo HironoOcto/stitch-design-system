@@ -80,12 +80,14 @@ const P = {
   reactTsconfig: resolve(root, 'packages/react/tsconfig.json'),
   skillsRefBin: resolve(root, 'node_modules/.bin/skills-ref'),
 };
-// Per-site source paths (layer / adapter / rules / blurb), for recomputing each preset's expected.
+// Per-site source paths (layer / adapter / rules / blurb / composition), for recomputing
+// each preset's expected. composition.md is OPTIONAL (#31) — may or may not exist per site.
 const siteSrc = (s) => ({
   layer: resolve(root, 'sites', s, 'layout.css'),
   adapter: resolve(root, 'sites', s, 'adapter.css'),
   rules: resolve(root, 'sites', s, 'rules.md'),
   blurb: resolve(root, 'sites', s, 'skill-blurb.md'),
+  composition: resolve(root, 'sites', s, 'composition.md'),
 });
 
 // ---------- helpers ----------
@@ -596,6 +598,38 @@ for (const s of PRESET_SITES) {
 }
 
 // =====================================================================
+// §9.5 composition.md (per preset) — CONDITIONAL parity (Hook H7)     #29 §9.5
+// The pure-prose composition layer (#30/#31) is OPTIONAL — not part of the publishable
+// quartet, so its parity is conditional on the SOURCE:
+//   · source present → preset composition.md exists AND is a byte-exact copy of the source
+//   · source absent  → preset has NO composition.md (nothing to copy → nothing emitted)
+// This is Hook H7 (合成层 preset 不变量): break the copy / delete the source but keep the
+// preset / edit the source → the matching branch below goes red.
+// =====================================================================
+for (const s of PRESET_SITES) {
+  const p = presetFile(s, 'composition.md');
+  const { composition } = siteSrc(s);
+  check(
+    '§9.5 composition',
+    '§9.5',
+    `[${s}] 条件 parity（源在则字节相等·源无则无）`,
+    () => {
+      if (existsSync(composition)) {
+        if (!existsSync(p))
+          return `source composition.md present but preset copy missing`;
+        return (
+          bytesEqual(p, composition) ||
+          'composition.md != site source (not byte-exact)'
+        );
+      }
+      return existsSync(p)
+        ? `no source composition.md but preset copy present (should not exist)`
+        : true;
+    },
+  );
+}
+
+// =====================================================================
 // Determinism (command coverage) — idempotence + switch-theme isolation
 // Built into THROWAWAY temp dirs; the real skill and git are never touched.
 // #29 assigns these to pipeline tests; the issue asks check:skill to also cover them.
@@ -606,9 +640,15 @@ function seedSkillDir() {
   return dir; // build:skill makes references/theme{,-presets}/ itself
 }
 const presetFileList = (s) =>
-  [`tokens.css`, `rules.md`, `style.md`].map(
-    (f) => `references/theme-presets/${s}/${f}`,
-  );
+  [
+    `tokens.css`,
+    `rules.md`,
+    `style.md`,
+    // composition.md is OPTIONAL (#31) — include it in the idempotence snapshot only for
+    // sites whose source has one, so the optional 4th preset file is proven byte-idempotent
+    // too, without demanding it where there is no source.
+    ...(existsSync(siteSrc(s).composition) ? [`composition.md`] : []),
+  ].map((f) => `references/theme-presets/${s}/${f}`);
 
 check(
   'Determinism',
@@ -690,6 +730,12 @@ check(
       );
     if (!existsSync(join(dir, 'references/theme/design-rules.md')))
       problems.push('global references/theme/design-rules.md missing');
+    // composition.md is theme-SPECIFIC prose (#31) — it belongs per preset, the mirror
+    // image of design-rules: it must NEVER leak into the global theme dir.
+    if (existsSync(join(dir, 'references/theme/composition.md')))
+      problems.push(
+        'composition.md leaked into global references/theme/ (should be per-preset only)',
+      );
     // SKILL.md skeleton carries no per-site prose beyond the default-site slot: blanking
     // it + catalog yields a theme-free skeleton (no site name anywhere in it).
     const strip = (src) =>

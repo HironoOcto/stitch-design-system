@@ -52,6 +52,8 @@
 
 - **H6 页面尺度层生成不变量**（[ADR 0012](./adr/0012-page-scale-layer.md) 引入，GH #23 落地，#25 修正判据）：页面尺度层（`--stitch-space-*` / `--stitch-text-<角色>` / `--stitch-leading·tracking-<角色>` / layout 四键）与组件角色契约**并列、同为 `--stitch-*` 公开 API**，但**生成·非手写**——每站 `sites/<site>/layout.css` 由 `build:layout` 从 `source/variables.css` 确定性映射产出，恒满足：**幂等** + 首行 `DO NOT EDIT` 头 + **只含 `--stitch-*`**（无泄漏 `--text-*`/`--spacing-*`/`--color-*`/站名/源 hex）+ **缺角色/档位不生成**（不发明默认）。**`layout.css` 是 `adapter.css` 的成对值文件**（一个站的两份「值文件」，永远成对）：`build:layout` 对**每个有 `adapter.css` 的站**（`listAdapterSites`）生成，**不 gated 在可发布**；「可发布站」判据升为**四件套** `{adapter.css, layout.css, rules.md, skill-blurb.md}`（`listPublishableSites`），demo 发现站 = **有 adapter ∩ 有 layout**——被展示/发布的站按判据本就必有 `layout.css`，**无「容缺」分支**（无循环：先有 adapter → `build:layout` 生成 layout → 四件套才可能齐）。`mergeTokens` 为三输入 `(contract, layer, adapter)`、**adapter 仍最后胜**；契约 `--stitch-spacing-xs..xl` 退化为 `var(--stitch-space-N, 旧值)` 别名（组件零行为变更）。由 [extract-layout.mjs](../scripts/lib/extract-layout.mjs) + [build-layout.mjs](../scripts/build-layout.mjs) + [publishable-sites.mjs](../scripts/lib/publishable-sites.mjs) 保证；文件级不变量（幂等 / `DO NOT EDIT` / 只含 `--stitch-*` / 无站名·hex·外来 `--var` 泄漏 / committed==重生成 / 缺角色不生成）由 [build-layout.test.mjs](../scripts/build-layout.test.mjs) + [extract-layout.test.mjs](../scripts/lib/extract-layout.test.mjs) grep 断言，四件套判据（adapter 集/可发布集/缺 layout 排除）由 [publishable-sites.test.mjs](../scripts/lib/publishable-sites.test.mjs) 断言，三输入合并（adapter 最后胜 + 别名 `var()` 保留）由 [merge-tokens.test.mjs](../scripts/lib/merge-tokens.test.mjs) 断言。`layout.css` 落 [check-boundary.mjs](../scripts/check-boundary.mjs) 的 `sites/*` 豁免区（= H1 设计，生成文件不进三层扫描）；契约别名的组件零行为变更由 `ci` 的 `test:run`/`test:a11y` 反证。
 
+- **H7 合成层 preset 不变量**（[#31](https://github.com/HironoOcto/stitch-design-system/issues/31) 引入；地基 [#30](https://github.com/HironoOcto/stitch-design-system/issues/30) + [ADR 0013](./adr/0013-composition-layer.md)）：合成层散文 `composition.md`（氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单——DESIGN.md 没覆盖、`rules.md` 也没有的那层）是 skill 消费通道里的**可选第 4 个 preset 文件**、**纯散文通道**——**不引入任何 token 槽 / 契约 / 组件改动**（合成层里可 token 化的部分留作后续）。恒满足：**条件 parity**——站有 `sites/<站>/composition.md` → 预置 `theme-presets/<站>/composition.md` **byte-exact** 拷贝（同 `rules.md` 语义）；站无源 → 预置**无**该文件（**可选、不进「可发布四件套」，parity 绝不升为强制**）+ **幂等**（源在的站重跑逐字节不变、进幂等快照表）+ **换主题隔离**（主题专属散文，只在预置目录、绝不泄漏进全局 `references/theme/`）+ SKILL.md「Active theme」指引 AI「folder 有则读」（引用一层深 / 自包含 / 骨架无站名不破）。由 [build-skill.mjs](../scripts/build-skill.mjs)（⑥ 条件拷贝）保证，[check-skill.mjs](../scripts/check-skill.mjs) §9.5 条件 parity + 幂等/隔离断言 + [build-skill.test.mjs](../scripts/build-skill.test.mjs) 命令覆盖守护；正本 [skill-acceptance.md](./contributing/skill-acceptance.md) §9.5 + [skill-build-pipeline.md](./contributing/skill-build-pipeline.md) ⑥。
+
 > 未来 Hook（到相应阶段补）：**check:docs 覆盖 teeth**（组件 ↔ skill references 覆盖强制，脚本已随 #4 就位、空库天然过，真组件 + skill 参考到位后见效）等。
 
 ---
@@ -660,27 +662,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/30
 
 > composition.md 接进 skill 消费通道：自成第 4 个 preset 文件（纯散文，与 rules.md/style.md 同类），AI 生成 UI 时读到合成层。**零 token 槽、零契约/组件改动。** #32 依赖它。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 31 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#30 的 sites/steep/composition.md 与验收协议须已就位。
-
-目标：把 composition.md（合成层补充）接进 skill 消费通道——纯散文通道，让 AI 生成 UI 时像读 rules.md/style.md 一样读到合成层（氛围铺底/明暗幕/图像材质/字形设备/拒绝清单，即 DESIGN.md 没覆盖、rules.md 也没有的那层）。① composition.md 自成第 4 个 preset 文件：scripts/build-skill.mjs 条件拷贝（sites/<site>/composition.md 存在则拷进 references/theme-presets/<site>/composition.md）、scripts/check-skill.mjs 条件 parity（源在则字节相等、源无则 preset 无）+ 幂等/换主题隔离文件表纳入；② SKILL.md「Active theme」从「读这三个文件（style/tokens/rules）」→ 四个，加一条让 AI 读 composition.md。同步 Hook H7（合成层 preset 不变量）+ skill-acceptance.md（#29 spec）补机器档 + skill-build-pipeline.md 补 ⑥。构建/校验细节照 skill-build-pipeline.md + skill-acceptance.md 正本，本段不复述。
-
-本 issue 特殊点：纯散文通道——不加任何 token 槽、不改 contract/adapter/组件（合成层里可 token 化的部分留作后续，与并行 #27 的字重模型不冲突）；composition.md 可选 → parity 必须条件化（勿升「可发布四件套」）。
-
-红线（结构 Hook，须全绿，可 grep）：H3 skill 自包含（check:skill 全绿）；新增 H7 合成层 preset 不变量；SKILL.md 引用一层深/无外链。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. build:skill 为有 composition.md 的站在 preset 拷出字节相等副本；无源站 preset 无该文件。
-2. check:skill 新增条件 parity + Hook H7 全绿；破坏演示（改 preset 副本/删源留 preset/改源）各触发对应红。
-3. SKILL.md 指引 AI 读 composition.md；引用一层深/自包含/换主题隔离不破。
-4. 过 #29 skill-acceptance.md 对应节（composition.md 机器档）；以 steep 为例（源由 #30 产出），composition.md 在 AI 可读的 preset 文件清单里。
-5. npm run ci 全绿；执行报告两块表：① H3/H7+ci 全 🟢；② 有源站 preset 有副本 / 无源站无 🟢。
-
-收尾门：用户验收通过后才 commit(#31) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 结构 Hook + preset parity 契约）。
-```
+> ✅ 已完成并 close（2026-09-15）。把合成层散文 `composition.md` 接进 skill 消费通道——**纯散文通道**，全程零 token 槽 / 零契约 / 零组件改动。① **build:skill ⑥ 条件拷贝**（[build-skill.mjs](../scripts/build-skill.mjs)）：站有 `sites/<站>/composition.md` 则 byte-exact 拷进 `theme-presets/<站>/composition.md`（同 `rules.md` 语义），无源则不产。② **check:skill §9.5 条件 parity（Hook H7）**（[check-skill.mjs](../scripts/check-skill.mjs)）：源在则字节相等、源无则预置无；并把 composition.md 纳入**幂等快照表**（源在的站）+ **换主题隔离**（禁漏进全局 `references/theme/`）。③ **三条消费路由全接上合成层**——[SKILL.md](../skills/stitch-design-system/SKILL.md)「Active theme」三文件→四文件（+composition.md 条件读）；本轮经用户指正，补齐 [react-project.md](../skills/stitch-design-system/references/react-project.md)（建页壳段）+ [standalone-html.md](../skills/stitch-design-system/references/standalone-html.md)（手搓页段）各自条件路由到 rules.md + composition.md（原判「react 不用改」被推翻——React 建页同样在合成整页）。④ 正本同步：[skill-acceptance.md](./contributing/skill-acceptance.md) §9.5 机器档 + [skill-build-pipeline.md](./contributing/skill-build-pipeline.md) ⑥ + 本文 Hook H7 登记。均用 inline code 路径（非 markdown 链接）给出，可选主题不变死链。**① 结构 Hook + CI**：H3 skill 自包含（`check:skill` 79/79）🟢、H7 合成层 preset 不变量（§9.5 三站条件 parity + 幂等 + 隔离）🟢、H7 破坏演示（改 preset 副本 / 删源留 preset / 改源）各触发对应红、复原即绿 🟢、`npm run ci` 八步全绿（format / check:docs / check:skill 79/79 / check:boundary / lint / test:run 709 / test:a11y 147 / build，exit 0）🟢。**② 有源站有副本 / 无源站无**：steep 有源→有副本·字节相等 🟢、phantom 无源→无副本 🟢、seline 无源→无副本 🟢。**边界**：合成层里可 token 化的部分留作后续（与并行 #27 字重模型不冲突）；composition.md 可选、不进「可发布四件套」，parity 严格条件化未升为强制。**顺带**：`build:refs` 暴露 `form-controls.md` 的 Select 图标 JSDoc 陈旧漂移（#22 源改 accent→brand、生成物没跟），已独立修复提交 `4fd3e63`，未夹带进本 issue。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/31
 依赖：#30（生成方法论 + steep/composition.md 作消费输入）。

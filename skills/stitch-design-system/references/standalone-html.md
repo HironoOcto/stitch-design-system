@@ -17,6 +17,11 @@ library API. For a real React project, use [react-project.md](react-project.md) 
    - Global rules: [theme/design-rules.md](theme/design-rules.md)
    - This theme's look rules (fonts, shadow policy, shapes, accent usage): the theme's
      `theme-presets/<active-theme>/rules.md`
+   - The composition layer, **if the theme folder has a** `theme-presets/<active-theme>/composition.md`
+     (some themes do, some don't): how the look is *composed* beyond any single token —
+     ambient/backdrop treatment, light/dark acts, image/material texture, letterform-as-device
+     typography, and an explicit reject-list. When present it is load-bearing for a hand-rolled
+     full-page layout, so honor it; if absent, the theme simply has no composition layer.
    - Per-component props: [components/](components/)
 3. **Generate** one complete `index.html` in a single fenced code block, then list any
    spec line you intentionally relaxed and why.

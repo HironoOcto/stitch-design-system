@@ -59,8 +59,10 @@
 产出「通过/需改动 + 必改项」结论。只出结论，不改产物（除非维护者授权按必改项落地）。
 ```
 
-## 每个新站 = 一个薄 issue
+## 怎么跑（直接用 prompt；issue 只是可选台账）
 
-不必为每站重写一大段 prompt。建一个 GH issue：`[stitch] 接入新站 <site>：执行 onboard-site playbook`，正文指向本文件；[issue-management.zh-CN.md](../issue-management.zh-CN.md) 里那段 AFK prompt 就写「执行 onboard-site playbook，`<site>=…`」+ 该站特有的验收点（如与现有站的可见差异）。规则的单一真相始终是本 playbook + multi-site-theming 正本，站站复用。
+**最直接**：把上面「## 执行 prompt」复制、`<site>` 换成站名，交给 agent 跑；产物就位后按「## 复核」派一个复核 agent。**不必经过任何 issue**——那段 prompt 就是完整的活。
+
+**（可选）想给 AFK 独跑留个追踪台账时**，再把它包成一个薄 GH issue：`[stitch] 接入新站 <site>：执行 onboard-site playbook`，正文指向本文件；[issue-management.zh-CN.md](../issue-management.zh-CN.md) 里那段 AFK prompt 就写「执行 onboard-site playbook，`<site>=…`」+ 该站特有的验收点（如与现有站的可见差异）。issue 纯为记账/可追溯，**不是完成这项工作的前提**。规则的单一真相始终是本 playbook + multi-site-theming 正本，站站复用。
 
 > 注：抽取是 **AI 生成 + 人复核**，非确定脚本（[ADR 0004](../adr/0004-token-source.md)：不上 tokens.json 生成器，直到 [§9.7](../design-system/multi-site-theming.md#97-何时升级到-tokensjson-生成方案) 的信号）。

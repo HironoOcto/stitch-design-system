@@ -130,7 +130,7 @@ function emergentProbe() {
       push('type_gradient_text', s.backgroundImage.slice(0, 60), el);
   }
 
-  // 7) 字形设备：标题内联斜体（如 steep 的 <em>zero chaos</em>）
+  // 7) 字形设备：标题内联斜体（如标题里的 <em>…</em> 强调）
   document
     .querySelectorAll('h1 i, h1 em, h2 i, h2 em, h3 i, h3 em')
     .forEach((e) =>
@@ -141,7 +141,7 @@ function emergentProbe() {
       ),
     );
 
-  // 8) 图像材质处理：img/video 上的滤镜（如 seline 的 grayscale(1) contrast(0.94)）
+  // 8) 图像材质处理：img/video 上的滤镜（如 grayscale(1) contrast(0.94) 灰化去彩）
   const imgFilters = new Set();
   document.querySelectorAll('img, video').forEach((im) => {
     const f = getComputedStyle(im).filter;

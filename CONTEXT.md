@@ -36,7 +36,7 @@ _Avoid_: 把它和**角色契约**混为一谈（契约=组件验证层·手写 
 _Avoid_: 设计稿、spec；把它当合成层的真相（合成层看 composition.md）
 
 **composition.md**：
-一个站长相的**第二个来源**——**合成层**补充，`sites/<站>/composition.md`（顶层，**不**在 `source/`，因它非下载、是我们产出）。按 [涌现层验收协议](./docs/contributing/emergent-layer-acceptance.md) 用 [emergent-probe](./scripts/emergent-probe.js) 对真站实测产出，记 DESIGN.md 漏掉的氛围铺底 / 明暗幕 / 辉光 / 图像材质 / 字形设备 / 拒绝清单，并**登记 DESIGN.md 勘误**（存档不改，合成层冲突时以本文件为准）。**可选补充**，不进「可发布四件套」闸门。
+一个站长相的**第二个来源**——**合成层**补充，`sites/<站>/composition.md`（顶层，**不**在 `source/`，因它非下载、是我们产出）。按 [涌现层验收协议](./docs/contributing/emergent-layer-acceptance.md) 用 [emergent-probe](./scripts/emergent-probe.js) 对真站实测产出，记 DESIGN.md 漏掉的氛围铺底 / 明暗幕 / 辉光 / 图像材质 / 字形设备 / 拒绝清单，勘误**表达成设计事实**（存档不改，合成层冲突时以本文件为准）。**是 consumer-clean 发布件**——随 skill 发给消费方，体例照 `rules.md`：自包含、面向消费者的设计指南，无内部维护链接（`docs/`/`scripts/`/CONTEXT/ADR）、无探针术语、无 `DESIGN.md:行号`（探针证据 / 覆盖面 / 带行号的 diff / 归宿建议是维护者记录，进执行报告 / issue / commit）。**核合成层每站必跑**（漏是静默的，不核不知 DESIGN.md 忠不忠实），**产物按需**——该站有未记合成层才有本文件（忠实站如 seline 无此文件），文件不进「可发布四件套」闸门。
 _Avoid_: 改 DESIGN.md 存档来补合成层；把它塞进 `source/`（污染 Refero 存档不变量）；叫它「涌现层.md」（术语统一为合成层）
 
 **design-rules.md**：

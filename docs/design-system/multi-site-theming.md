@@ -551,3 +551,29 @@ contract.css (全局:定义所有名字+默认值)        sites/seline/adapter.c
 **开关（两层指针，两个不同文件）**：本仓库根 `stitch.config.json { "activeSite": … }` 定**发布默认**——`vite build` 的 `style.css` 与 `build:skill` 注入 SKILL.md 的 `SLOT:default-site` 都读它（本仓库自己的构建配置）。**消费项目** `.agent/stitch.theme.json` 的 `activeSite` 是**消费侧指针**，skill 读时解析选一套预置（无则回落发布默认）；两者不同名不同位（构建配置 vs 消费指针），对齐的是 `activeSite` 的**值（站名）**——与预览侧 `data-site` 填同名即对齐。合并语义（adapter 覆盖 contract、派生自动跟随）由 `mergeTokens` 一份实现，包与 skill 共用。demo 不受开关限制（动态扫 `sites/*/adapter.css` 全挂）。详见 [ADR 0007](../adr/0007-active-site-single-switch.md)（发布默认）、[ADR 0010](../adr/0010-consume-time-theme-choice.md)（消费侧指针 + 读时解析）、[打包发布](../contributing/packaging.md)、[skill 构建流程](../contributing/skill-build-pipeline.md)。
 
 > **一句话**：`multi-site-theming` 的产出就是 `adapter.css`（值）+ `rules.md`（规则）两份**源**；它们不搬家，由三条构建按 `activeSite` 各烤各的——运行时那份是 `dist/style.css`，skill 那份是 `tokens.css`，demo 那份不落盘。
+
+### 9.9 合成层 `composition.md`（第二风格源，探测生成）
+
+前面 §9.3–9.8 讲的都是从 `source/DESIGN.md` 抽**值槽**（能塞进单个 `--stitch-*` 的：色 / 字阶 / 圆角 / 阴影 / 间距）。但一个站真正「亮眼」的往往**不是单值**：位图 mesh 渐变铺底、SVG 颗粒叠层、`mix-blend-mode`、一幕暗区、浮动卡的 `backdrop-filter` 毛玻璃、标题里一处斜体设备、以及「刻意拒绝」。这些要**多图层 / 定位 / 滤镜 / 混合 / 或否定**才成立、换肤跟不了单个变量——叫**合成层（composition trait）**。
+
+**问题**：`DESIGN.md` 对合成层**系统性漏、甚至写反**——`sites/steep/source/DESIGN.md`:200 写「no abstract graphics」，真站却满屏位图渐变铺底 + 颗粒 + 暗区。这类漏**静默**（不报错、只是复刻出来变丑），靠人眼逐站抽查必漏。
+
+**答案 = 第二风格源 `sites/<site>/composition.md`**（[ADR 0013](../adr/0013-composition-layer.md)）。与 §9.4.4 页面尺度层 `layout.css`（`DESIGN.md` 覆盖不到的第二**值**文件，从 `variables.css` 确定性生成）**同构、方向相反**：`composition.md` 是第二**风格**文件，从**真站探测**产出。
+
+| 维度 | `layout.css`（§9.4.4，[ADR 0012](../adr/0012-page-scale-layer.md)） | `composition.md`（本节，[ADR 0013](../adr/0013-composition-layer.md)） |
+|---|---|---|
+| 补的是 | `DESIGN.md` 覆盖不到的**值**（页面尺度） | `DESIGN.md` 漏/反的**长相层**（合成层） |
+| 生成 | 从 `source/variables.css` **确定性生成**（近零判断） | 对**真站**跑 [emergent-probe.js](../../scripts/emergent-probe.js) + 人**判归宿**（探针捕获全，不解释意图） |
+| 核这步 | **每站必跑** `build:layout` | **每站必跑**探针+验收协议（漏是静默的，不核不知 `DESIGN.md` 忠不忠实） |
+| 产物 | **每站必产**（缺则不可发布） | **按需产出**——该站有未记合成层才有 `composition.md`；忠实站跑完即通过、无此文件 |
+| 形态 | CSS（`:root`，进 `mergeTokens`、进渲染） | Markdown（散文 + 勘误 + 归宿建议，**不**进 `:root`、**不**进渲染） |
+| 发布闸门 | **四件套之一**，缺则不可发布 | **不进闸门**，`build:skill`/`check:skill`/`build:layout` 都不读它，缺它不红 |
+| 与 `DESIGN.md` | —— | 存档不改；合成层冲突以 `composition.md` 为准（勘误登记引 `:行号` + 探针反证） |
+
+**判据（单槽测试）**：能塞进一个 `--stitch-*` 单槽 → 值槽（归 `adapter.css`/`layout.css`，不归本层）；不能（要位置 / 图层 / 多值 / 否定）→ 合成层（归 `composition.md`）。通用性**不来自 N 轴清单**（设计意图开放，第 N 个站会冒新花样），来自**浏览器能画的东西是封闭的**——探针扫这个封闭 CSS 绘制基底，任何合成特征被画出来就一定被捕获。术语见 [CONTEXT.md](../../CONTEXT.md#长相的两层捕获--验收用)。
+
+**每条信号的归宿（判断，agent 做、非探针代劳）**：能单值表达的（铺底纯色/渐变、辉光、图像滤镜）→ **将来**契约新槽 `--stitch-backdrop-*`/`--stitch-glow-*`/`--stitch-image-filter`（换肤跟随，属出图消费 slice #31/#32，不在本节）；定位/构图/图层编排 → 该站 `rules.md`；内容资产（截图/插画/mascot）→ 纯内容不 tokenable，`rules.md` 只记「用/不用、怎么处理」；拒绝 → `rules.md` 的 Don't。
+
+**生成 + 验收（运动员/裁判分离）**：产出与验收是**两个 agent、两份独立 prompt**——运动员对真站跑探针写 `composition.md`（含 `DESIGN.md` 勘误登记），裁判照 [涌现层验收协议](../contributing/emergent-layer-acceptance.md) 逐条判「探针每条被反映或显式拒绝、零未回应」、**只出结论不改产物**。可复用流程见 [onboard-composition.md](../contributing/onboard-composition.md)（`<site>` 换名即用，对齐 §9.6 的 [onboard-site.md](../contributing/onboard-site.md)）。样例 [sites/steep/composition.md](../../sites/steep/composition.md)。
+
+> **一句话**：合成层是一个站长相的**第二个来源**——`DESIGN.md` 只覆盖值槽，合成层（氛围/明暗/辉光/材质/字形/拒绝）由 `composition.md` 从真站探测补。**核这步每站必跑**（漏是静默的），**产物按需**（忠实站无 `composition.md`）、不改存档、不进四件套。与 `layout.css` 同为「`source` 覆盖不到、另立文件」的答案：一个每站必产的第二值文件，一个按需产出的第二风格文件。

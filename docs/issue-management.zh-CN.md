@@ -669,27 +669,9 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/31
 
 ---
 
-## #32（AFK）：其余三站产出 composition.md（跑 onboard-composition playbook）
+## #32（已完成 ✅）：其余三站产出 composition.md（跑 onboard-composition playbook）
 
-> 跑 #30 的 onboard-composition playbook（运动员/裁判分离），为 seline/phantom/saybriefly 各产出 composition.md，随 #31 preset 通道带进 skill。纯应用方法论、无新机制、零 token 槽。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 32 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#30 playbook + #31 preset 通道就位。
-
-目标：跑 #30 的 onboard-composition playbook，为 seline/phantom/saybriefly 各产出 sites/<site>/composition.md，随 #31 的 build:skill preset 通道带进 skill。纯应用方法论——不加 token 槽、不改契约/组件。每站按 playbook 的运动员/裁判分离执行：运动员对真站跑 scripts/emergent-probe.js → 写 composition.md（含 DESIGN.md 勘误登记）；另派裁判照 docs/contributing/emergent-layer-acceptance.md 复核、只出结论。（seline 真站已验证合成层基本忠实、补充最少；phantom 明暗摆荡+辉光、saybriefly 手绘铺底+多层 glow 需登记。）照 #30 playbook 执行，本段不复述。
-
-红线（结构 Hook，须全绿，可 grep）：H3 skill 自包含（check:skill 全绿）；H7 合成层 preset 不变量；探针零写死站名（<site> 参数化）。
-
-验收（真实验收禁糊弄；测试不过度=一个 case 够证）：
-1. seline/phantom/saybriefly 三站 composition.md 就位且过验收协议（运动员/裁判分离）；各自 DESIGN.md 勘误登记。
-2. 三站 preset 各含 composition.md 副本（条件 parity 全绿）；check:skill + npm run ci 全绿。
-3. 执行报告两块表：① 结构 Hook（H3/H7 + ci）全 🟢；② 每站一个真实 case（composition.md 过验收 + preset 有副本）🟢。
-
-收尾门：用户验收通过后才 commit(#32) + close + GH 评论登记两块表。未验收不 commit、不 close。AFK 独跑不停确认 seam。
-```
+> ✅ 已完成并 close（commit `7c41dd3`，2026-09-16）。跑 #30 的 onboard-composition playbook（运动员/裁判分离），为 **seline + phantom** 各产出 consumer-clean `composition.md` 并随 #31 preset 通道带进 skill。纯应用方法论：零 token 槽、零契约/组件改动、`source/` 存档零改。**saybriefly 从 #32 拆出**——它未接入四件套（只有 `source/`），`build:skill` 只对可发布站（`listPublishableSites`）发 preset，无通道承载其 composition.md；经用户裁决拆出，留待 onboard-site 接入后另开 follow-up issue。**运动员**对真站跑 `emergent-probe.js`（seline: seline.com @1440 Claude Browser；phantom: phantom.com @1440 chrome-devtools+代理——应用内浏览器与 playwright 均被反爬拦截，仅 chrome-devtools+代理打通）→ 写 composition.md；**另派独立裁判** agent 不接运动员 JSON、自己重跑两站真站复核 → **seline / phantom 均通过、零必改**（抽核各 3 条信号 + 勘误回 DESIGN.md 核实、卡色普查 + 截图铁证）。**勘误登记**：seline「无渐变」澄清为「无装饰**彩色**色晕」（真站仅一道无彩白渐隐）；phantom DESIGN.md 的「pure typography / no product screenshots / no abstract graphics / Content Card=flat paper white」与真站相反（插画+截图双密集、饱和糖果瓦片=精确 token 色、逐行暗卡=明暗摆荡）。**产物**：seline 薄（4 节，真站基本忠实、只补分层拼贴那层）、phantom 厚（6 节 steep 量级，DESIGN 建模写反需大改）。**① 结构 Hook**：H3 skill 自包含（`check:skill` 79/79、§9.5 composition 条件 parity 全绿）/ H7 合成层 preset 不变量（`build:skill` 拷进 {phantom,seline,steep}、字节相等）/ 探针零写死站名 / H1 发布件自包含（0 内链/桶名/`:行号`/缺陷标记/非-stitch var）/ 存档不改 / `npm run ci` 全绿（format / docs / skill 79/79 / boundary / 709 test / 147 a11y / build，EXIT=0）全 🟢。**② 真实 case**：seline.com @1440 分层拼贴+灰度图+双深影+highlight → 裁判 Claude Browser 重跑通过、preset 字节相等 🟢；phantom.com @1440(代理) dark 视频 hero+糖果瓦片+逐行暗卡+violet glow+ghost-in-headline → 裁判 chrome-devtools+代理重跑通过、preset 字节相等 🟢；均零 UNGROUNDED（DESIGN.md 首页 reference、断言面=首页）。**边界**：saybriefly 待接入四件套后随 onboard-composition 补跑。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 依赖：#31（composition.md 进 preset 的消费通道就位）。

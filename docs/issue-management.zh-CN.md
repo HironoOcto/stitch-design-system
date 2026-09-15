@@ -678,27 +678,39 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 
 ---
 
-## #33（AFK）：发布件 consumer-clean —— style.md 吸收 composition 修正 + composition.md/rules.md 去 DESIGN.md
+## #33（作废 ✂️）：发布件 consumer-clean —— 已拆分为 #34–#37
 
-> 三类发布件（`style.md` / `composition.md` / `rules.md`，都进 preset、消费方读得到）去掉消费方拿不到的 `DESIGN.md`，并消灭 `style.md`（继承 DESIGN.md 的 austere 框）↔ `composition.md`（真站 rich 真相）的矛盾。契约升级（已认可）：skill-blurb 忠于「DESIGN.md **as corrected by composition.md**」（落地 ADR 0013）。`style.md` 仍是一段式概述、`composition.md` 三站全保留转纯复刻、`rules.md` 一并清来源标注、加 Hook 防复发。#32 已交付 composition.md 原料。
+> ✂️ 作废 / superseded（closed not-planned，2026-09-16）。本为手写单体大 issue；方案在讨论中演进为「**源留追溯 + 迁移时 build:skill `stripTrace` 确定性剥离 + check:boundary 白名单边界守（禁引用 `<skill>` 外、放行 `.agent/stitch.theme.json`）+ style.md 吸收 composition 重生成**」，用 /to-issues 按 vertical slice 拆为 #34–#37。原单体不执行。**关键决策**：composition.md / rules.md **源保留 DESIGN.md 追溯**（可追溯，onboard 产物），**迁移到 preset 时确定性剥离**（consumer-clean）；composition.md 采「**散文正文 + 可剥维护者追溯表**」混合体例（追溯表列含「判断依据·归宿」）；build:skill 仍纯确定（LLM 只在 build:blurb + 人审冻盘）；check:boundary 用白名单边界守而非单禁 DESIGN.md。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 33 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
+> 四条共用 AFK 约定：先读 issue 正本（`GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view <N> --comments --repo HironoOcto/stitch-design-system`），在 `stitch-design-system/` 执行（先 pwd）；gh 一律带 `GH_CONFIG_DIR` + `--repo`。按依赖顺序领取。排序：宜在 #28/#29 landing 之前或并行（landing 读 style.md，本组前做会用到旧 austere 框）。
 
-前置：#32 已交付三站 composition.md（发布件原料）。
+## #34（AFK）：迁移剥离基建 —— stripTrace + check:boundary 边界守（rules.md 端到端）
 
-目标（照 issue #33 正本，本段不复述细节）：把 style.md / composition.md / rules.md 三类发布件做成真正 consumer-clean —— ① 零 DESIGN.md 字面；② 消灭 style.md（austere）↔ composition.md（rich）矛盾。走正规化：
-- 阶段 A：build-blurb.mjs + lib/design-sections.mjs 让 composition.md 成为 build:blurb 输入，prompt 融合「DESIGN 概览 + composition 修正」；依赖顺序改 adapter/rules → composition → blurb；skill-blurb 头注契约升级为「faithful to DESIGN.md as corrected by composition.md」。
-- 阶段 B：重跑 build:blurb 出 phantom/steep（seline 视变化）新 style-paragraph；三站 composition.md 全部重写为纯复刻版（含 seline，不删，去 DESIGN.md/去 override 口吻/勘误转正向事实）；三站 rules.md 一并清 DESIGN.md 来源标注；改 playbook onboard-composition.md:51-52 + emergent-layer-acceptance.md:107（勘误只进执行报告）；加 Hook grep（check:skill 禁三类发布件出字面 DESIGN.md）；重建 preset。
+> ① prefactor。源 rules.md 保留 DESIGN.md 追溯但规整进可剥位置；build:skill 拷贝时 `stripTrace` 剥离 → preset consumer-clean；check:skill rules parity → `== stripTrace(源)`；check:boundary 加「不引用 `<skill>` 外 + 白名单 `.agent/stitch.theme.json`」边界守（**文本扫描**、种子含 DESIGN.md + docs//scripts//CONTEXT//source//ADR）。照 issue #34 正本执行。
 
-红线（结构 Hook，可 grep）：三类发布件零 DESIGN.md 字面（新 Hook 守）；preset parity 字节相等；build:skill 仍纯确定字节拷贝（不引入 LLM 步）。
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/34
+依赖：无（可立即领取）。
 
-收尾门（两道）：① style-paragraph 是 LLM 产物 → 重生成后必须**人审冻盘**（skill-blurb Status: human-approved），非纯 AFK；② 用户验收通过后才 commit(#33) + close + GH 评论登记两块表。验证同样运动员/裁判分离：改完另派裁判核 style.md↔composition.md 零矛盾 + 三类发布件零 DESIGN.md 泄漏。
-```
+## #35（AFK）：build:blurb 吸收 composition（机制 + 契约升级）
 
-Issue: https://github.com/HironoOcto/stitch-design-system/issues/33
-依赖：无（#32 已交付三站 composition.md 原料）。排序：宜在 #28/#29 landing 之前或并行提醒（landing 读 style.md，本 issue 前做会用到旧 austere 框）。
+> ③。composition.md 成 build:blurb **可选输入**、prompt 融合「DESIGN + composition 修正」、skill-blurb 契约升级为「as corrected by composition」、依赖顺序 adapter/rules→composition→blurb。**只建机制**、不重生成冻盘（归 #37）。照 issue #35 正本执行。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/35
+依赖：无（可立即领取；机制先建、单测用 fixture）。
+
+## #36（AFK）：composition.md consumer-clean 重产（散文正文 + 可剥追溯表）
+
+> ②。删旧 composition.md，按混合规范重产 3 站（散文正文正向 + 可剥维护者追溯表：`合成层特征｜探针实测｜DESIGN.md 现状｜缺陷｜判断依据·归宿`）；build:skill 复用 `stripTrace`；改 onboard-composition.md + emergent-layer-acceptance.md 写法/验收规范；运动员/裁判分离（phantom 探针需 chrome-devtools+代理，见 memory）。照 issue #36 正本执行。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/36
+依赖：#34（stripTrace / check:boundary 基建）。
+
+## #37（AFK + 人审门）：重生成 style.md 吸收修正 + 端到端零矛盾验证
+
+> ④ payoff。重跑 build:blurb（吸收 #36 新 composition）→ phantom/steep 新 style-paragraph → **人审冻盘**；build:skill 出 preset；`check:skill` + `ci` 全绿 + 裁判核 style↔composition 零矛盾。⚠️ 含人审冻盘门，非纯 AFK。照 issue #37 正本执行。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/37
+依赖：#36（新 composition 原料）+ #35（build:blurb 吸收机制）。
 
 ---
 

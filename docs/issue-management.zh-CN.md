@@ -693,7 +693,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/34
 
 ## #35（AFK）：composition.md 新规重建 —— 散文正文 + 可剥追溯表 + stripTrace 迁移剥离 + 文档
 
-> ②。删旧 composition.md，按混合规范**重建** 3 站（散文正文正向 + 可剥维护者追溯表：`合成层特征｜探针实测｜DESIGN.md 现状｜缺陷｜判断依据·归宿`）；build:skill 复用 #34 的 `stripTrace`（含零残留自检、放错即 build 红）；改 onboard-composition.md + emergent-layer-acceptance.md 写法/验收规范；运动员/裁判分离（phantom 探针需 chrome-devtools+代理，见 memory）。照 issue #35 正本执行。
+> ②。删旧 composition.md，按混合规范**重建** 3 站（散文正文正向 + 可剥维护者追溯表：`合成层特征｜探针实测｜DESIGN.md 现状｜缺陷｜判断依据·归宿`）。composition 是 adapter/rules 的**第三个孪生**，清**两类**污染：① DESIGN.md 追溯（收进可剥表）+ ② **孪生横指**（正文/表里的「见 adapter.css / variables.css」，值层→同目录 `tokens.css`、组件规格指同预置 `rules.md`）。build:skill 复用 #34 的 `stripTrace`（含零残留自检、放错即 build 红）；**check:boundary 拆除 #34 给 composition 埋的 EXEMPT、纳入发货面扫描**（种子已含 adapter.css/variables.css/见 adapter）；改 onboard-composition.md（**生成 prompt 隔离 adapter**，同 #34 双 prompt 教训）+ emergent-layer-acceptance.md；运动员/裁判分离（phantom 探针需 chrome-devtools+代理，见 memory）。照 issue #35 正本执行。
 
 ```text
 先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 35 --comments --repo HironoOcto/stitch-design-system
@@ -701,15 +701,17 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/34
 
 前置：#34（stripTrace / check:boundary 基建）就位。承接 #32；#33 已作废。执行顺序 #34 → 本 issue → #36 → #37。
 
-目标（照 issue #35 正本，本段不复述细节）：删旧 3 站 composition.md（纠错版坏料），按混合新规范重建。
+目标（照 issue #35 正本，本段不复述细节）：删旧 3 站 composition.md（纠错版坏料），按混合新规范重建。composition 是 adapter/rules 的第三个孪生，清两类污染：DESIGN.md 追溯 + 孪生横指。
 - 消费者散文正文写正向设计事实（不在正文提 DESIGN.md）；DESIGN.md 追溯/勘误收进可剥维护者追溯表（列：合成层特征｜探针实测｜DESIGN.md 现状｜缺陷｜判断依据·归宿）+ 小节 ← 尾注。正文不许出现 DESIGN.md（受 #34 stripTrace 零残留自检强制，放错即 build 红）。
-- build:skill 复用 #34 的 stripTrace 迁移剥离 → preset 只留正向散文；check:skill §9.5 parity == stripTrace(源)；check:boundary 已守。
-- 改 onboard-composition.md（写法规范）+ emergent-layer-acceptance.md（验收）。
+- 不回指孪生 adapter.css / variables.css（正文与追溯表皆然）：值层→同目录 tokens.css；组件规格指同预置 rules.md（合法 shipped sibling，非 seed）。顶部指引写 consumer-clean 句（值层见同目录 tokens.css；组件规格见同预置 rules.md）。
+- build:skill 复用 #34 的 stripTrace 迁移剥离 → preset 只留正向散文；check:skill §9.5 parity == stripTrace(源)。
+- check:boundary **拆除 #34 给 composition.md 埋的 EXEMPT、纳入发货面扫描**（#34 种子已含 adapter.css/variables.css/见 adapter + DESIGN.md/docs//scripts//CONTEXT/source//ADR）——横指/DESIGN.md 泄漏即红。
+- 改 onboard-composition.md（写法规范 + **生成 prompt 隔离 adapter**：composition 需读 DESIGN.md 填追溯表/做勘误，但不读 adapter.css，避免同源横指污染，同 #34 双 prompt 教训）+ emergent-layer-acceptance.md（验收）。
 - 运动员/裁判分离：重建按 playbook 对真站跑 emergent-probe（phantom 需 chrome-devtools + 用户代理，见 memory composition-probe-live-site-gotchas）；另派裁判独立真站重跑核 consumer-clean + 忠实。
 
-红线：preset composition.md 正文零 DESIGN.md；追溯只在可剥表/尾注（放错即 build 红）；stripTrace 幂等；探针零写死站名。
+红线：preset composition.md 正文零 DESIGN.md、零孪生横指（见 adapter/adapter.css/variables.css）；追溯只在可剥表/尾注（放错即 build 红）；composition 已纳入 check:boundary（EXEMPT 拆除）；stripTrace 幂等；探针零写死站名。
 
-验收：3 站 composition.md 重建就位且过验收协议（运动员/裁判分离）；preset consumer-clean；check:skill §9.5 = stripTrace(源)、check:boundary 绿；build-skill.test 改；check:skill + npm run ci 全绿。
+验收：3 站 composition.md 重建就位且过验收协议（运动员/裁判分离）；preset consumer-clean（零 DESIGN.md + 零孪生横指）；check:skill §9.5 = stripTrace(源)、check:boundary 拆 composition EXEMPT 后绿；build-skill.test 改；check:skill + npm run ci 全绿。
 
 收尾门：用户验收通过后才 commit(#35) + close + GH 评论登记两块表。含真站探针 + 裁判，AFK 独跑不停确认 seam。
 ```

@@ -14,7 +14,8 @@
 //      --stitch-text-<role> type scale, the four layout keys) alongside the component roles.
 //      Three-input merge, adapter still wins; the contract's --stitch-spacing-* aliases now
 //      resolve to the folded-in --stitch-space-N.
-//   ② references/theme-presets/<site>/rules.md    = sites/<site>/rules.md               (verbatim)
+//   ② references/theme-presets/<site>/rules.md    = stripTrace(sites/<site>/rules.md)     (#34)
+//      源保留 DESIGN.md 来源追溯，迁移时 stripTrace 剥掉可剥位置的追溯 → preset consumer-clean。
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
 //   ⑥ references/theme-presets/<site>/composition.md = sites/<site>/composition.md (verbatim, OPTIONAL —
 //      the pure-prose composition layer, #30/#31; copied only when the site authored one)
@@ -35,6 +36,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { mergeTokens } from './lib/merge-tokens.mjs';
 import { replaceSlot } from './lib/slot.mjs';
+import { stripTrace } from './lib/strip-trace.mjs';
 import { parseBlurb } from './build-blurb.mjs';
 import { listPublishableSites } from './lib/publishable-sites.mjs';
 
@@ -115,7 +117,14 @@ export function buildSkill({ root, site, skillDir }) {
       join(dir, 'tokens.css'),
       mergeTokens(contract, layer, adapter, s),
     );
-    copyFileSync(rules, join(dir, 'rules.md'));
+    // ② rules.md — 从「字节拷贝」改为 stripTrace 确定性剥离（#34）：源保留 DESIGN.md 来源
+    //    追溯（可追溯），迁移时剥掉可剥位置的追溯 → preset 发布副本 consumer-clean。放错位置
+    //    （正文自由句里的 DESIGN.md）→ stripTrace 自检抛错、build:skill 失败并指出源哪行，
+    //    机器强制守可剥格式（新站不靠自觉）。仍纯确定、幂等。
+    writeFileSync(
+      join(dir, 'rules.md'),
+      stripTrace(readFileSync(rules, 'utf8'), { label: `sites/${s}/rules.md` }),
+    );
     writeFileSync(
       join(dir, 'style.md'),
       renderStyleMd(parseBlurb(readFileSync(blurbPath, 'utf8'))),

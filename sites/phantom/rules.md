@@ -1,83 +1,89 @@
 # Phantom — 风格规则
 
-> 从 `sites/phantom/source/DESIGN.md` 抽取。每节标注来源段落。值层见 `sites/phantom/adapter.css`；工程纪律见全局 `docs/design-system/design-rules.md`（跨站恒定，不在此复述）。
+<!-- trace: 从 `sites/phantom/source/DESIGN.md` 抽取；每节标题 `←` 尾注标来源段落。build:skill 迁移时 stripTrace 剥离本容器与各 `←` 尾注，不入发货预置。 -->
+> 值层见同目录 `tokens.css`；工程纪律（跨站恒定，不在此复述）见全局 `design-rules.md`。
 
 ## 一句话风格 ← DESIGN.md 顶部 tagline + 概览散文
-> lavender candy shop at dusk —— 单色紫世界：近白底板上万物皆软药丸，被淘气 ghost 与糖果色点缀打断。
-> 加密钱包语汇，aubergine 深紫与 lavender 淡紫；界面在近白 canvas 与深紫区块间摆荡（airy ↔ intimate）。通体 whisper-weight 350 + 激进负字距，让 80-96px 巨标优雅漂浮。招牌是**药丸几何**（nav/按钮/卡片全化作 24-100px 胶囊）；一只 ghost 吉祥物替换标题里的元音，俏皮破格。调色刻意窄：单一主紫扛全部结构活，糖果按钮色（lavender/butter/blush）在克制底色上打出糖果店节奏。
+> 黄昏时分的薰衣草糖果店：单色紫罗兰世界，一切都是近白平面上的柔软药丸，被一只顽皮的幽灵和粉彩点缀打断。
+> 柔和的单色加密钱包世界，浸在茄紫与薰衣草里；近白画布会渗入深紫区块，在通透与私密间摆荡。字体是轻语级 350 字重配激进负字距，80–96px 巨型标题优雅漂浮。招牌是慷慨的药丸几何（导航、按钮、卡片皆化为 24–100px 圆角的胶囊），一只幽灵吉祥物替换标题里的元音打破网格。调色板刻意窄：单一主紫承担全部结构工作，粉彩按钮色（薰衣草、奶油、腮红）在克制底色上营造糖果店节奏。
 
-## 调色板用法 ← Tokens—Colors 表(Role 列) + Do/Don't 颜色条 + Quick Color Reference
-- **accent（Ghost Lavender #e2dffe）**：主 CTA 填充色，是"light-on-light"按钮——只靠 `rgb(226,223,254) 0 0 4px` violet glow 显形；面上文字用 Aubergine #3c315b。
-- **bg-accent（= #e2dffe）**：phantom 的强调面即淡紫 CTA 面（Surfaces L4），与 accent 同色。
-- **Aubergine #3c315b（结构脊）**：系统的结构骨架——nav 文字/描边、hero 与 dark-section 标题、暗区背景（`bg-inverted`）、强描边（`border-strong`）、icon 描边。单一主紫扛全部结构活。
-- **Periwinkle #ab9ff2（accent 装饰）**：更亮的淡紫——ghost 吉祥物、次级 CTA、装饰填充、icon accent；给淡紫世界加饱和度。**不当小字文字色**（对白底 <AA）。
-- **糖果点缀集（Cornflower #4a87f2 / Buttercream #ffffc4 / Blush Mist #ffdadc）**：多动作场景里成组出现打糖果节奏；**只此三色**，Don't 引入此集之外的饱和色。
-- **中性文字 3 值**：Obsidian #1c1c1c（正文 + 内容卡标题）、Aubergine #3c315b（结构脊：nav/hero/暗区）、Fog #86848d（muted/次要/icon 描边）。
-- **表面层级**：Paper White #fdfcfe（canvas + 卡面）、Bone #f4f2f4（浅区块面板）、Ash #e9e8ea（次级按钮/安静容器 + 细边框）、Ghost Lavender #e2dffe（CTA 面）、Aubergine #3c315b（暗区）。
-- **on dark**：深紫区块上文字用 Paper White #fdfcfe。
-- **Mint Signal #2ec08b**：仅作 success 徽章的装饰色（见组件规格）；语义"成功"状态走契约稳定层 `--stitch-success`，不用 mint 覆盖（mint 白字对底不达 AA）。
-- **Do**：亮/暗（Aubergine）区块交替制造节奏，两种模式同等原生。**Don't**：引入糖果集之外的饱和色（调色刻意窄）。
+## 调色板用法 ← DESIGN.md Colors 表(Role 列) + Do/Don't 颜色条 + Quick Color Reference
+- 主品牌/结构脊柱 = 茄紫 Aubergine `#3c315b`：导航边框、导航文字、标题文字、暗色区块的卡片表面、图标描边。对应角色 `--stitch-brand` / 暗区 `--stitch-bg-inverted`。
+- 主行动填充 = 幽灵薰衣草 Ghost Lavender `#e2dffe`：填充型 CTA 按钮背景，配 4px 紫罗兰光晕；这枚浅上加浅的按钮只靠柔和光晕显形。对应角色 `--stitch-accent`。
+- CTA 上文字 = 深色 `#3c315b`（Phantom 的 accent 文字为深色，非白），对应角色 `--stitch-accent-text`。
+- 次要行动 = 长春花 Periwinkle `#ab9ff2`：更亮的薰衣草，用于次级 CTA、装饰填充、图标点缀、幽灵吉祥物；给淡紫世界加饱和度。
+- 强调/点缀按钮集（粉彩，克制使用，多动作时才成组出现）：矢车菊蓝 Cornflower Pop `#4a87f2`（偶发的鲜明蓝，作高能量打断，少用）、奶油黄 Buttercream `#ffffc4`、腮红雾 Blush Mist `#ffdadc`。
+- 成功状态 = 薄荷信号 Mint Signal `#2ec08b`：状态指示、正向确认、实时信号，少用。
+- 文字：正文 `#1c1c1c`（Obsidian）；标题/导航 `#3c315b`；暗底之上 `#fdfcfe`（Paper White）；弱化文字/图标 `#86848d`（Fog）。
+- 背景/表面（由浅到深）：画布 Paper White `#fdfcfe` → 浅色区块 Bone `#f4f2f4` → 中性按钮面 Ash `#e9e8ea` → 主 CTA 面 Ghost Lavender `#e2dffe` → 暗色区块 Aubergine `#3c315b`。
+- 边框：细边 `#e9e8ea`；强边 `#3c315b`。
+- 用量：调色板刻意窄——单一主紫做全部结构工作；粉彩仅作糖果节奏的点缀，不当背景。禁止引入粉彩集（`#4a87f2` / `#ffffc4` / `#ffdadc`）之外的饱和色。
 
-## 排版规则 ← Tokens—Typography + Do/Don't 字体条
-- 单一定制体 **Phantom**（display 与 body 同一 face；substitute Inter / Söhne / DM Sans @ weight 300/400）。
-- **通体 weight 350**（默认正文与 display 皆 350——非常规轻盈=anti-bold 品牌嗓音）；**weight 400 只留给**需要更多存在感的正文；**Don't** 用 600+（350 是嗓音不是强调手段）。
-- **-0.025em 负字距全尺寸生效**（品牌保真非协商项：96px→-2.4px、64px→-1.6px、16px→-0.4px、13px→-0.325px）。
-- **display 行高塌到 1.0-1.1**（≥64px 让巨标垂直呼吸不留缝）；正文行高 ≤1.4（Don't 超 1.4）。
-- 字阶：caption 13 / body-sm 15 / subheading 20 / heading-sm 24 / heading 30 / heading-lg 64 / display 96（见 adapter font-size-display 96 招牌杠杆）。
-- **Don't**：正文超 16px weight 400。
+## 排版规则 ← DESIGN.md Tokens—Typography + Do/Don't 字体条
+- 字体：Phantom 自定义字体用于一切。替代字体 Inter、Söhne 或 DM Sans，取匹配的 300/400 字重并加 -0.025em 字距。
+- 字重：默认 350（通体轻语字重，营造通透的反粗体个性）；400 仅保留给需要额外存在感的正文。禁止 600+ 字重——350 轻语是品牌嗓音，不是强调手段。
+- 字距：所有尺寸 -0.025em 恒定不可退让（96px 处 -2.4px、64px 处 -1.6px、16px 处 -0.4px、13px 处 -0.325px）。
+- 行高：显示级尺寸（64px 及以上）塌缩到 1.0–1.1，让巨型字纵向呼吸不留缝。
+- 字阶（Role · 字号 · 行高 · 字距）：caption 13px / 1.35 / —；body-sm 15px / 1.4 / -0.375px；subheading 20px / 1.35 / -0.5px；heading-sm 24px / 1.25 / -0.6px；heading 30px / 1.21 / -0.75px；heading-lg 64px / 1.1 / -1.6px；display 96px / 1.0 / -2.4px。
+- 禁忌：正文不得大于 16px 400 字重、行高不得高于 1.4——可读性规则适用但保持克制。
 
-## 形状 / 阴影个性 ← Tokens—Spacing & Shapes + Do/Don't + Elevation
-- 基准 4px，密度 comfortable；圆角**按元素**：nav/tags/buttons 100px（药丸）、cards 24px、links 32px、input 100px（判断补, 见 adapter ③）、image 24px。
-- **药丸几何是招牌**：Do 用 100px 于一切 nav 容器/按钮/tag——"no flat nav bars allowed"；**Don't** 用 <16px 锐角（小元素）、<24px（卡片）——万物皆软胶囊。
-- **阴影极克制——系统全扁平**：唯一允许的是主 CTA 上那道 `rgb(226,223,254) 0px 0px 4px 0px` violet glow；**Don't** 用任何超出这道 4px 紫晕的投影，**Don't** 用渐变/纹理/背景图（表面永远是扁平纯色）。
-- icon 描边纤细 1.5（airy/anti-bold；见 adapter `--stitch-icon-stroke-width`）。
+## 形状 · 阴影个性 ← DESIGN.md Spacing & Shapes(Radius/Shadows) + Do/Don't
+- 基础单位 4px；密度 comfortable。
+- 圆角（按元素）：导航 100px、标签 100px、按钮 100px、链接 32px、卡片 24px。100px 药丸几何是系统的定义性轮廓——不许出现扁平导航栏。
+- 圆角红线：卡片圆角不得低于 24px、较小元素不得低于 16px；不用低于 16px 的尖角——世界由药丸与柔软胶囊构成，每个容器都该柔软。
+- 阴影：唯一阴影 sm = `rgb(226, 223, 254) 0px 0px 4px 0px`，即主 CTA（Ghost Lavender 填充）上的 4px 紫罗兰光晕。除此之外系统保持扁平——不用任何投影。内容卡片无阴影，靠边框与慷慨内距分隔。
+- 禁忌：不用渐变、图案、背景图等高对比装饰——表面永远是扁平纯色。
 
-## 组件规格 ← Components 段（逐组件, verbatim 抄 DESIGN.md）
-- **Pill Navigation Bar**：白色药丸容器 #fdfcfe、100px 圆角，内含 nav 链接（15px weight 350 #3c315b），每链接带 4px chevron；与 logo、Download CTA 隔 24-48px。药丸几何定义招牌——不许扁平 nav。
-- **Download Button（Header）**：Ghost Lavender #e2dffe 填充 + #3c315b 字、100px 圆角、padding 16px 32px、16px weight 350；带 `rgb(226,223,254) 0 0 4px` glow；居 header 最右。
-- **Hero Section（Dark）**：Aubergine #3c315b 满出血背景，白字 #fdfcfe @ 64-80px weight 350、-1.6px 字距；标题居中堆 2-3 行；下方居中药丸 CTA。系统的戏剧/亲密模式。
-- **Hero Section（Light）**：Paper White 或 Bone #f4f2f4 背景，Aubergine #3c315b 字 @ 64-80px weight 350；ghost 吉祥物替换标题一处元音（渲染为 Periwinkle #ab9ff2）作品牌签名。
-- **Muted Purple Hero Panel**：去饱和紫面板（呈灰紫）+ 白字 + 居中 Download CTA；居亮/暗两 hero 模式间作色调桥。
-- **See More Link Button**：Ghost Lavender #e2dffe 填充、#3c315b 字、100px 圆角、padding 12px 24px、15px weight 350、文后带小斜箭头图标。次级动作范式。
-- **Ghost Character Accent**：Phantom ghost 吉祥物渲染为 Periwinkle #ab9ff2，行内替换 display 标题中一处元音；在克制排版里制造一刻俏皮与品牌识别。
-- **Pastel Accent Button Set**：Buttercream #ffffc4 / Blush Mist #ffdadc / Cornflower Pop #4a87f2 填充；同 100px 圆角与 padding；成组用于多动作糖果节奏。
-- **Logo Lockup**：Phantom 字标 + ghost 图标，浅底用 Aubergine #3c315b、深底用 Paper White #fdfcfe；图标外 100px 容器圆角；居 header 最左。
-- **Search Icon Button**：32px 方形按钮，Aubergine #3c315b 搜索图标描边；无底无边纯图标；居 nav 与 Download CTA 之间。
-- **Success Badge**：Mint Signal #2ec08b 背景、白字、100px 圆角、padding 8px 16px、13px weight 350；克制用于 live 状态/确认/正向态。
-- **Card Surface**：Paper White #fdfcfe 背景、24px 圆角、48px padding、1px 边框 #e9e8ea 或 #f4f2f4；**无阴影**——靠边框与慷慨内距分隔；分量轻不厚重。
+## 组件规格 ← DESIGN.md Components 段
+- **药丸导航栏（Primary site navigation）**：白色药丸容器 `#fdfcfe`，满 100px 圆角，内含导航链接（Features、Learn、Explore、Company、Developers、Support）15px 350 字重 `#3c315b`。每个链接带 4px 人字形指示。与 logo 及 Download CTA 间隔 24–48px。药丸几何是招牌——不许扁平导航栏。
+- **Download 按钮（导航内主 CTA）**：Ghost Lavender `#e2dffe` 填充配 `#3c315b` 文字，100px 圆角，16px 32px 内距，16px 350 字重。带 `rgb(226,223,254) 0px 0px 4px 0px` 微光晕。位于头部最右。
+- **Hero 区（暗）**：Aubergine `#3c315b` 背景，白色 `#fdfcfe` 文字，64–80px 350 字重配 -1.6px 字距。居中标题堆叠 2–3 行，下方居中一枚药丸 CTA。系统的戏剧化、私密模式。
+- **Hero 区（亮）**：Paper White 或 Bone `#f4f2f4` 背景，Aubergine `#3c315b` 文字 64–80px 350 字重。幽灵吉祥物替换标题里的一个元音作品牌招牌，幽灵以 Periwinkle `#ab9ff2` 渲染。
+- **柔紫 Hero 面板（过渡 hero — 柔和紫罗兰洗）**：去饱和紫罗兰面板（呈现为灰紫）配白字与居中 Download CTA。位于亮暗两种 hero 模式之间作色调桥梁。
+- **See More 链接按钮（区块内导航）**：Ghost Lavender `#e2dffe` 填充，`#3c315b` 文字，100px 圆角，12px 24px 内距，15px 350 字重。文字后带一枚小对角箭头图标。次要行动样式。
+- **幽灵角色点缀（标题内装饰品牌元素）**：Phantom 幽灵吉祥物以 Periwinkle `#ab9ff2` 渲染，内联替换显示级标题里的一个元音。在肃穆的排印构图中制造玩味与品牌辨识。
+- **粉彩点缀按钮集（多变体动作按钮）**：含 Buttercream `#ffffc4`、Blush Mist `#ffdadc`、Cornflower Pop `#4a87f2` 填充。与其他按钮相同的 100px 圆角与内距。成组使用以在多动作时营造糖果调色节奏。
+- **Logo 锁形（品牌标记）**：Phantom 文字标配幽灵图标，亮底上 Aubergine `#3c315b`、暗底上 Paper White `#fdfcfe`。图标外 100px 容器圆角。位于头部最左。
+- **搜索图标按钮（头部工具动作）**：32px 方形按钮，搜索/放大镜图标描边为 Aubergine `#3c315b`。无背景无边框——纯图标。位于导航与 Download CTA 之间。
+- **成功徽章（状态指示）**：Mint Signal `#2ec08b` 背景，白字，100px 圆角，8px 16px 内距，13px 350 字重。少用于实时状态、确认或正向状态。
+- **卡片表面（内容容器）**：Paper White `#fdfcfe` 背景，24px 圆角，48px 内距，1px 边框 `#e9e8ea` 或 `#f4f2f4`。无阴影——靠边框与慷慨内距分隔。质感轻，不厚重。
 
-## 布局与留白 ← Layout
-- 页宽 **max 1200px**；区块间距 **64px**；卡片 padding **48px**；元素间距 **8-16px**。
-- 亮区块与 Aubergine 暗区块**交替**制造节奏，两模式同等原生。
-- nav 为独立白色药丸容器（非贴顶扁条），与 logo/CTA 以 24-48px 间隔分列。
+## 布局与留白 ← DESIGN.md Layout
+- 页面最大宽度：1200px。
+- 区块间距：64px。
+- 卡片内距：48px。
+- 元素间距：8–16px。
+- 间距刻度：4 / 8 / 12 / 16 / 20 / 24 / 32 / 48 / 64 / 96 / 128px。
+- 导航形态：药丸容器，靠 100px 圆角与 logo、Download CTA 分列头部两端，非扁平导航栏。
+- 交替亮区块与 Aubergine 暗区块营造节奏——两种模式都同等原生。
 
-## 意象 / 配图 ← Imagery
-- **无摄影、无产品截图、无抽象图形**——视觉语言是纯排版 + 品牌吉祥物。
-- ghost 是唯一反复出现的插画元素：扁平渲染为 Periwinkle #ab9ff2，**永远行内嵌在文字中**。
-- 无图片密集内容——文字完全主导视觉层级，ghost 只作偶发个性打断。
+## 意象 · 配图 ← DESIGN.md Imagery
+- 无摄影、无产品截图、无抽象图形。视觉语言是纯排印加品牌吉祥物（幽灵角色）。
+- 幽灵是唯一反复出现的插画元素，以 Periwinkle `#ab9ff2` 扁平渲染，且永远内联于文字中。
+- 无图片密集内容——文字完全主导视觉层级，幽灵仅作偶发的个性打断。
 
-## Do / Don't ← Do's and Don'ts（原样搬，最硬约束）
-**Do**
-- nav 容器/按钮/tag 全用 100px 圆角——药丸几何是系统定义性剪影。
-- 默认全文 weight 350；weight 400 只留给需额外易读性的正文。
-- 全尺寸施加 -0.025em 字距——紧字距是品牌保真非协商项。
-- 主 CTA 用 Ghost Lavender #e2dffe + `rgb(226,223,254) 0 0 4px` glow。
-- 亮区块与 Aubergine 暗区块交替制造节奏。
-- ≥64px display 行高塌到 1.0-1.1，让巨型字垂直呼吸不留缝。
-- display 标题一处元音替换为 Periwinkle #ab9ff2 的 ghost 吉祥物。
+## Do · Don't ← DESIGN.md Do's and Don'ts
+### Do
+- 所有导航容器、按钮、标签用 100px 圆角——药丸几何是系统定义性剪影。
+- 默认所有文字 350 字重；400 仅留给需额外可读性的正文。
+- 每个字号都用 -0.025em 字距——紧字距是品牌保真的不可退让项。
+- 用 Ghost Lavender `#e2dffe` 作主 CTA 填充，配 `rgb(226,223,254) 0px 0px 4px 0px` 光晕。
+- 亮区块与 Aubergine 暗区块交替营造节奏——两种模式同等原生。
+- 显示级尺寸（64px 及以上）行高塌缩到 1.0–1.1，让巨型字纵向无缝呼吸。
+- 用 Periwinkle `#ab9ff2` 的幽灵吉祥物替换显示级标题里的一个元音，制造品牌玩味。
 
-**Don't**
-- 不用超出那道 4px violet glow 的投影——系统保持扁平。
-- 不设 weight 600+——350 whisper-weight 是嗓音不是强调选项。
-- 不用 <16px 锐角——世界是药丸与软胶囊。
-- 不引入糖果 accent 集（#4a87f2 / #ffffc4 / #ffdadc）之外的饱和色——调色刻意窄。
-- 正文不超 16px weight 400、行高不超 1.4——易读规则适用但保持克制。
-- 不用渐变/纹理/背景图等高对比装饰——表面永远扁平纯色。
-- 卡片圆角不低于 24px、小元素不低于 16px——每个容器都该软。
+### Don't
+- 除主 CTA 上那唯一的 4px 紫罗兰光晕外，不用任何投影——系统保持扁平。
+- 不用 600+ 字重——350 轻语是品牌嗓音，不是强调选项。
+- 不用低于 16px 的尖角——世界由药丸与柔软胶囊构成。
+- 不引入粉彩集（`#4a87f2`、`#ffffc4`、`#ffdadc`）之外的饱和色——调色板刻意窄。
+- 正文不设大于 16px 400 字重、行高不超过 1.4——可读性规则适用但保持克制。
+- 不用渐变、图案、背景图等高对比装饰元素——表面永远是扁平纯色。
+- 卡片圆角不低于 24px、较小元素不低于 16px——每个容器都该柔软。
 
-## 示例 Prompt ← Example Component Prompts（给 AI 直接参考）
-1. **Hero Section（Dark）**：Aubergine #3c315b 满出血底。Display 标题 80px Phantom weight 350 Paper White #fdfcfe，字距 -2.0px、行高 1.1、居中。下方 Ghost Lavender #e2dffe 药丸按钮，100px 圆角、padding 16px 48px、16px weight 350 #3c315b，带 `rgb(226,223,254) 0 0 4px` 阴影。
-2. **Hero Section（Light）**：Paper White #fdfcfe 底。Display 标题 64px Phantom weight 350 Aubergine #3c315b，字距 -1.6px；第二词首元音替换为 Periwinkle #ab9ff2 ghost 吉祥物。下方 See More 药丸链接（#e2dffe 填充、100px 圆角、#3c315b 字 15px）带小箭头图标。
-3. **Navigation Bar**：白色 #fdfcfe 药丸容器、100px 圆角、纵向 padding 48px、横向 padding 16px 24px。内含 5 个 nav 项 15px weight 350 #3c315b，各带 4px chevron；居 Phantom logo（左）与 Download 按钮（右）之间。
-4. **Content Card**：Paper White #fdfcfe 底、24px 圆角、1px 边框 #e9e8ea、48px padding、无阴影。标题 30px weight 350 #1c1c1c，正文 16px weight 400 #1c1c1c 行高 1.4。
-5. **Pastel Accent Button Group**：一排三个药丸按钮，各 100px 圆角、padding 16px 32px、15px weight 350。填充：Buttercream #ffffc4 / Blush Mist #ffdadc / Cornflower Pop #4a87f2，全用 #1c1c1c 字，按钮间距 8px。
+## 示例 Prompt ← DESIGN.md Example Component Prompts
+1. **Hero 区（暗）**：Aubergine `#3c315b` 满幅背景。显示级标题 80px Phantom 350 字重 Paper White `#fdfcfe`，字距 -2.0px，行高 1.1，居中。下方一枚 Ghost Lavender `#e2dffe` 药丸按钮，100px 圆角，16px 48px 内距，16px 350 字重 `#3c315b`，配 `rgb(226,223,254) 0px 0px 4px 0px` 阴影。
+2. **Hero 区（亮）**：Paper White `#fdfcfe` 背景。显示级标题 64px Phantom 350 字重 Aubergine `#3c315b`，字距 -1.6px。第二个词的首个元音替换为 Periwinkle `#ab9ff2` 幽灵吉祥物。下方一枚 See More 药丸链接（`#e2dffe` 填充，100px 圆角，`#3c315b` 文字 15px）带小箭头图标。
+3. **导航栏**：白色 `#fdfcfe` 药丸容器，100px 圆角，48px 纵向内距，16px 24px 横向内距。含 5 个导航项 15px 350 字重 `#3c315b`，各带 4px 人字形。位于 Phantom logo（左）与 Download 按钮（右）之间。
+4. **内容卡片**：Paper White `#fdfcfe` 背景，24px 圆角，1px 边框 `#e9e8ea`，48px 内距，无阴影。标题 30px 350 字重 `#1c1c1c`，正文 16px 400 字重 `#1c1c1c` 配 1.4 行高。
+5. **粉彩点缀按钮组**：一排三枚药丸按钮，各 100px 圆角，16px 32px 内距，15px 350 字重。填充：Buttercream `#ffffc4`、Blush Mist `#ffdadc`、Cornflower Pop `#4a87f2`，均配 `#1c1c1c` 文字，按钮间 8px 间距。

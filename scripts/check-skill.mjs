@@ -36,6 +36,7 @@ import { buildSkill, resolveSite } from './build-skill.mjs';
 import { extractPropsInterfaces, propsProjectFor } from './lib/props.mjs';
 import { listPublishableSites } from './lib/publishable-sites.mjs';
 import { resolveActiveSite } from './lib/resolve-preset.mjs';
+import { stripTrace } from './lib/strip-trace.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..'); // stitch-design-system/
@@ -545,14 +546,20 @@ check('§7 design-rules', '§7', '== 全局源逐字节', () =>
 );
 
 // =====================================================================
-// §8 rules.md (per preset) — byte-exact copy of the site's rules.md   #29 §8
+// §8 rules.md (per preset) — == stripTrace(源)（#34，原「逐字节」）          #29 §8
+// 源 rules.md 保留 DESIGN.md 来源追溯；build:skill 迁移时 stripTrace 剥掉可剥位置的追溯。
+// 故 parity 不再是「字节相等源」，而是「字节相等 stripTrace(源)」——preset 必须正好是剥离产物，
+// 既不多剥（丢内容）也不少剥（漏 DESIGN.md）。stripTrace 的零残留自检本身保证 preset consumer-clean。
 // =====================================================================
 for (const s of PRESET_SITES) {
   const p = presetFile(s, 'rules.md');
   const { rules } = siteSrc(s);
-  check('§8 rules', '§8', `[${s}] == sites/${s}/rules.md 逐字节`, () =>
+  check('§8 rules', '§8', `[${s}] == stripTrace(sites/${s}/rules.md)`, () =>
     existsSync(p) && existsSync(rules)
-      ? bytesEqual(p, rules) || 'rules.md != site source'
+      ? readFileSync(p, 'utf8') ===
+          stripTrace(readFileSync(rules, 'utf8'), {
+            label: `sites/${s}/rules.md`,
+          }) || 'rules.md != stripTrace(site source)'
       : `missing ${p}`,
   );
 }

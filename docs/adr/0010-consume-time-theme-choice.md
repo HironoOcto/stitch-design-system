@@ -8,7 +8,7 @@ skill 不再在 `build:skill` 时把 `activeSite` 那**单套**主题烤进 `ref
 
 三处落点：
 
-1. **预置全备**（`build:skill`）：`references/theme-presets/<站>/tokens.css` = `mergeTokens(contract, sites/<站>/adapter.css, 站)`（仍走同一 [mergeTokens](../../scripts/lib/merge-tokens.mjs)，H4 不变量逐份持有）、`rules.md` = `sites/<站>/rules.md` 逐字节、`style.md` = 该站 `skill-blurb.md` 的 `## description` / `## style-paragraph` 两段逐字。站集合 == #7 判据（与 #8 `themes/*` 导出面同一集合，两发布面永不劈叉）。
+1. **预置全备**（`build:skill`）：`references/theme-presets/<站>/tokens.css` = `mergeTokens(contract, sites/<站>/adapter.css, 站)`（仍走同一 [mergeTokens](../../scripts/lib/merge-tokens.mjs)，H4 不变量逐份持有）、`rules.md` = `sites/<站>/rules.md`（#34 起走 `stripTrace(源)` 迁移剥离 DESIGN.md 追溯，见 [skill-acceptance.md](../contributing/skill-acceptance.md) §8；原为逐字节）、`style.md` = 该站 `skill-blurb.md` 的 `## description` / `## style-paragraph` 两段逐字。站集合 == #7 判据（与 #8 `themes/*` 导出面同一集合，两发布面永不劈叉）。
 2. **读时解析**（SKILL.md「Current style」节 + [resolve-preset.mjs](../../scripts/lib/resolve-preset.mjs)）：先读消费项目 `.agent/stitch.theme.json` 的 `activeSite`（无文件 / 无该键 / 文件损坏 → 回落发布默认，从不抛错），据此读 `references/theme-presets/<active>/*`。发布默认站名由 `build:skill` 注入 SKILL.md 的 `SLOT:default-site`（生成物，非手写写死）。
 3. **description 主题中性**：frontmatter `description` 改为讲**设计系统本身**（可换肤 `--stitch-*` 角色契约 + 组件库），不讲某套皮、无站名、无招牌风格词；原招牌风格散文下沉到各预置的 `style.md`，随 active 解析后在 body「Current style」节呈现。全局 `references/theme/design-rules.md` 仍主题中立、单份、不动。
 

@@ -153,11 +153,14 @@
 |---|---|---|---|
 | == 源逐字（全局源、拷贝无加工） | `diff SKILL_DIR/references/theme/design-rules.md docs/design-system/design-rules.md` == 空（源是全局的、与主题无关，故这份拷贝天然主题无关；单份、不进任何预置） | 机器 | 副本被手改、与源漂移；或被复制进某预置目录 |
 
-### 8. `references/theme-presets/<站>/rules.md`（生成 · 拷贝 · 每可发布站一份）
+### 8. `references/theme-presets/<站>/rules.md`（生成 · 迁移剥离 · 每可发布站一份）
+
+> #34 起：源 `sites/<站>/rules.md` **保留 DESIGN.md 来源追溯**（可追溯，onboard 忠实产物），追溯只落【小节标题 `←` 尾注 + `<!-- trace -->` 追溯容器】；`build:skill` 拷进预置时走 **`stripTrace(源)`** 确定性剥离（删 `←` 尾注 + 删追溯容器），preset 发布副本 consumer-clean（零 DESIGN.md）。故 parity 从「逐字节 == 源」改为「== `stripTrace(源)`」。`stripTrace` 的**剥后零残留自检**（正文自由句里有 DESIGN.md 即抛错、`build:skill` 失败并指出源哪行）是新站的机器强制——放错位置直接红，不靠文档自觉。
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| == 该站 rules 逐字 | 对每个可发布站，`diff theme-presets/<站>/rules.md sites/<站>/rules.md` == 空 | 机器 | 副本手改、与 `sites/<站>/rules.md` 不符 |
+| == `stripTrace(该站 rules)` | 对每个可发布站，`theme-presets/<站>/rules.md` 逐字节 == `stripTrace(sites/<站>/rules.md)`（[strip-trace.mjs](../../scripts/lib/strip-trace.mjs)） | 机器 | 副本手改；或多剥（丢内容）/ 少剥（漏 DESIGN.md）与剥离产物不符 |
+| preset 零 DESIGN.md 残留 | `grep -c DESIGN.md theme-presets/<站>/rules.md` == 0（`stripTrace` 自检 + check:boundary 发货面双保险共同保证） | 机器 | 追溯落到不可剥位置（正文自由句）→ `build:skill` 抛错 |
 
 ### 9. `references/theme-presets/<站>/style.md`（生成 · 每站招牌散文 · 源为 skill-blurb.md）
 

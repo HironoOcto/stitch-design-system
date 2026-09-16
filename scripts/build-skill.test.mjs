@@ -4,7 +4,7 @@
 // SKILL.md — the style prose lives per-preset and is resolved at read time, not baked here.
 // Runs into a throwaway skillDir (copy of the real SKILL.md skeleton) so the test never
 // clobbers the committed skill. Covers: presets for every publishable site, H4 on each
-// tokens.css, byte-exact rules copies, style.md == blurb two sections, default-site slot,
+// tokens.css, rules.md == stripTrace(source) (#34), style.md == blurb two sections, default-site slot,
 // theme-neutral description, and idempotence.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,6 +16,7 @@ import { buildSkill, resolveSite } from './build-skill.mjs';
 import { mergeTokens } from './lib/merge-tokens.mjs';
 import { parseBlurb } from './build-blurb.mjs';
 import { listPublishableSites } from './lib/publishable-sites.mjs';
+import { stripTrace } from './lib/strip-trace.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..'); // stitch-design-system/
@@ -182,18 +183,31 @@ test('composition.md is a 4th preset file — copied iff the site has one (#31)'
   );
 });
 
-test('each preset rules.md is a byte-exact copy of sites/<site>/rules.md', () => {
+test('each preset rules.md == stripTrace(sites/<site>/rules.md) (#34, was byte-exact)', () => {
+  // 源 rules.md 保留 DESIGN.md 来源追溯；build:skill 迁移时 stripTrace 剥掉可剥位置的追溯。
+  // preset 必须正好是剥离产物：既不多剥（丢内容）也不少剥（漏 DESIGN.md）。
   const skillDir = seedSkillDir();
   buildSkill({ root, site: 'steep', skillDir });
-  const bytesEqual = (a, b) => readFileSync(a).equals(readFileSync(b));
-  for (const s of SITES)
-    assert.ok(
-      bytesEqual(
-        join(skillDir, 'references/theme-presets', s, 'rules.md'),
-        resolve(root, 'sites', s, 'rules.md'),
-      ),
-      `${s}/rules.md must equal its site source byte-for-byte`,
+  for (const s of SITES) {
+    const preset = readFileSync(
+      join(skillDir, 'references/theme-presets', s, 'rules.md'),
+      'utf8',
     );
+    const expected = stripTrace(
+      readFileSync(resolve(root, 'sites', s, 'rules.md'), 'utf8'),
+      { label: `sites/${s}/rules.md` },
+    );
+    assert.equal(
+      preset,
+      expected,
+      `${s}/rules.md must equal stripTrace(source)`,
+    );
+    assert.doesNotMatch(
+      preset,
+      /DESIGN\.md/,
+      `${s}/rules.md preset consumer-clean`,
+    );
+  }
 });
 
 test('each preset style.md carries the two blurb sections verbatim', () => {

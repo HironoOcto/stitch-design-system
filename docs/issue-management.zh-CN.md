@@ -684,31 +684,9 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
 
 > 四条共用 AFK 约定：先读 issue 正本（`GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view <N> --comments --repo HironoOcto/stitch-design-system`），在 `stitch-design-system/` 执行（先 pwd）；gh 一律带 `GH_CONFIG_DIR` + `--repo`。按依赖顺序领取。排序：宜在 #28/#29 landing 之前或并行（landing 读 style.md，本组前做会用到旧 austere 框）。
 
-## #34（AFK）：迁移剥离基建 —— stripTrace + check:boundary 边界守（rules.md 端到端）
+## #34（已完成 ✅）：迁移剥离基建 —— stripTrace + check:boundary 边界守（rules.md 端到端）
 
-> ① prefactor。源 rules.md 保留 DESIGN.md 追溯但只落**可剥位置**（标题 `←` 尾注 + 顶部/专用追溯容器，正文不许出现 DESIGN.md）；build:skill 拷贝时 `stripTrace` 剥离 → preset consumer-clean。**核心不变量**：`stripTrace` 剥后**自检零 DESIGN.md 残留、有残留抛错指行、build:skill 失败** → 任何站（含未来新站）放错位置即构建红，**机器强制守格式、不靠自觉**（这才是新站的保障，非手改 3 站 + 文档约定）。check:skill §8 parity → `== stripTrace(源)`；check:boundary 发货面双保险（不引用 `<skill>` 外 + 白名单 `.agent/stitch.theme.json`、文本扫描）；onboard-site.md 补可剥位置写法约定。3 站 rules.md 是**格式规整非重产**（规则内容不变）。照 issue #34 正本执行。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 34 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：无（本组 prefactor，可立即领）。承接 #32；#33 已作废，本 issue 是其拆分之一。
-
-目标（照 issue #34 正本，本段不复述细节）：建「源留追溯、迁移剥离」基建 + 强制契约，用 rules.md 端到端验证。
-- 可剥位置定义：源里 DESIGN.md 追溯只能落【小节标题 ← 尾注 + 顶部/专用追溯容器】，正文自由句不许出现 DESIGN.md。
-- 新增通用 stripTrace()（rules.md 与 composition.md 共用，#35 复用）：删 ← 尾注 + 删追溯容器 → 【剥后自检零 DESIGN.md 残留，有残留抛错并指出源哪行】。这是核心不变量。
-- build:skill 拷 rules.md 进 preset：copyFileSync → writeFileSync(stripTrace(源))；残留即 build 失败。→ 任何站放错位置即红，机器强制守格式（新站不用特殊照顾、不靠文档自觉）。
-- check:skill §8 rules parity：字节相等 → == stripTrace(源)。
-- check:boundary 加边界守（发货面双保险）：skill 发货面（含 theme-presets）不得引用 <skill>/ 外资源（【文本扫描】、种子含 DESIGN.md + docs//scripts//CONTEXT//source//ADR），白名单放行 .agent/stitch.theme.json；sites/ 已 EXEMPT 不误伤源。
-- 3 站源 rules.md：格式规整（非重产、规则内容不变）到过自检——顶部溯源句拆开（删 DESIGN.md 溯源、留 adapter/design-rules 指引）、正文散发的 DESIGN.md（如 seline「其余…见 DESIGN.md Components 原文」）挪进 ← 尾注或删。
-- onboard-site.md 补可剥位置写法约定；build-skill.test 相应改。
-
-红线（可 grep）：preset rules.md 零 DESIGN.md；stripTrace 剥后零残留自检（放错即 build 红）+ 幂等；check:boundary 拦 skill 外引用、放行白名单；build:skill 仍纯确定（无 LLM）。
-
-验收：stripTrace 通用 + 零残留自检单测（含「正文散发 DESIGN.md → 抛错」用例）；3 站源 rules.md 格式规整到过自检（内容不变、追溯仍在只落可剥位置）、preset 零 DESIGN.md；check:skill parity=stripTrace(源)；check:boundary 绿；check:skill + npm run ci 全绿。
-
-收尾门：用户验收通过后才 commit(#34) + close + GH 评论登记两块表。纯机制、可 AFK 到收尾门。
-```
+> ✅ 已完成并 close（commit `ceb331f`，2026-09-16）。建「源留追溯、迁移剥离」基建 + 强制契约，并**根治「onboard 生成 rules.md 老带 adapter 横指」的流程病**——「见 adapter」不来自 DESIGN.md（DESIGN.md 干净），是单 prompt 同产 adapter+rules、LLM 在同一上下文回指孪生所致；修法不是手洗产物（会掩盖流程病、新站照旧犯），而是**拆双 prompt**——`prompt-2(rules)` 只吃 DESIGN.md、上下文里根本没有 adapter → 结构上无从「见 adapter」；3 站 rules.md 用该正规流程（干净上下文 subagent，禁读 adapter/旧 rules）**重生成**，非手改。**基建**：通用 `stripTrace()`（[strip-trace.mjs](../scripts/lib/strip-trace.mjs)，剥小节标题 `←` 尾注 + `<!-- trace -->` 容器 → 剥后零 DESIGN.md 残留自检、抛错指源哪行、放错即 build 红 + 幂等；#35 复用）；build:skill 拷 rules.md `copyFileSync → writeFileSync(stripTrace(源))`；check:skill §8 parity `== stripTrace(源)`；check:boundary 加发货面「无外资源引用」边界守（[outside-refs.mjs](../scripts/lib/outside-refs.mjs)，种子 `DESIGN.md`/`docs/`/`scripts/`/`CONTEXT`/`source/`/`ADR` + 孪生横指 `adapter.css`/`variables.css`/`见 adapter`，白名单 `.agent/stitch.theme.json`，`composition.md` 暂 EXEMPT → #35）。**根因修复**：[onboard-site.md](../docs/contributing/onboard-site.md) 执行 prompt 拆 prompt-1(adapter 值视图) + prompt-2(rules 规则视图·只吃 DESIGN.md·硬隔离)，孪生同源平行、互不引用；3 站 rules.md 重生成后 consumer-clean、零横指、DESIGN.md 只落可剥位置，DESIGN 未规定的判断值（input 圆角 / icon 描边）下沉 adapter/token 层不再进 rules.md。**① 结构 Hook**：H1 边界守扩展（发货面零外资源引用）🟢、H3 skill 自包含（§8 parity=stripTrace(源)）🟢、stripTrace 零残留新不变量（放错即 build 红、幂等）🟢、H5 `npm run ci` EXIT 0（check:skill 79/79、check:boundary 三层零越界 + 发货面零外资源、709 unit + 147 a11y、build）🟢。**② 真实 case dry_run**：正文注 DESIGN.md → build 失败指「源第 87 行」；发货面注 `docs/`/`见 adapter`/`adapter.css`/`variables.css` → check:boundary 红指行（9 处），重建复绿；3 站正规流程重生成产物零横指 + 正文零 DESIGN.md + stripTrace 剥后 0 残留 + 9 节齐全；preset 其余文件（tokens/style/composition/design-rules）零改动 🟢。两块表见 GH #34 评论。下游：#35 composition.md 复用 stripTrace + 同把边界种子。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/34
 依赖：无（可立即领取）。

@@ -700,27 +700,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/35
 
 ## #36（AFK）：build:blurb 吸收 composition 修正（机制 + 契约升级）
 
-> ③。composition.md 成 build:blurb **可选输入**、prompt 融合「DESIGN + composition 修正」、skill-blurb 契约升级为「as corrected by composition」、依赖顺序 adapter/rules→composition→blurb。**只建机制**、不重生成冻盘（归 #37）。**依赖 #35 重建好的 composition** 作吸收输入 + prompt 设计参照——没有正确 composition 无从吸收。照 issue #36 正本执行。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 36 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#35（composition 重建）就位——没有正确 composition 无从吸收。承接 #32；#33 已作废。
-
-目标（照 issue #36 正本，本段不复述细节）：让 build:blurb 生成 skill-blurb（→ style.md）时吸收 composition.md 合成层修正。
-- build-blurb.mjs + lib/design-sections.mjs：composition.md 成【可选输入】（有则融合、无则退化为只读 DESIGN.md）。
-- 固定 prompt 改为融合「DESIGN 概览三段 + composition 修正 → 一段忠于真站的 style」。
-- skill-blurb.md 头注契约升级为「faithful to DESIGN.md as corrected by composition.md」。
-- onboard 依赖顺序理顺 adapter/rules → composition → blurb。
-- 只建机制，不重生成/冻盘产物（归 #37）；build:skill 仍纯确定（LLM 只在 build:blurb 这步）。
-
-红线：无 composition 时退化为原行为；build:skill 不引入 LLM；单测覆盖融合逻辑。
-
-验收：composition 可选输入 + prompt 融合 + 契约升级 + 依赖顺序理顺；单测 + dry-run 对 #35 真 composition 产出融合 style-paragraph；check:skill + npm run ci 全绿。
-
-收尾门：用户验收通过后才 commit(#36) + close + GH 评论登记两块表。
-```
+> ✅ 已完成并 close（commit `e48a522`，2026-09-17，用户验收通过）。`composition.md` 成 `build:blurb` **可选融合输入**，从机制上消除 `style.md`（继承 `DESIGN.md` austere 框）与 `composition.md`（真站 rich 真相）的矛盾。**只建机制**、不重生成/冻盘产物（归 #37）；`build:skill` 仍纯确定、LLM 只在 build:blurb 这步。**机制**：`extractComposition`（[design-sections.mjs](../scripts/lib/design-sections.mjs)）= `stripTrace(源)` consumer-clean 正文（= 发货正文、零 `DESIGN.md` 泄漏），缺则 `null` → `buildPrompt` 退化；`buildPrompt` 有 composition 则加融合序言 + DESIGN INPUT 之后附 `COMPOSITION CORRECTIONS` 块（冲突以真站修正为准），无则**逐字节退化**为 pre-#36；`renderBlurbFile` 契约升级为 `faithful to DESIGN.md as corrected by composition.md`（头注是注释、`parseBlurb` 不读 → 不入 preset `style.md`）；`main()` 自动探测 + `--dry-run`（全流程到 stdout、不落盘）。**文档同步**（源码赢）：[skill-build-pipeline §4.4①/a′](./contributing/skill-build-pipeline.md) + 依赖顺序、[maintainer-runbook](./contributing/maintainer-runbook.md) onboard 次序 + 命令表、[ADR 0013](./adr/0013-composition-layer.md) Consequence + 契约落地、[onboard-composition](./contributing/onboard-composition.md) 消费路径。**① 结构 Hook**：无 composition → prompt 逐字节退化（`{composition:null/undefined}==bare`、saybriefly `--prompt-only` 0 处）🟢、build:skill 不引入 LLM🟢、融合逻辑 6 条新单测覆盖🟢、契约 corrected↔plain 二态不入 style.md🟢、产物零改动（skills//skill-blurb.md//composition.md//style.md 未触，归 #37）🟢、`npm run ci` EXIT 0（check:skill 79/79、check:boundary、709 unit + 147 a11y、build；pre-commit）🟢。**② 真实 dry-run**（对 #35 真 composition）：`steep --prompt-only`（有）→ 融合序言 + `COMPOSITION CORRECTIONS`（氛围铺底/明暗幕/辉光·毛玻璃/字形设备/刻意拒绝 consumer-clean 正文）未写盘🟢、`saybriefly --prompt-only`（无）→ 0 处、退化🟢、`steep --dry-run` 对真 #35 composition 产出**融合 style-paragraph**（颗粒氛围底/近黑暗幕/毛玻璃/错位拼贴/斜体设备 融进 DESIGN 骨架）带升级契约头注、lint 干净、**未落任何产物**（`claude -p` 本环境无法嵌套 spawn，LLM 步代跑经 `--dry-run --from`，组装/渲染/契约路径即真实那条）🟢、`node --test` 110/110🟢。两块表见 GH #36 评论。下游：#37 用本机制重跑 build:blurb 吸收 #35 新 composition → 人审冻盘 style.md。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/36
 依赖：#35（composition.md 重建，提供正确 composition 供吸收）。

@@ -707,26 +707,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/36
 
 ## #37（AFK + 人审门）：重生成 style.md 吸收修正 + 端到端零矛盾验证
 
-> ④ payoff。用 #36 机制重跑 build:blurb（吸收 #35 新 composition）→ phantom/steep 新 style-paragraph → **人审冻盘**；build:skill 出 preset；`check:skill` + `ci` 全绿 + 裁判核 style↔composition 零矛盾。⚠️ 含人审冻盘门，非纯 AFK。照 issue #37 正本执行。
-
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 37 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#36（build:blurb 吸收机制）就位；composition 原料经 #35 已就位。承接 #32；#33 已作废。
-
-目标（照 issue #37 正本，本段不复述细节）：用 #36 机制重跑 build:blurb 吸收 #35 新 composition，收敛 consumer-clean 链。
-- 重跑 build:blurb → phantom/steep（seline 视变化）新 style-paragraph（消除 austere 框：去 resolutely flat / not ornament / pastel button tints only / near-monochrome white canvas / flat shadowless 等与真站矛盾措辞）。
-- 【人审冻盘】：style-paragraph 是 LLM 产物 → 人审 + Status: human-approved（非纯 AFK）。
-- build:skill 出 preset（style.md 生成 + composition/rules 走 stripTrace）。
-- 端到端验证 + 另派裁判核 phantom/steep 的 style.md ↔ composition.md 零矛盾。
-
-红线：新 style.md 无 austere 矛盾措辞；preset parity（含 stripTrace）绿；check:boundary 绿。
-
-验收：新 style-paragraph 经人审冻盘；check:skill + npm run ci 全绿；裁判核 style↔composition 零矛盾；执行报告两块表（① 结构 Hook + ci 🟢；② style↔composition 零矛盾真实 case 🟢）。
-
-收尾门（两道）：① 重生成后必须人审冻盘（非纯 AFK）；② 用户验收通过后才 commit(#37) + close + GH 评论登记两块表。
-```
+> ✅ 已完成并 close（commit `bc1511e`，2026-09-17，用户验收通过）。用 #36 融合机制重跑 `build:blurb`（吸收 #35 重建的 `composition.md`），为**三站**生成**消除 austere 框**的新 style-paragraph，收敛 consumer-clean 链。生成走 **athlete**（fresh-context LLM roll 经 `build:blurb --from`，非手写）→ 三站**独立裁判**核 style↔composition 零矛盾 → **人审冻盘**（`Status: human-approved`）→ `build:skill` 出 preset。**范围**：issue 原文 phantom/steep，**seline 系用户在本 issue 内追加**（seline 也有 composition），同一 fusion 处理。**修正真相**：phantom 画布 lavender（非 `near-monochrome white`）/ 暗=瓦片级（非满幅 aubergine）/ 辉光罩全瓦片（非 CTA-only）/ 补 hero 视频 + 实心彩色 bento 网格 / 去 `resolutely flat`·`not ornament`；steep 分层氛围底（gradient bitmap + turbulence grain + overlay，非 flat white）/ 满幅近黑 AI 暗幕 + 白→透明渐隐带 / 毛玻璃 composer + 磨砂 nav / 每标题一处斜体 / 内容卡无影 vs 浮动件 earn elevation（非 `flat and shadowless`）；seline 折入缩放旋转拼贴（0.8–0.9 / 2–8°）/ 灰阶降对比图像 / 轮廓吉祥物贴纸 / 深大扩散软影（supersede 旧 16px-blur）/ 玻璃仅 chrome，保留全部 refuses（纯平铺底 / 无暗幕 / 无彩色辉光 / 无斜体）。**① 结构 Hook**：`check:skill` **79/79**、`check:boundary` 三层零越界、preset parity（含 stripTrace，§9 style==冻盘 blurb / §9.5 composition==stripTrace 源）、`npm run ci` **EXIT 0**（709 unit + 147 a11y + build；pre-commit）🟢。**② 真实 case**：phantom/steep/seline 三站独立裁判均 **zero-contradiction** + austere 框确认缺席、消费方读到统一真相 🟢。**红线全过**：三站新 style.md 无 austere 矛盾措辞 / preset parity 绿 / check:boundary 绿。两块表见 GH #37 评论。收敛：consumer-clean 链（#34→#35→#36→#37）闭环。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/37
 依赖：#36（build:blurb 吸收机制；composition 原料经 #35 已就位）。

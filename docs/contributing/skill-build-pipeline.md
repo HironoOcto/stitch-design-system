@@ -505,7 +505,9 @@ DESIGN.md 是 Refero 产物、**结构固定**，所以**输入抽取能脚本�
 - **style 段** = 副标题 / `**Theme:**` 行之后、第一个 `## ` 之前的正文段
 - **Do's & Don'ts** = `## Do's and Don'ts` 整节（连同 `### Do` / `### Don't`）
 
-**b. 填进固定 prompt 调 LLM**（可脚本化，但**非确定**——同输入重跑输出可能变，所以产物要缓存、**绝不进 build:skill**）：
+**a′. 融合合成层修正（#36，[ADR 0013](../adr/0013-composition-layer.md)，可选输入）**：若 `sites/<site>/composition.md` 在，取其 **consumer-clean 正文**（`extractComposition` = `stripTrace(源)`，剥掉 `<!-- trace -->` 维护者表 + `←` 尾注 → 与 skill 发货给消费方的正文一致、零 DESIGN.md 泄漏）作 build:blurb 的**第二输入**。DESIGN.md 抽的三段是继承 austere 框的**基线**（对合成层系统性漏 / 写反）；composition 正文是**真站探针实测的 ground truth**——融合时**冲突以 composition 为准**（`--stitch-*` 值层仍走 tokens.css，两层不重叠）。**站无 `composition.md` → 跳过本步，退化为只读 DESIGN.md 的 pre-#36 行为**（红线）。合成层是 `build:blurb`（LLM 步）**唯一**吸收点；`build:skill` 仍纯确定、不引入 LLM。
+
+**b. 填进固定 prompt 调 LLM**（可脚本化，但**非确定**——同输入重跑输出可能变，所以产物要缓存、**绝不进 build:skill**）。有 composition 时，prompt 头部加一段**融合序言**（DESIGN 基线 + 真站修正 → 一段忠于真站的 style，冲突 composition 胜），并在 DESIGN INPUT **之后**附一段 `COMPOSITION CORRECTIONS` 块；无 composition 时 prompt 与下方**逐字一致**（退化）：
 
 ```
 You are writing two blurbs for an AI coding-skill, from a UI theme's style spec.
@@ -543,11 +545,13 @@ INPUT:
 <paste the three DESIGN.md sections here>
 ```
 
-**c. 写出 `sites/<站>/skill-blurb.md` 草稿 → 人过一眼定稿**（唯一的人工步，质量闸；可选，不审也能跑）。steep 的产物，与 [3.1](#31-skillmd骨架固定--生成槽) 注入进 SKILL.md 的两段**逐字一致**：
+**c. 写出 `sites/<站>/skill-blurb.md` 草稿 → 人过一眼定稿**（唯一的人工步，质量闸；可选，不审也能跑）。草稿头注**契约行**记本 blurb 忠于什么（#36）：融合了 composition 时写 **`faithful to source/DESIGN.md as corrected by composition.md`**（落地 [ADR 0013](../adr/0013-composition-layer.md)），无 composition 时退化为原「fidelity to DESIGN.md」措辞。头注是注释，`build:skill` 的 `parseBlurb` 只取两段、不读它，故契约措辞不入 preset `style.md`。示例产物（历史 SLOT 注入版，post-[ADR 0010](../adr/0010-consume-time-theme-choice.md) 已改为下沉各预置 `style.md`）：
 
 ```markdown
-<!-- sites/steep/skill-blurb.md — generated once from source/DESIGN.md, human-approved.
-     build:skill injects these two sections into SKILL.md's SLOT markers. -->
+<!-- sites/steep/skill-blurb.md — generated once from source/DESIGN.md by build:blurb.
+     Draft — pending human sign-off; reviewed for fidelity to DESIGN.md (as corrected by
+     composition.md when the site authored one). build:skill copies these two sections into
+     the site's preset style.md; do not hand-edit the preset copy — edit here and re-run. -->
 
 ## description
 Build React UIs in the Steep style — editorial serif analytics on warm paper:
@@ -580,7 +584,7 @@ content never crowds the edges.
 | **`build:refs`** | 组件源码 + FAMILIES 表 → `references/components/*.md` + 注入 catalog 片段到 SKILL.md/README 的 `<!-- SLOT:catalog -->`（§4.3） | ✅ 确定 | 组件 / 族增改时（主题无关） |
 | **`build:skill`** | 为每个可发布站备预置 `theme-presets/<站>/{tokens.css,rules.md,style.md}`（**+ 可选 `composition.md`**，源在才拷、byte-exact，⑥/#31）+ 全局 `theme/design-rules.md` + 注入 SKILL.md `SLOT:default-site`（[ADR 0010](../adr/0010-consume-time-theme-choice.md)；`tokens.css` 为 `mergeTokens(contract, layer, adapter)` **三输入折入页面尺度层**，[ADR 0012](../adr/0012-page-scale-layer.md) 决策5；旧版单套见 §4.1–4.4） | ✅ 确定，纯文件操作 | 改可发布站源 / 换发布默认 / 发布前 |
 
-**依赖关系**：`build:skill` 消费前两者的产物（`skill-blurb.md` 已存在、`references/components/` 已生成）。典型顺序——首次 `build:blurb` + `build:refs` 备好料 → 之后换主题只跑 `build:skill`。
+**依赖关系**：`build:skill` 消费前两者的产物（`skill-blurb.md` 已存在、`references/components/` 已生成）。典型顺序——首次 `build:blurb` + `build:refs` 备好料 → 之后换主题只跑 `build:skill`。onboard 内部次序理顺为 **adapter/rules → composition → blurb**（#36）：`build:blurb` 现把 `composition.md` 当可选融合输入，故合成层须**先于** blurb 就位（缺则 blurb 退化为只读 DESIGN.md）。
 
 **为什么不合成一个命令**：`build:blurb` 有 LLM、非确定；塞进 `build:skill` 会让每次 build 重掷骰子、破坏下面的幂等。
 
@@ -777,7 +781,7 @@ export function extractDesignSections(path) {
 |---|---|---|
 | build:refs ts-morph 抽 props | `packages/react/src/components/<X>/<X>.tsx` + `packages/react/tsconfig.json` 就绪 | 按 §4.3.1–5 写 ts-morph 抽取；产物按族拼文件时用 `parseFamilies`（分族/顺序）。 |
 | build:refs 编排 | 上一行完成 + `skills/stitch-design-system/` 骨架就绪 | 写 `scripts/build-refs.mjs`：抽 props→按族写 `references/components/*.md`；`renderCatalog(builtFamilyRows(rows, refsDir))` 出片段（只列已落盘族），`replaceSlot(skillMd,'catalog',snippet)` 注入 SKILL.md 与 README。 |
-| build:blurb LLM 步 | 确定 LLM 调用方式（API/CLI） | 写 `scripts/build-blurb.mjs`：`extractDesignSections(DESIGN.md)`→填 §4.4b prompt→调 LLM→写 `sites/<site>/skill-blurb.md`。非确定，产物冻盘、绝不进 build:skill。 |
+| build:blurb LLM 步 | 确定 LLM 调用方式（API/CLI） | 写 `scripts/build-blurb.mjs`：`extractDesignSections(DESIGN.md)` + 可选 `extractComposition(composition.md)`（#36）→填 §4.4b prompt（有 composition 则融合，冲突 composition 胜）→调 LLM→写 `sites/<site>/skill-blurb.md`。非确定，产物冻盘、绝不进 build:skill。 |
 | build:skill 编排 | `packages/tokens/contract.css`、`sites/<site>/{adapter.css,rules.md,skill-blurb.md}`、`docs/design-system/design-rules.md`、SKILL.md 骨架（带槽）全就绪 | 写 `scripts/build-skill.mjs`：`mergeTokens(contract,adapter,site)`→写 `theme/tokens.css`；拷 design-rules/rules（§4.2）；读 skill-blurb 两段→`replaceSlot` 注入 SKILL.md 的 description/style-paragraph 两槽。纯确定、幂等。 |
 
-**依赖顺序**（同 §4.5）：`build:blurb`+`build:refs` 先备料（skill-blurb.md、references/components/ 生成好）→ 之后换主题只跑 `build:skill`。
+**依赖顺序**（同 §4.5）：`build:blurb`+`build:refs` 先备料（skill-blurb.md、references/components/ 生成好）→ 之后换主题只跑 `build:skill`。onboard 内部 **adapter/rules → composition → blurb**（#36：blurb 融合可选的 composition.md，故合成层先于 blurb）。

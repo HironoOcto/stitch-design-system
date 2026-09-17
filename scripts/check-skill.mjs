@@ -605,12 +605,15 @@ for (const s of PRESET_SITES) {
 }
 
 // =====================================================================
-// §9.5 composition.md (per preset) — CONDITIONAL parity (Hook H7)     #29 §9.5
+// §9.5 composition.md (per preset) — CONDITIONAL stripTrace parity (Hook H7)  #29 §9.5
 // The pure-prose composition layer (#30/#31) is OPTIONAL — not part of the publishable
-// quartet, so its parity is conditional on the SOURCE:
-//   · source present → preset composition.md exists AND is a byte-exact copy of the source
-//   · source absent  → preset has NO composition.md (nothing to copy → nothing emitted)
-// This is Hook H7 (合成层 preset 不变量): break the copy / delete the source but keep the
+// quartet, so its parity is conditional on the SOURCE. Like §8 rules.md (#34→#35), the
+// SOURCE keeps its DESIGN.md 追溯（可剥 trace 表 + ← 尾注）；build:skill 迁移时 stripTrace 剥掉：
+//   · source present → preset composition.md exists AND == stripTrace(source)
+//                      （既不多剥丢内容、也不少剥漏 DESIGN.md；stripTrace 零残留自检本身保证
+//                       preset consumer-clean）
+//   · source absent  → preset has NO composition.md (nothing to emit)
+// This is Hook H7 (合成层 preset 不变量): break the strip / delete the source but keep the
 // preset / edit the source → the matching branch below goes red.
 // =====================================================================
 for (const s of PRESET_SITES) {
@@ -619,14 +622,16 @@ for (const s of PRESET_SITES) {
   check(
     '§9.5 composition',
     '§9.5',
-    `[${s}] 条件 parity（源在则字节相等·源无则无）`,
+    `[${s}] 条件 parity（源在则 == stripTrace(源)·源无则无）`,
     () => {
       if (existsSync(composition)) {
         if (!existsSync(p))
           return `source composition.md present but preset copy missing`;
         return (
-          bytesEqual(p, composition) ||
-          'composition.md != site source (not byte-exact)'
+          readFileSync(p, 'utf8') ===
+            stripTrace(readFileSync(composition, 'utf8'), {
+              label: `sites/${s}/composition.md`,
+            }) || 'composition.md != stripTrace(site source)'
         );
       }
       return existsSync(p)

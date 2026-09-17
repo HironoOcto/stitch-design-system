@@ -45,7 +45,7 @@
 
 > 该站合成层通过 ⟺ **探针输出的每一条**，都能在 `DESIGN.md`（值槽部分）**或**该站 `composition.md`（合成层补充）里找到对应——要么被**反映**（记了这个效果），要么被**显式拒绝**（Don't: 刻意无 X）。零 MISSING / 零 WRONG / 零 UNGROUNDED。
 >
-> **不改 DESIGN.md**：它是 Refero 下载存档（不动）。合成层的缺、以及 DESIGN.md 的勘误（写反/漏），落在**新增的 `sites/<site>/composition.md`**（DESIGN.md 的补充；合成层部分冲突时以它为准）。**注意 `composition.md` 是 consumer-clean 发布件**（随 skill 发给消费方，体例照 `rules.md`：自包含、勘误表达成设计事实、无内部链接/探针术语/`:行号`）——本协议下面的**探针输出 / 三类缺陷 diff / `:行号` 勘误 / 归宿表**是**维护者验证记录**（进执行报告 / issue / commit），**不是 `composition.md` 的内容格式**。样例发布件见 [`sites/steep/composition.md`](../../sites/steep/composition.md)。
+> **不改 DESIGN.md**：它是 Refero 下载存档（不动）。合成层的缺、以及 DESIGN.md 的勘误（写反/漏），落在**新增的 `sites/<site>/composition.md`**。**注意 `composition.md` 一个文件承载两种受众**：**正文自由句**是 consumer-clean 发布正文（随 skill 发给消费方——正向散文、零 `DESIGN.md`、不回指孪生 `adapter.css`/`variables.css`），**DESIGN.md 追溯/勘误**只落**可剥维护者位置**（顶部 `<!-- trace: … -->` 表 + 小节 `←` 尾注，`build:skill` 迁移时 `stripTrace` 剥掉）。所以本协议下面的**探针输出 / 三类缺陷 diff / `:行号` 勘误 / 归宿表**进的是那张**可剥 trace 表**（build:skill `stripTrace` 迁移时剥离、不入发货预置）+ 执行报告 / issue / commit，**不进正文自由句**（正文只写更正后的正确设计事实，放错即 build:skill `stripTrace` 零残留自检报红）。样例源见 [`sites/steep/composition.md`](../../sites/steep/composition.md)。
 
 判据锚在「真站实际画了什么」，不是「填满几个框」——所以**扛得住没见过的合成特征**：新花样只要被画出来就进探针输出，就必须被回应。
 

@@ -17,8 +17,9 @@
 //   ② references/theme-presets/<site>/rules.md    = stripTrace(sites/<site>/rules.md)     (#34)
 //      源保留 DESIGN.md 来源追溯，迁移时 stripTrace 剥掉可剥位置的追溯 → preset consumer-clean。
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
-//   ⑥ references/theme-presets/<site>/composition.md = sites/<site>/composition.md (verbatim, OPTIONAL —
-//      the pure-prose composition layer, #30/#31; copied only when the site authored one)
+//   ⑥ references/theme-presets/<site>/composition.md = stripTrace(sites/<site>/composition.md) (#35, OPTIONAL)
+//      源保留 DESIGN.md 追溯（可剥 trace 表 + ← 尾注），迁移时 stripTrace 剥掉 → preset consumer-clean；
+//      the pure-prose composition layer (#30/#31), emitted only when the site authored one.
 //   ④ references/theme/design-rules.md            = docs/.../design-rules.md            (global, once)
 //   ⑤ SKILL.md SLOT:default-site                  = the published-default site name
 // The published default = stitch.config.json `activeSite` (override with `--site`), = the
@@ -130,13 +131,20 @@ export function buildSkill({ root, site, skillDir }) {
       renderStyleMd(parseBlurb(readFileSync(blurbPath, 'utf8'))),
     );
     // ⑥ composition.md — the pure-prose composition layer (#30/#31): OPTIONAL, not part
-    //    of the publishable quartet. Copied VERBATIM (byte-exact, like rules.md) only when
-    //    the site has authored one; a site without it gets NO composition.md in its preset.
-    //    Conditional by design → parity in check:skill is likewise conditional (Hook H7);
-    //    it adds no token slot and touches no contract/adapter/component.
+    //    of the publishable quartet. Emitted only when the site authored one; a site without
+    //    it gets NO composition.md in its preset. Like rules.md (#34), the SOURCE keeps its
+    //    DESIGN.md 追溯（可剥 `<!-- trace -->` 表 + 各 `←` 尾注），迁移时走 stripTrace 剥掉可剥位置
+    //    → preset 只留正向散文（consumer-clean）。放错位置（正文自由句里的 DESIGN.md）→ stripTrace
+    //    自检抛错、build:skill 失败并指出源哪行（#35，原「字节拷贝」）。Conditional by design →
+    //    parity in check:skill is likewise conditional (Hook H7); adds no token slot.
     const composition = resolve(root, 'sites', s, 'composition.md');
     if (existsSync(composition))
-      copyFileSync(composition, join(dir, 'composition.md'));
+      writeFileSync(
+        join(dir, 'composition.md'),
+        stripTrace(readFileSync(composition, 'utf8'), {
+          label: `sites/${s}/composition.md`,
+        }),
+      );
   }
 
   // ④ global, theme-neutral rules — one copy, shared by every preset.

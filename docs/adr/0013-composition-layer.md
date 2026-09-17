@@ -24,7 +24,7 @@
 
 2. **探测生成，非手写想象**：`composition.md` 由 AI **对真站**跑 `emergent-probe.js`（滚到底触发懒加载）→ 拿真站合成信号 JSON → 按 [涌现层验收协议](../contributing/emergent-layer-acceptance.md) 三步（跑探针 / 三类缺陷 diff / 验收判据）产出。**锚在「真站实际画了什么」**，不是「照 DESIGN 散文想象」。区别于 `layout.css` 的确定性生成——本层探针**只保证捕获全**，每条信号**该落哪一层**（契约新槽 / `rules.md` / 纯内容 / Don't）仍是设计判断（运动员 agent 做、裁判 agent 复核，非探针代劳；判断≠真人，全程可 AFK，真人只在收尾门验收）。
 
-3. **存档不改，勘误由 composition.md 覆盖（但 composition.md 是 consumer-clean 发布件）**：`source/DESIGN.md` 一字不动（存档不变量）。`DESIGN.md` 写反/漏的地方由 `composition.md` 更正、**合成层部分冲突时以 `composition.md` 为准**（它是本站合成层的**唯一真相**；值槽仍以 `DESIGN.md`/`adapter.css` 为准，两层不重叠）。**但 `composition.md` 随 skill 发给消费方，体例照发布件 `rules.md`：自包含、面向消费者的设计指南，无内部维护链接（docs//scripts//CONTEXT/ADR）、无探针术语、无 `DESIGN.md:行号`**——勘误在文件里**表达成设计事实**（「更正：真实满屏铺底」），供消费方直接复刻。带 `:行号` 的详细 diff、探针实测证据、覆盖面、归宿建议是**维护者记录**，进执行报告 / GH issue / commit，**不进发布件**（消费方拿不到 `DESIGN.md`，行号对它无意义）。两个受众分离见 [onboard-composition.md](../contributing/onboard-composition.md)。
+3. **存档不改，勘误由 composition.md 覆盖（混合体例：正文发布 + 可剥追溯）**：`source/DESIGN.md` 一字不动（存档不变量）。`DESIGN.md` 写反/漏的地方由 `composition.md` 更正、**合成层部分冲突时以 `composition.md` 为准**（它是本站合成层的**唯一真相**；值槽仍以 `DESIGN.md`/adapter 为准，两层不重叠）。**`composition.md` 采「正文正向散文 + 可剥维护者追溯表」混合体例（复用全仓的 `stripTrace` 可剥追溯机制，见 [strip-trace.mjs](../../scripts/lib/strip-trace.mjs)）**：**正文自由句**是随 skill 发给消费方的发布正文——正向陈述更正后的正确事实（「真实满屏铺底」），**零 `DESIGN.md`、不回指孪生**（`见 adapter`/`adapter.css`/`variables.css`）；**DESIGN.md 追溯、勘误、`:行号` diff、归宿建议**只落**可剥维护者位置**（顶部 `<!-- trace: … -->` 表 + 小节 `←` 尾注）+ 执行报告 / GH issue / commit。`build:skill` 迁移时走 `stripTrace` 剥掉可剥位置 → preset 只留正向散文（consumer-clean）；追溯放错到正文自由句 → `stripTrace` 零残留自检抛错、`build:skill` 失败指行（机器强制）。两个受众分离 + 生成/复核 prompt 见 [onboard-composition.md](../contributing/onboard-composition.md)。
 
 4. **流程必跑，产物按需，不进「可发布四件套」闸门**：区分**核合成层这件事**（必跑）与**`composition.md` 这个文件**（按需）——合成层的漏/写反是**静默**的（不核就不知道 `DESIGN.md` 忠不忠实），所以**接入每个站都必跑一遍**探针 + 验收协议；跑完，该站有未记的合成层就产出 `composition.md`，`DESIGN.md` 已忠实覆盖（零 MISSING/WRONG/UNGROUNDED）就通过、无此文件（四站里 seline 即如此）。而**文件本身不进发布闸门**：可发布站判据是四件套 `{adapter.css, layout.css, rules.md, skill-blurb.md}`（[listPublishableSites](../../scripts/lib/publishable-sites.mjs)，[ADR 0012](./0012-page-scale-layer.md) 决策），`composition.md` **不在其中**——`build:skill` / `check:skill` / `build:layout` **都不读它**，缺它一个站照常可发布、构建照常绿。它服务的是复刻 / 出图消费下游（#31/#32）。这与 0012 的 `layout.css`（**是**四件套之一、缺则不可发布）**刻意相反**——尺度值是渲染必需（必产文件），合成层描述是按需产出（该站有才产）。
 
@@ -40,7 +40,7 @@
 
 ## Consequences
 
-- **新增第二风格源**（本 ADR 引入）：`sites/<site>/composition.md`——顶层（**不**在 `source/`，因它非下载、是我们产出）、按需产出（该站有合成层才有此文件）、Markdown（非 CSS，不进 `:root`、不被 `mergeTokens` 读）、**consumer-facing 发布件**（随 skill 发给消费方，体例照 `rules.md`：自包含、无内部维护链接/术语/行号）。合成层冲突时压过 `DESIGN.md`。
+- **新增第二风格源**（本 ADR 引入）：`sites/<site>/composition.md`——顶层（**不**在 `source/`，因它非下载、是我们产出）、按需产出（该站有合成层才有此文件）、Markdown（非 CSS，不进 `:root`、不被 `mergeTokens` 读）、**混合体例源**：正文正向散文随 skill 发给消费方（迁移时 `stripTrace` 剥掉可剥追溯 → preset consumer-clean），DESIGN.md 追溯/勘误落可剥 `<!-- trace -->` 表 + `←` 尾注。合成层冲突时压过 `DESIGN.md`。
 - **`source/DESIGN.md` 零改动**：存档不变量保持；勘误全部走 `composition.md` 登记。
 - **发布闸门零变化**（H 面）：四件套判据不动，`composition.md` 不入闸；`build:skill`/`check:skill`/`build:layout` 不读它，缺它不红（本 issue 验收 4 实测）。
 - **新增生成 + 验收协议**：探针 [`scripts/emergent-probe.js`](../../scripts/emergent-probe.js)（浏览器端、`<site>` 无关、零写死站名）+ [涌现层验收协议](../contributing/emergent-layer-acceptance.md) + 生成 playbook [onboard-composition.md](../contributing/onboard-composition.md)。接入新站**必跑 +1 步**：跑 onboard-composition 核合成层（抽完 adapter/rules 后）；**产出 `composition.md` 仅当该站有未记的合成层**，忠实站跑完即通过、无此文件。

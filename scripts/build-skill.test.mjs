@@ -144,13 +144,13 @@ test('the folded preset carries the whole page-scale layer + resolvable spacing 
   }
 });
 
-test('composition.md is a 4th preset file — copied iff the site has one (#31)', () => {
-  // Pure-prose composition layer (#30/#31): OPTIONAL. build:skill conditionally copies
-  // sites/<site>/composition.md → theme-presets/<site>/composition.md (byte-exact, like
-  // rules.md) when the source exists, and emits NO composition.md for a site without one.
+test('composition.md is a 4th preset file — == stripTrace(source) iff the site has one (#35)', () => {
+  // Pure-prose composition layer (#30/#31): OPTIONAL. Like rules.md (#34→#35), the SOURCE
+  // keeps its DESIGN.md 追溯（可剥 trace 表 + ← 尾注）；build:skill 迁移时 stripTrace 剥掉可剥位置
+  // → preset consumer-clean。build:skill emits theme-presets/<site>/composition.md ==
+  // stripTrace(source) when the source exists, and NO composition.md for a site without one.
   const skillDir = seedSkillDir();
   buildSkill({ root, site: 'steep', skillDir });
-  const bytesEqual = (a, b) => readFileSync(a).equals(readFileSync(b));
   let sawSource = false;
   for (const s of SITES) {
     const src = resolve(root, 'sites', s, 'composition.md');
@@ -166,9 +166,25 @@ test('composition.md is a 4th preset file — copied iff the site has one (#31)'
         existsSync(preset),
         `${s}: has source composition.md → preset must exist`,
       );
-      assert.ok(
-        bytesEqual(preset, src),
-        `${s}/composition.md must equal its site source byte-for-byte`,
+      const got = readFileSync(preset, 'utf8');
+      const expected = stripTrace(readFileSync(src, 'utf8'), {
+        label: `sites/${s}/composition.md`,
+      });
+      assert.equal(
+        got,
+        expected,
+        `${s}/composition.md must equal stripTrace(source)`,
+      );
+      // preset consumer-clean: no DESIGN.md 追溯, no twin cross-ref (见 adapter/adapter.css/variables.css)
+      assert.doesNotMatch(
+        got,
+        /DESIGN\.md/,
+        `${s}/composition.md preset must be consumer-clean (no DESIGN.md)`,
+      );
+      assert.doesNotMatch(
+        got,
+        /adapter\.css|variables\.css|见\s*adapter/,
+        `${s}/composition.md preset must not cross-ref its twin`,
       );
     } else {
       assert.ok(

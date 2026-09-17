@@ -14,8 +14,9 @@
 //                只禁 animal / 旧包名（hex + 全站枚举在此合法）。
 //
 // 再加一道「发货面无外资源引用」边界守（#34，发货面双保险，与 stripTrace 并行）：
-//   扫 skill 的 references/theme-presets/**（迁移剥离后的发货预置，暂不含 composition.md → #35），
-//   禁任何指向 <skill>/ 目录外资源的痕迹（DESIGN.md / docs/ / scripts/ / CONTEXT / source/ / ADR），
+//   扫 skill 的 references/theme-presets/**（迁移剥离后的发货预置，rules.md + composition.md #35），
+//   禁任何指向 <skill>/ 目录外资源的痕迹（DESIGN.md / docs/ / scripts/ / CONTEXT / source/ / ADR）
+//   及回指孪生的横指（adapter.css / variables.css / 见 adapter），
 //   白名单放行消费侧 `.agent/stitch.theme.json` 指针。种子/白名单实现见 lib/outside-refs.mjs。
 //
 // 站名一律动态解析（resolveSite 取 active、readdirSync(sites) 取全集），脚本零写死站名
@@ -24,7 +25,7 @@
 // 已知边界：steep 也是普通英文词。source 层若误红正常英文注释——先不预开豁免、红了改词。
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve, join, relative, basename } from 'node:path';
+import { dirname, resolve, join, relative } from 'node:path';
 import { resolveSite } from './build-skill.mjs';
 import { scanOutsideRefs } from './lib/outside-refs.mjs';
 
@@ -153,13 +154,14 @@ function themeRefFiles() {
 }
 
 // ---------- 发货面「无外资源引用」边界守（#34，发货面双保险） ----------
-// stripTrace 已保证 preset rules.md 零 DESIGN.md（放错即 build 红）；这道静态扫描是独立复核：
-// committed 的发货预置里任何指向 <skill>/ 目录外资源（DESIGN.md / docs/ / scripts/ / CONTEXT /
-// source/ / ADR）的痕迹都被拦下。白名单放行消费项目侧的 `.agent/stitch.theme.json` 指针。
-// 扫描面 = 每个 skill 的 references/theme-presets/**（迁移剥离后的发货预置），但暂不含
-// composition.md —— 它的迁移由 #35 接手（届时同样走 stripTrace + 纳入本扫描）。
-// sites/ 是源（保留追溯），由 EXEMPT 天然排除；SKILL.md/README/design-rules 等自带的源仓库
-// 指针是 skill 入口文档的有意设计，不在本发货面守备范围。
+// stripTrace 已保证 preset rules.md / composition.md 零 DESIGN.md（放错即 build 红）；这道静态扫描
+// 是独立复核：committed 的发货预置里任何指向 <skill>/ 目录外资源（DESIGN.md / docs/ / scripts/ /
+// CONTEXT / source/ / ADR）或回指孪生的横指（adapter.css / variables.css / 见 adapter）都被拦下。
+// 白名单放行消费项目侧的 `.agent/stitch.theme.json` 指针。
+// 扫描面 = 每个 skill 的 references/theme-presets/** 全体（迁移剥离后的发货预置）——#35 已拆除
+// composition.md 的 EXEMPT，把它同 rules.md 一并纳入本扫描（rules.md 是同预置 shipped sibling、
+// 非 seed，preset 引它不触守）。sites/ 是源（保留追溯），由 EXEMPT 天然排除；SKILL.md/README/
+// design-rules 等自带的源仓库指针是 skill 入口文档的有意设计，不在本发货面守备范围。
 const OUTSIDE_REF_WHITELIST = ['.agent/stitch.theme.json'];
 function shippingSurfaceFiles() {
   const skillsRoot = resolve(root, 'skills');
@@ -168,8 +170,7 @@ function shippingSurfaceFiles() {
   for (const skill of readdirSync(skillsRoot, { withFileTypes: true })) {
     if (!skill.isDirectory()) continue;
     const presets = join(skillsRoot, skill.name, 'references/theme-presets');
-    for (const abs of walk(presets))
-      if (basename(abs) !== 'composition.md') out.push(abs);
+    out.push(...walk(presets));
   }
   return out;
 }

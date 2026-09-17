@@ -174,13 +174,14 @@
 | 忠实 DESIGN.md、无编造 | LLM 读该站 blurb vs `sites/<站>/source/DESIGN.md`：每句可溯源、没借别站 | agent判 | blurb 编了 DESIGN.md 没有的视觉词 |
 | 人最后定稿签字 | `sites/<站>/skill-blurb.md` 顶部注释含 human-approved；维护者一眼过（唯一人工闸） | 人签 | 未审直接发布 |
 
-### 9.5 `references/theme-presets/<站>/composition.md`（生成 · 拷贝 · **可选** · 每有源站一份）
+### 9.5 `references/theme-presets/<站>/composition.md`（生成 · 迁移剥离 · **可选** · 每有源站一份）
 
-> 合成层散文补充（#30/#31）：DESIGN.md 没覆盖、`rules.md` 也没有的那层——氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单。**纯散文通道**，不引入任何 token 槽 / 契约 / 组件改动。**可选**（不进「可发布四件套」）：站有 `sites/<站>/composition.md` 才拷进预置，byte-exact（同 `rules.md`）；站无源则预置**无**该文件。因此 parity **条件化**、绝不升级为强制。此条即 **Hook H7（合成层 preset 不变量）**。SKILL.md「Active theme」指引 AI 读它（folder 有才读，无则该主题无合成层、不臆造）。
+> 合成层散文补充（#30/#31）：DESIGN.md 没覆盖、`rules.md` 也没有的那层——氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单。**纯散文通道**，不引入任何 token 槽 / 契约 / 组件改动。**可选**（不进「可发布四件套」）：站有 `sites/<站>/composition.md` 才纳入预置；站无源则预置**无**该文件。#35 起：源 composition.md 采「**正文正向散文 + 可剥维护者追溯表**」混合体例——正文 consumer-clean（零 DESIGN.md、零孪生横指 `adapter.css`/`variables.css`），DESIGN.md 追溯/勘误只落【小节标题 `←` 尾注 + `<!-- trace -->` 追溯容器】；`build:skill` 纳入预置时走 **`stripTrace(源)`** 确定性剥离（同 `rules.md` §8），preset 发布副本只留正向散文。故 parity 从「逐字节 == 源」改为「== `stripTrace(源)`」；`stripTrace` 的**剥后零残留自检**（正文自由句里有 DESIGN.md 即抛错、`build:skill` 失败并指出源哪行）是机器强制。parity 仍**条件化**（源在才有）、绝不升级为强制。此条即 **Hook H7（合成层 preset 不变量）**。SKILL.md「Active theme」指引 AI 读它（folder 有才读，无则该主题无合成层、不臆造）。
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| 条件 parity（源在则字节相等·源无则无） | 对每个可发布站：`sites/<站>/composition.md` 存在 → `diff theme-presets/<站>/composition.md sites/<站>/composition.md` == 空（byte-exact）；源不存在 → 预置目录里**无** `composition.md`（`existsSync` == false）。**不跑 build:skill、不动 git** | 机器 | 改了预置副本（与源漂移）；或删源却留着预置副本；或改源没重生成预置 |
+| 条件 parity（源在则 == `stripTrace(源)`·源无则无） | 对每个可发布站：`sites/<站>/composition.md` 存在 → `theme-presets/<站>/composition.md` 逐字节 == `stripTrace(sites/<站>/composition.md)`（[strip-trace.mjs](../../scripts/lib/strip-trace.mjs)）；源不存在 → 预置目录里**无** `composition.md`（`existsSync` == false）。**不跑 build:skill、不动 git** | 机器 | 副本手改（与剥离产物漂移）；或多剥（丢内容）/ 少剥（漏 DESIGN.md）；或删源却留着预置副本；或改源没重生成预置 |
+| preset 正文 consumer-clean | `grep -c DESIGN.md theme-presets/<站>/composition.md` == 0，且无孪生横指 `见 adapter`/`adapter.css`/`variables.css`（`stripTrace` 自检 + check:boundary 发货面双保险共同保证；#35 已拆除 composition 的 EXEMPT、纳入发货面扫描） | 机器 | 追溯落到不可剥位置（正文自由句）→ `build:skill` 抛错；横指泄漏 → check:boundary 红 |
 | 幂等纳入（源在的站） | `build:skill` 重跑，源在的站其预置 `composition.md` 逐字节不变（并进幂等快照文件表） | 机器 | 重跑后 composition.md 抖动 |
 | 换主题隔离（不泄漏全局） | composition.md 是**主题专属**散文（`design-rules.md` 的镜像反面）——只在预置目录，**绝不**落到全局 `references/theme/` | 机器 | composition.md 漏进 `references/theme/`（当成全局件） |
 

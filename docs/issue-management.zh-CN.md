@@ -569,26 +569,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/26
 
 > 一个交付 = demo「Landing」按 active-site 分发到 per-site 落地页 + steep 版（**读 skill 自行设计**，不喂设计）。#28/#29 依赖它。Parent #26。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 27 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-目标：把 demo「Landing」showcase 改为**按 active-site 分发到 per-site 落地页**，并交付 **steep 版**。① 分发管道：demo/layouts/landing/ 按 data-site 反应式分发（切站即切该站 landing；seline/phantom 由 #28/#29 补，本 issue 先占位/回退）。② steep 落地页：真组件（基元 Button/Card/Avatar/Stat/Line·BarChart/Accordion/Tag/Icon/Divider…，经 @octohirono/stitch-design-system import，即 demo 既有引入方式）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer）；区块外壳等连接件手写、只读 var(--stitch-*)。区块不是可 import 的组件，是真组件+连接件组合出来的。
-
-关键（站在使用者角度）：设计一律你自己读 skill 得出——本 prompt 与 issue 刻意都不喂任何设计决定。像真实 skill 使用者那样，按 SKILL.md 读 steep 主题的全部 preset 文件 skills/stitch-design-system/references/theme-presets/steep/（style.md 先读、rules.md，再 composition.md——合成层补充：氛围铺底/明暗幕/图像材质/字形设备/拒绝清单；**composition.md 可选，按合成层方法论某站可能不存在，存在则必读、不存在就只读前两份**），自己判定 steep 的导航形态/卡片/阴影/配色/字重/强调手法，自己设计、自己踩坑——这正是本 issue 要验的：agent 读 skill 能否建对该站 UI。
-
-边界：demo-only——不进 build:refs/skill、不碰族表、不新增结构 Hook；「连接件读 data-site」是 demo showcase 的受控例外。尊重原站长相：不改 sites/*/adapter.css、不按通用 a11y「纠正」steep 刻意的配色/对比（原站设计）。
-
-红线（可 grep）：连接件只读 var(--stitch-*)、无硬编码主题值（hex/圆角/字体）；无源主题残留；无 emoji/裸 svg/Unicode（图标走 <Icon>）。
-
-验收（真实验收禁糊弄）：
-1. demo 真实浏览器：切 steep，「Landing」是完整落地页、全真组件、连接件只读 var；console 无 warn/error。
-2. 逐条对照 theme-presets/steep/rules.md 的 Do/Don't 自证符合（都由你读 skill 判定，非照抄本 prompt）。
-3. 分发管道就位：切主题切换器即切该站 landing。
-4. 未改任何 adapter.css；npm run ci 全绿。
-
-收尾门：用户验收通过后才 commit(#27) + close + GH 评论登记执行报告（含逐条 rules.md 对照）。未验收不 commit、不 close。AFK 独跑不停确认 seam（seam = 分发管道 + steep 落地页逐条贴 theme-presets/steep/rules.md）。
-```
+> ✅ 已完成并 close（commit `9bf4f7b`，2026-09-18，用户验收通过）。**① 分发管道** `demo/layouts/landing/index.tsx`：用 `useSyncExternalStore` + `MutationObserver` 订阅 `documentElement[data-site]`，切主题切换器即切该站 landing（dispatch + `ScrollTimeline.source` 均 headless 验过）；未列站回退**共享** `_fallback.tsx`（theme-agnostic，seline/phantom 待 #28/#29）。**② steep 落地页** `steep/index.tsx`：真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Input）组合导航/hero/feature/指标/编辑强调卡/定价/FAQ/AI 暗场/footer，连接件只读 `var(--stitch-*)`。**读 skill 得出的 steep 长相**（逐条贴 theme-presets/steep/rules.md）：Signifier 恒 400 + 每标题一处 `<em>` 斜体强调（composition 字形设备）；全药丸按钮 filled+次要成对；文字链箭头后缀走 `<Icon>`；Neutral Card=`variant="filled"` 无阴影，唯**浮动 artifact**=`variant="elevated"` 抬升 shadow-lg；**唯一**桃色编辑卡=`filled color="accent"`（定价主推卡改深墨 accent 环、不复用桃色）；80px 节奏 paper/fog 交替；近黑 AI 暗场 `bg-inverted` + 白→透明渐隐带 + 毛玻璃 composer；Stat delta 走 caption 灰字不上彩色 trend。**桃色边界厘清**：`--stitch-bg-accent`（编辑面，一页一次，守住）≠ `--stitch-cat-1`（图表分类槽，系统按序分配、无 per-series 颜色 prop，不越界改）。**用户轮修**：编辑卡引言 ch→rem + `text-wrap: balance` 消孤字尾；hero 改**真站式环绕拼贴**——下载真站氛围位图 `steep/bg.jpg` 本地铺底（不热链、`check:boundary` 豁免 demo）+ 四周浮动 artifact + **滚动视差聚拢**（`steep/landing.module.less`，CSS scroll-driven 无 JS、`@supports`/`prefers-reduced-motion` 守卫、绑 `.shell__content`）；**每主题一个自包含子目录**（`steep/` 下 index+landing.module.less+bg.jpg），registry 单层 glob `layouts/*/index.tsx` 不误上架，seline/phantom 照建平级子目录 + `bySite` 加一行即可。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；红线（连接件只读 var、无硬编码 hex·圆角·字体、无源主题残留、无 emoji/裸 svg/Unicode）代码层零命中；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #27 close 评论。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/27
 依赖：#26（版式样例地基，已完成）。#28/#29 依赖本 issue 的分发管道。可立即领取。

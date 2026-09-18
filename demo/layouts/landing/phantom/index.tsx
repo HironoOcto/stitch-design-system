@@ -23,7 +23,7 @@
 //
 // 连接件（band 外壳 / 淡紫画布 / 彩糖瓦片 / logo 标 / 幽灵吉祥物 / 药丸导航）**只读 var(--stitch-*)**：
 // 色 / 圆角 / 字体 / 间距 / 光晕一律走角色变量，绝不落 hex（数值几何——瓦片纵横比、幽灵眼位百分比、
-// min() 响应上限的 vw——非主题值，与 _fallback / steep / seline 同例）。交互 / 展示元素一律是经
+// min() 响应上限的 vw——非主题值，与 steep / seline 同例）。交互 / 展示元素一律是经
 // @octohirono/stitch-design-system import 的**真组件**。
 //
 // 三处对预置的**刻意取舍 / 设计判定**（都由读 skill 得出，AGENTS 硬规则 > 预置文档；authority 序

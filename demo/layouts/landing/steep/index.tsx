@@ -17,7 +17,7 @@
 //     浮动 artifact 做轻微旋转错位拼贴。
 //
 // 连接件（band 外壳 / 网格 / 铺底 / composer 壳）**只读 var(--stitch-*)**：色/圆角/字体一律
-// 走角色变量，绝不落 hex（数值几何——间距 px、模糊半径、旋转角——非主题值，与 _fallback 同例）。
+// 走角色变量，绝不落 hex（数值几何——间距 px、模糊半径、旋转角——非主题值，与 seline / phantom 同例）。
 // 交互 / 展示元素一律是经 @octohirono/stitch-design-system import 的**真组件**。
 
 import type { CSSProperties, ReactNode } from 'react';

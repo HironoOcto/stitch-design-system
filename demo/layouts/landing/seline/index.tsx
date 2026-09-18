@@ -18,7 +18,7 @@
 //
 // 连接件（band 外壳 / 网格 / 高亮 span / logo 标 / 磨砂栏）**只读 var(--stitch-*)**：
 // 色 / 圆角 / 字体 / 间距一律走角色变量，绝不落 hex（数值几何——旋转角、模糊半径、贴纸位移
-// 的 px——非主题值，与 _fallback / steep 同例）。交互 / 展示元素一律是经
+// 的 px——非主题值，与 steep / phantom 同例）。交互 / 展示元素一律是经
 // @octohirono/stitch-design-system import 的**真组件**。
 //
 // 两处对全局红线（禁裸 SVG / 禁 Unicode 符号，AGENTS 硬规则高于预置文档）的**刻意取舍**：

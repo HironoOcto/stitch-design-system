@@ -12,12 +12,15 @@
 // + bg.jpg 位图；seline/、phantom/：纯 index.tsx——静态拼贴无需动画模块），
 // 避免主题一多就在本目录平铺成一堆。
 // registry 的 glob 只扫**单层** `/demo/layouts/*/index.tsx`，`landing/<主题>/index.tsx` 是两层、
-// 不匹配，故子目录不会各自上架成导航条目——只有本分发器上架。尚无专属版式的站回退到
-// 共享的 _fallback.tsx（theme-agnostic 版，非某主题，下划线前缀区分）。
+// 不匹配，故子目录不会各自上架成导航条目——只有本分发器上架。
+//
+// 全部可切换站（phantom/seline/steep）现各有专属版式；「共享 theme-agnostic 兜底页」曾在
+// seline/phantom 待补期间用过，如今已耗尽退场（那种通用页正是 per-site 模型要否定的东西）。
+// 未注册站只留一个**小占位**（NoLanding）作防崩安全网：万一新站加了 adapter 却漏写 landing +
+// 注册，切换器选到它不会白屏，而是明示「暂无专属落地页」——不拿任何一家的长相冒充新站。
 
 import type { ComponentType } from 'react';
 import { useSyncExternalStore } from 'react';
-import FallbackLanding from './_fallback';
 import PhantomLanding from './phantom';
 import SelineLanding from './seline';
 import SteepLanding from './steep';
@@ -28,12 +31,53 @@ export const meta = {
     '落地页版式样例：按 active-site 分发到该站自己那一版落地页，切站即切结构。',
 };
 
-// active-site → 专属版式。未列的站回退到 _fallback（theme-agnostic）。
+// active-site → 专属版式。未注册站落到 NoLanding 小占位（见文件头）。
 const bySite: Record<string, ComponentType> = {
   phantom: PhantomLanding,
   seline: SelineLanding,
   steep: SteepLanding,
 };
+
+/** 未注册站的小占位（防崩安全网，非某主题）：只读 var(--stitch-*)，明示该站尚无专属落地页。 */
+function NoLanding({ site }: { site: string }) {
+  return (
+    <div
+      style={{
+        minHeight: '60vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 'var(--stitch-space-12)',
+        padding: 'var(--stitch-space-48)',
+        textAlign: 'center',
+        background: 'var(--stitch-bg-canvas)',
+        color: 'var(--stitch-text-primary)',
+        fontFamily: 'var(--stitch-font-body)',
+      }}
+    >
+      <p
+        style={{
+          margin: 0,
+          fontFamily: 'var(--stitch-font-display)',
+          fontSize: 'var(--stitch-font-size-lg)',
+          color: 'var(--stitch-text-primary)',
+        }}
+      >
+        {site || '（未指定站点）'} 暂无专属落地页
+      </p>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 'var(--stitch-font-size-base)',
+          color: 'var(--stitch-text-secondary)',
+        }}
+      >
+        为该站在 demo/layouts/landing/&lt;站&gt;/ 下新增一版，并注册进 bySite。
+      </p>
+    </div>
+  );
+}
 
 // documentElement 的 data-site 是外部可变源；订阅其属性变化，切站即重渲染分发。
 function subscribeSite(onChange: () => void): () => void {
@@ -54,6 +98,6 @@ function useActiveSite(): string {
 
 export default function LandingDispatcher() {
   const site = useActiveSite();
-  const Landing = bySite[site] ?? FallbackLanding;
-  return <Landing />;
+  const Landing = bySite[site];
+  return Landing ? <Landing /> : <NoLanding site={site} />;
 }

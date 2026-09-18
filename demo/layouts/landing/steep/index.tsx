@@ -994,6 +994,9 @@ export default function SteepLanding() {
                       lineHeight: 'var(--stitch-leading-subheading)',
                       fontWeight: 'var(--stitch-font-weight-normal)',
                       color: 'var(--stitch-text-primary)',
+                      // 与下方 Button type="link" 的内建左内距（spacing-lg=16px）对齐，
+                      // 否则标题左缘比链接文字缩进 16px、三列读作「歪」。
+                      paddingInline: 'var(--stitch-space-16)',
                       marginBottom: 'var(--stitch-space-4)',
                     }}
                   >

@@ -8,8 +8,9 @@
 // 这里用 useSyncExternalStore 订阅该属性的变化——切站即重取、即切该站 landing，
 // 无需 props 下传。「连接件读 data-site」是 demo showcase 的**受控例外**（仅此分发用途）。
 //
-// 每个真实主题一个**自包含子目录**（steep/ 下：index.tsx 版式 + landing.module.less
-// 滚动动画 + bg.jpg 位图；seline/、phantom/ 待 #28/#29），避免主题一多就在本目录平铺成一堆。
+// 每个真实主题一个**自包含子目录**（steep/：index.tsx 版式 + landing.module.less 滚动动画
+// + bg.jpg 位图；seline/：纯 index.tsx——静态拼贴无需动画模块；phantom/ 待 #29），
+// 避免主题一多就在本目录平铺成一堆。
 // registry 的 glob 只扫**单层** `/demo/layouts/*/index.tsx`，`landing/<主题>/index.tsx` 是两层、
 // 不匹配，故子目录不会各自上架成导航条目——只有本分发器上架。尚无专属版式的站回退到
 // 共享的 _fallback.tsx（theme-agnostic 版，非某主题，下划线前缀区分）。
@@ -17,6 +18,7 @@
 import type { ComponentType } from 'react';
 import { useSyncExternalStore } from 'react';
 import FallbackLanding from './_fallback';
+import SelineLanding from './seline';
 import SteepLanding from './steep';
 
 export const meta = {
@@ -27,6 +29,7 @@ export const meta = {
 
 // active-site → 专属版式。未列的站回退到 _fallback（theme-agnostic）。
 const bySite: Record<string, ComponentType> = {
+  seline: SelineLanding,
   steep: SteepLanding,
 };
 

@@ -580,22 +580,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/27
 
 > 在 #27 分发管道之上，**读 skill 的 seline 主题自行设计**并完成 seline 落地页。Parent #26。
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 28 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#27 的 landing 分发管道须已并入（切站即切 per-site landing）。
-
-目标：为 seline 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块（导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer），连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
-
-关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。按 SKILL.md 读 seline 主题的全部 preset 文件 theme-presets/seline/（style.md 先、rules.md，再 composition.md——合成层补充；**composition.md 可选，按方法论某站可能不存在，有则必读、无则只读前两份**），像真实使用者那样自行判定 seline 的一切长相，自己设计、自己踩坑。
-
-边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」seline 刻意配色、只读 var、无 emoji/裸 svg/Unicode）。
-
-验收：切 seline，Landing 完整落地页、全真组件、连接件只读 var、console 干净；逐条对照 theme-presets/seline/rules.md 自证；未改 adapter；npm run ci 全绿。
-
-收尾门：用户验收通过才 commit(#28)+close+GH 登记执行报告（含逐条 rules.md 对照）。
-```
+> ✅ 已完成并 close（commit `3f11450`，2026-09-18，用户验收通过）。**seline 落地页** `demo/layouts/landing/seline/index.tsx`（纯 index.tsx——静态拼贴无需动画模块）+ 分发器 `bySite` 加 `seline` 一行。十区块全真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Icon）组合导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer，连接件（Band/Hl/Brand/DashboardPreview）只读 `var(--stitch-*)`。**读 skill 得出的 seline 长相**（逐条贴 theme-presets/seline/rules.md）：Roobert 恒 400；每标题**恰好一处**柔蓝高亮 wash（`bg-accent` 底 + `text-on-accent` 字，`nowrap` 保短语整枚）；青色填充 CTA 每屏至多一次（定价仅主推卡青、余 ghost，sticky nav 常驻青作站 chrome 单一之声）；内容卡 `variant=outlined`（发丝边 + 极淡 shadow-base）、**唯一** `variant=elevated` 浮动仪表盘预览吃 shadow-lg + `grayscale(1) contrast(0.94)` 静音单色；feature 卡 override `radius-image`(16px)；Stat delta 走 caption 不上彩色 trend（不引绿/红）；玻璃只给 sticky nav（`blur(12px)`）内容面零玻璃；预览底 Tab Pill 组激活 `bg-inverted`(Soot) 白字。**composition 合成层**：纯平铺底（唯一渐变=achromatic 边缘淡出）、**刻意无暗幕**（CTA 落纸上平白卡非反色带）、缩放旋转负位移拼贴（主预览 -1.5° + 角贴纸 scale .85/rotate 5° 略叠入下一区块）、玻璃只给 chrome。**两处红线取舍**（AGENTS 硬规则 > 预置文档，文件头注明）：无 ★（Unicode 符号）/star 图标/裸 SVG → 信任行改**数值评分 + 平台名内联**；灰阶轮廓吉祥物贴纸需内联裸 SVG 内容资产、demo 无素材 → **不放**（其余承重项全落地）。**行高取舍**：body 取 token `line-height-base`(1.5) 而非 rules 散文的 1.64（源码/tokens 赢 rules）。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；seline 真实配色原样保留；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #28 close 评论。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
 依赖：#27（landing 分发管道）。

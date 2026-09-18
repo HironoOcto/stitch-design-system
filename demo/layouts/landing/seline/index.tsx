@@ -1039,6 +1039,9 @@ export default function SelineLanding() {
                       letterSpacing: 'var(--stitch-tracking-subheading)',
                       fontWeight: 'var(--stitch-font-weight-normal)',
                       color: 'var(--stitch-text-primary)',
+                      // 链接组用真 Button type="link"（padding 0 spacing-lg=16px），标题须补同宽
+                      // 横向内距，左缘才与链接文字齐——否则标题外凸 16px（footer 三列显歪）。
+                      paddingInline: 'var(--stitch-spacing-lg)',
                       marginBottom: 'var(--stitch-space-4)',
                     }}
                   >

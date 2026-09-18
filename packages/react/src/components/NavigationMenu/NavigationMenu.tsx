@@ -22,7 +22,7 @@ export interface NavItem {
   href?: string;
   /** 展开面板内容：给了即渲染为可展开项（`Trigger` + `Content`），内容自由 ReactNode */
   content?: React.ReactNode;
-  /** 标记为当前项：底层挂 `data-active` + `aria-current="page"`，皮上走激活态（`--stitch-accent`） */
+  /** 标记为当前项：底层挂 `data-active` + `aria-current="page"`，皮上走品牌前景强调（`--stitch-brand`） */
   active?: boolean;
 }
 

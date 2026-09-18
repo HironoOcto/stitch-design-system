@@ -6,42 +6,77 @@
 
 新增一个站的长相时。**前置**：该站 Refero bundle 已放进 `sites/<site>/source/`（主力 `DESIGN.md`，超集）。
 
-## 产出（两份，缺一不可）
+## 产出（两份手写 + 一份生成）
 
-见 [§9.2 一个站的风格 = 值 + 规则](../design-system/multi-site-theming.md#92-一个站的风格--值--规则)：只换值不够，还要换规则。
+见 [§9.2 一个站的风格 = 值 + 规则](../design-system/multi-site-theming.md#92-一个站的风格--值--规则)：只换值不够，还要换规则。前两份**本 playbook 手写**（要判断）；第三份**确定性生成**（零判断），不在本 prompt 范围——加站后跑一条 `npm run build:layout` 即得。
 
-| 产物 | 内容 | 消费路径 | 正本规则 |
-|---|---|---|---|
-| `sites/<site>/adapter.css` | 该站值填进 `--stitch-*` 角色变量（静态 `:root`） | 渲染（组件 `var()`） | [§9.4.2](../design-system/multi-site-theming.md#942-适配-adaptercss) |
-| `sites/<site>/rules.md` | Do/Don't + 组件规格 + 用法 | 生成（AI 生成页面时） | [§9.5.2 模板](../design-system/multi-site-theming.md#952-每站-rulesmd-模板从-designmd-抽) |
+| 产物 | 内容 | 手写 / 生成 | 消费路径 | 正本规则 |
+|---|---|---|---|---|
+| `sites/<site>/adapter.css` | 该站值填进 `--stitch-*` 角色变量（静态 `:root`） | 手写（本 playbook） | 渲染（组件 `var()`） | [§9.4.2](../design-system/multi-site-theming.md#942-适配-adaptercss) |
+| `sites/<site>/rules.md` | Do/Don't + 组件规格 + 用法 | 手写（本 playbook） | 生成（AI 生成页面时） | [§9.5.2 模板](../design-system/multi-site-theming.md#952-每站-rulesmd-模板从-designmd-抽) |
+| `sites/<site>/layout.css` | 页面尺度层：`--stitch-space-*` / `--stitch-text-<角色>` / layout 四键 | **生成**（`npm run build:layout`，从 `source/variables.css`） | 渲染 + 生成（页面尺度） | [§9.4.4](../design-system/multi-site-theming.md#944-页面尺度层-layoutcss生成非手写) |
 
-## 执行 prompt（复制，把 `<site>` 全部换成站名）
+## 执行 prompt（两段·分开跑，把 `<site>` 全部换成站名）
+
+`adapter.css` 与 `rules.md` 是**同源（DESIGN.md）平行产出的孪生产物，互不引用**——谁也不是谁的上游。
+因此拆成**两段独立 prompt、分开跑**：值视图（adapter）一段，规则散文视图（rules）一段。**关键是 rules 那段的上下文里根本没有 adapter**——它无从"见 adapter"，把污染从源头变得不可表示（不是靠约定事后拦）。两段都以 DESIGN.md 为唯一上游；下文所有 §x.y 都指 docs/design-system/multi-site-theming.md，先读对应节再动手。
+
+### 执行 prompt 1 · 产出 `sites/<site>/adapter.css`（值视图，照 §9.4.2）
 
 ```text
-你在 stitch-design-system/ 目录内执行。对 <site> 执行 multi-site-theming §9.6 的抽取步骤，
-产出该站【两个产物】——sites/<site>/adapter.css（值）+ sites/<site>/rules.md（规则）。
+你在本仓库根目录执行。为 <site> 产出 sites/<site>/adapter.css（值视图），照 docs/design-system/multi-site-theming.md §9.4.2。
 
 输入：
-- sites/<site>/source/DESIGN.md（主力·超集：Quick Color Reference 已做好语义映射；色表带 Role 列；
-  组件像素规格；Do/Don't；Layout/Imagery；Example Prompts）。tokens.json / variables.css 留作值核对。
-- packages/tokens/contract.css（角色契约：所有 --stitch-* 名字 + 【每站】/【每站·可选】/【派生】/【恒定】标记。契约是"有哪些变量"的唯一真相——新增变量只落契约，本 playbook 不逐一列）。
-- sites/steep/ 的 adapter.css + rules.md（现成样例，照它们的结构/注释风格写）。
+- sites/<site>/source/DESIGN.md（值来源·超集：Quick Color Reference 已做好语义映射；色表带 Role 列；组件像素规格）。
+  tokens.json 留作值核对；variables.css 留作值核对、又是 layout.css 的生成源（build:layout 机械抽取，不在本 prompt 范围）。
+- packages/tokens/contract.css（角色契约：所有 --stitch-* 名字 + 【每站】/【每站·可选】/【派生】/【恒定】标记。
+  契约是"有哪些变量"的唯一真相——新增变量只落契约，本 playbook 不逐一列）。
+- sites/steep/adapter.css（现成样例，照其结构/注释风格写）。
 
-产出 1 · sites/<site>/adapter.css（照 §9.4.2）：
+产出 sites/<site>/adapter.css：
 - 单段静态 :root，用 --stitch-* 角色名重写 <site> 的值；绝不引用该站原始变量名（--color-*）。
-- 覆盖【每站】槽（必填）；【每站·可选】槽（如字阶 / 间距 / 图标描边 --stitch-icon-stroke-width）——**该站有偏好就覆盖、没有就留空继承契约默认**（别漏判：描边 1 vs 2、字阶密度都是真实风格杠杆，逐个想一遍再决定留空）。不写【派生】（契约里已是 color-mix/var 活表达式，自动跟随）、不写【恒定】、不写反馈色。
+- 覆盖【每站】槽（必填）；【每站·可选】槽（字阶 / 间距 / 图标描边 --stitch-icon-stroke-width）——该站有偏好就覆盖、
+  没有就留空继承契约默认（别漏判：描边 1 vs 2、字阶密度都是真实风格杠杆，逐个想一遍再决定留空）。
+  不写【派生】（契约里已是 color-mix/var 活表达式，自动跟随）、不写【恒定】、不写反馈色。
 - 每行标来源 ①抽取 / ②派生 / ③需确认；映射三情况：直接照抄 / 多选一挑并注明 / 缺角色（如 CTA）判断补标 ③。
-
-产出 2 · sites/<site>/rules.md（照 §9.5.2 模板）：
-- 一句话风格 / 调色板用法 / 排版规则 / 形状·阴影个性 / 组件规格 / 布局与留白 / 意象·配图 /
-  Do·Don't /（可选）示例 Prompt；每节标注来自 <site> DESIGN.md 哪段。
-
-验收（真实产物就位 + 人复核）：
-- 两文件都在；adapter 是单段 :root 只含【每站】槽、值可追溯 DESIGN.md；rules.md 各节齐全、可追溯。
-- H1/H2：grep 断言无 --color-* 等长相变量、无外来前缀、无写死主题 hex（除 :root 值本身）。
-- adapter 的 多选一 / 缺CTA / ③需确认 行 + rules.md 照搬到位，交人复核后算完成。
-- 附执行报告两块表（结构 Hook 表含 H1/H2；真实 case = 两产物产出并逐值/逐节对照 DESIGN.md）。
+- 值的出处与信心标记（①/②/③、判断补、多选一）单一真相只在本文件——rules.md 不复述、不指回。
 ```
+
+### 执行 prompt 2 · 产出 `sites/<site>/rules.md`（规则散文视图，照 §9.5.2 模板）
+
+> **单独开一个干净会话跑**，别把 adapter.css 带进上下文——隔离是这段有效的前提。
+
+```text
+你在本仓库根目录执行。为 <site> 产出 sites/<site>/rules.md（规则散文视图），照 docs/design-system/multi-site-theming.md §9.5.2 模板。
+
+【硬隔离】adapter.css 与 rules.md 是同源（DESIGN.md）平行产出的孪生产物，互不引用。本步**只读 DESIGN.md**，
+绝不打开 / 不参考 / 不提及 sites/<site>/adapter.css、variables.css、tokens.json —— rules.md 里出现
+「见 adapter」「adapter.css」「variables.css」即判失败（check:boundary 发货面守会红）。
+
+输入（仅此三样，不碰别的）：
+- sites/<site>/source/DESIGN.md（超集：色表 Role 列、字体规格、组件像素规格、Do/Don't、Layout/Imagery、Example Prompts）。
+- packages/tokens/contract.css（只为拿 --stitch-* 角色名，写"角色"时引用）。
+- §9.5.2 模板（结构正本）。
+
+产出 sites/<site>/rules.md（照 §9.5.2 各节：一句话风格 / 调色板用法 / 排版规则 / 形状·阴影个性 / 组件规格 /
+布局与留白 / 意象·配图 / Do·Don't /（可选）示例 Prompt）：
+- 每节直接写规则与值（如「填充青上用 #0c0a09 黑字，7.44:1 达标 AA」），照 DESIGN.md 对应段抽；不回指任何源文件。
+- DESIGN.md 没明确规定的判断值（如 DESIGN 未列的 input 圆角）不进 rules.md —— 那属值层，归 adapter/token，rules 不猜不补。
+- DESIGN.md 来源追溯只落【可剥位置】（build:skill 迁移时 stripTrace 剥离、不入发货预置；放别处 build 直接失败）：
+  · 小节标题 `← <来源>` 尾注，如 `## 一句话风格 ← DESIGN.md 顶部 tagline`（stripTrace 保留标题、剥掉 `←` 起的尾注）。
+  · 顶部 `<!-- trace: 从 sites/<site>/source/DESIGN.md 抽取 -->` 追溯容器（整块剥离）。
+  · 正文自由句里绝不写 DESIGN.md（那是不可剥位置，stripTrace 零残留自检会抛错并指出源哪行）。
+- 顶部追溯容器下留一条 consumer-clean 指引句（如「值层见同目录 `tokens.css`；工程纪律见全局 `design-rules.md`」）；
+  这条不许含指向 skill 目录外的资源（DESIGN.md、docs/、source/、adapter.css、variables.css 等路径）。
+```
+
+验收（真实产物就位 + 人复核 + 机器闸）：
+- 两文件都在；adapter 是单段 :root 只含【每站】槽、值可追溯 DESIGN.md；rules.md 各节齐全。
+- rules.md 零横指：`grep -nE '见 adapter|adapter\.css|variables\.css' sites/<site>/rules.md` == 空；DESIGN.md 只在可剥位置。
+- H1/H2：grep 断言无 --color-* 等长相变量、无外来前缀、无写死主题 hex（adapter :root 值本身除外）。
+- 机器闸：`npm run build:skill`（stripTrace 剥后零 DESIGN.md 残留，放错抛错指行）+ `npm run check:boundary`
+  （发货面零 skill 外引用）+ `npm run ci` 全绿。
+- 附执行报告两块表（结构 Hook 表含 H1/H2；真实 case = 两产物产出并逐值/逐节对照 DESIGN.md）。
 
 ## 复核
 
@@ -50,14 +85,16 @@
 派复核 agent 的 prompt（复制，把 `<site>` 换成站名）：
 
 ```text
-你在 stitch-design-system/ 目录内复核 <site> 的两个产物 sites/<site>/adapter.css + sites/<site>/rules.md，
+你在本仓库根目录复核 <site> 的两个产物 sites/<site>/adapter.css + sites/<site>/rules.md，
 执行 docs/contributing/onboard-site-review.md 的清单逐条走，
 重点裁 adapter.css 里的 ③（尤其 CTA 文字色冲突，先算对比度再定），
 产出「通过/需改动 + 必改项」结论。只出结论，不改产物（除非维护者授权按必改项落地）。
 ```
 
-## 每个新站 = 一个薄 issue
+## 怎么跑（直接用 prompt；issue 只是可选台账）
 
-不必为每站重写一大段 prompt。建一个 GH issue：`[stitch] 接入新站 <site>：执行 onboard-site playbook`，正文指向本文件；[issue-management.zh-CN.md](../issue-management.zh-CN.md) 里那段 AFK prompt 就写「执行 onboard-site playbook，`<site>=…`」+ 该站特有的验收点（如与现有站的可见差异）。规则的单一真相始终是本 playbook + multi-site-theming 正本，站站复用。
+**最直接**：把上面「## 执行 prompt」复制、`<site>` 换成站名，交给 agent 跑；产物就位后按「## 复核」派一个复核 agent。**不必经过任何 issue**——那段 prompt 就是完整的活。
+
+**（可选）想给 AFK 独跑留个追踪台账时**，再把它包成一个薄 GH issue：`[stitch] 接入新站 <site>：执行 onboard-site playbook`，正文指向本文件；[issue-management.zh-CN.md](../issue-management.zh-CN.md) 里那段 AFK prompt 就写「执行 onboard-site playbook，`<site>=…`」+ 该站特有的验收点（如与现有站的可见差异）。issue 纯为记账/可追溯，**不是完成这项工作的前提**。规则的单一真相始终是本 playbook + multi-site-theming 正本，站站复用。
 
 > 注：抽取是 **AI 生成 + 人复核**，非确定脚本（[ADR 0004](../adr/0004-token-source.md)：不上 tokens.json 生成器，直到 [§9.7](../design-system/multi-site-theming.md#97-何时升级到-tokensjson-生成方案) 的信号）。

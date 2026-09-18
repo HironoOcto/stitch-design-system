@@ -11,13 +11,13 @@
   /* 文字（steep 4 档灰 → 收敛到契约 3 档）*/
   --stitch-text-primary:   #17191c;  /* ① ink-black（Quick Ref: text）*/
   --stitch-text-secondary: #777b86;  /* ① slate-gray（secondary/helper）*/
-  --stitch-text-muted:     #979799;  /* ② 多选一: 取 ash-gray 作更弱的 muted（smoke #a3a6af 归 disabled）*/
+  --stitch-text-muted:     #a3a6af;  /* ① smoke-gray（组件 Input placeholder=#a3a6af；规则B:本槽角色=占位符/弱化,看组件规格,非 Colors 表把「三级标签」标给的 ash #979799；disabled 由 text-muted 派生）*/
   --stitch-text-on-accent: #5d2a1a;  /* ① sienna-brown（桃色面上的字/描边）*/
 
   /* 强调 / 链接 */
   --stitch-accent:      #17191c;  /* ③ 需确认: Quick Ref「primary action: #17191c (filled action)」可抽取此值;待复核的是角色判断——steep 无彩色品牌强调色,由「黑填充药丸」担当 accent 角色(桃色 blush 只是 surface,不是 accent)*/
   --stitch-accent-text: #ffffff;  /* ① 填充按钮文字 */
-  --stitch-link:        #777b86;  /* ① slate-gray（Role: link color）*/
+  --stitch-link:        #17191c;  /* ① ink-black（组件规格 Text Link=#17191c；规则B:归属看组件规格,非 Colors 表「link=slate-gray」——#777b86 是次要文本/helper 槽,当链接色 on 白仅 4.23:1 且与 helper 撞色）*/
 
   /* 分类色槽（steep 近单色 → 全部取自它自己的调色板 + 从中 color-mix 派生,不外部手挑;禁鲜艳彩虹以守 97% achromatic）*/
   --stitch-cat-1: #fbe1d1;  /* ① blush-peach（bundle）*/

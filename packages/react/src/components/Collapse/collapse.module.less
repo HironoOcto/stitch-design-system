@@ -95,14 +95,15 @@
   }
 
   a {
-    color: var(--stitch-accent);
+    color: var(--stitch-link);
     text-decoration: none;
     font-weight: var(--stitch-font-weight-medium);
     transition: color var(--stitch-motion-duration-fast)
       var(--stitch-motion-ease);
 
     &:hover {
-      color: var(--stitch-accent-hover);
+      // 无 --stitch-link-hover 契约槽,内联 color-mix(照 accent-hover 同款配方)
+      color: color-mix(in srgb, var(--stitch-link), black 12%);
       text-decoration: underline;
     }
   }

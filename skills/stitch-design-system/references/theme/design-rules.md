@@ -7,6 +7,9 @@
 1. 只用角色变量，不硬编码主题值
    - ❌ `color:#17191c;` / `border-radius:24px;` / `font-family:'Signifier';`
    - ✅ `color:var(--stitch-text-primary);` / `var(--stitch-radius-card)` / `var(--stitch-font-display)`
+   - **页面/布局尺度也走 token**：间距、区块留白、页宽、字阶有页面尺度层（`--stitch-space-*`、layout 四键 `--stitch-page-max-width`/`--stitch-section-gap`/`--stitch-card-padding`/`--stitch-element-gap`、`--stitch-text-<角色>`/`--stitch-leading-*`/`--stitch-tracking-*`，见 [multi-site-theming §9.4.4](./multi-site-theming.md) / [ADR 0012](../adr/0012-page-scale-layer.md)）。别写死 `padding:80px` / `gap:24px` / `font-size:90px`——换站不重排。
+     - ❌ `margin-top:80px;` / `max-width:1200px;` / `font-size:90px;`
+     - ✅ `margin-top:var(--stitch-section-gap);` / `max-width:var(--stitch-page-max-width);` / `font-size:var(--stitch-text-display);`
    - 例外：非主题的结构值（`z-index`、`1px` 发丝线、布局 `%`）可写字面量。
 
 2. 不读某站的长相变量（换站即失效）
@@ -35,6 +38,13 @@
    - ✅ 再叠一层与填充分离的**间隔环**，保证任意站、任意态对比 ≥3:1：
      `box-shadow: 0 0 0 2px var(--stitch-bg-elevated), 0 0 0 4px var(--stitch-focus-ring);`（内圈用背景色把 accent 环与 accent 填充隔开）。
    - 判定：切到每个站，给 primary 按钮 / checked 控件打键盘焦点，环必须清晰可辨（非填充色控件沿用现有 outline 即可）。
+
+8. 品牌相关三角色别混用（各司其职，`--stitch-accent` / `--stitch-brand` / `--stitch-link`）
+   - `--stitch-accent`：主行动色 · **填充**（CTA 底、选中日底、Progress 填充……），**可为浅色，不担保当前景可读**。
+   - `--stitch-brand`：品牌**前景强调**（当前项/选中态/品牌图标描边等**要被读**的品牌色）。默认 `= var(--stitch-accent)`，脊/行动分家的站（如浅 accent 站）在自己的 adapter 覆盖成可读的前景色。
+   - `--stitch-link`：正文里的**超链接**文字色（`<a>`）。
+   - ❌ 拿填充槽 `--stitch-accent` 去当前景强调——浅 accent 站会隐形；也别拿 `--stitch-link` 顶前景强调（语义不符，只是某些站值恰好相同）。
+   - ✅ 前景品牌强调读 `var(--stitch-brand)`；填充读 `var(--stitch-accent)`；内容链接读 `var(--stitch-link)`。
 
 ## 提交前检查清单
 - [ ] 无硬编码主题色/圆角/字体（全走 `var(--stitch-*)`）

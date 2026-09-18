@@ -36,6 +36,7 @@ import { buildSkill, resolveSite } from './build-skill.mjs';
 import { extractPropsInterfaces, propsProjectFor } from './lib/props.mjs';
 import { listPublishableSites } from './lib/publishable-sites.mjs';
 import { resolveActiveSite } from './lib/resolve-preset.mjs';
+import { stripTrace } from './lib/strip-trace.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..'); // stitch-design-system/
@@ -80,11 +81,14 @@ const P = {
   reactTsconfig: resolve(root, 'packages/react/tsconfig.json'),
   skillsRefBin: resolve(root, 'node_modules/.bin/skills-ref'),
 };
-// Per-site source paths (adapter / rules / blurb), for recomputing each preset's expected.
+// Per-site source paths (layer / adapter / rules / blurb / composition), for recomputing
+// each preset's expected. composition.md is OPTIONAL (#31) — may or may not exist per site.
 const siteSrc = (s) => ({
+  layer: resolve(root, 'sites', s, 'layout.css'),
   adapter: resolve(root, 'sites', s, 'adapter.css'),
   rules: resolve(root, 'sites', s, 'rules.md'),
   blurb: resolve(root, 'sites', s, 'skill-blurb.md'),
+  composition: resolve(root, 'sites', s, 'composition.md'),
 });
 
 // ---------- helpers ----------
@@ -439,7 +443,7 @@ check('§Presets', '§Presets', '发布默认站有 preset', () =>
 // =====================================================================
 for (const s of PRESET_SITES) {
   const src = readMaybe(presetFile(s, 'tokens.css'));
-  const { adapter } = siteSrc(s);
+  const { layer, adapter } = siteSrc(s);
   check('§6 tokens.css', '§6', `[${s}] exists`, () =>
     src !== null ? true : `missing ${presetFile(s, 'tokens.css')}`,
   );
@@ -447,11 +451,59 @@ for (const s of PRESET_SITES) {
   check(
     '§6 tokens.css',
     '§6',
-    `[${s}] == mergeTokens(contract, adapter)`,
+    `[${s}] == mergeTokens(contract, layer, adapter)`,
     () =>
-      src === mergeTokens(P.contract, adapter, s)
+      // Three-input fold-in (ADR 0012 决策5): the page-scale layer sits between contract
+      // and adapter, adapter still wins. layer = sites/<s>/layout.css (build:layout output).
+      src === mergeTokens(P.contract, layer, adapter, s)
         ? true
         : 'tokens.css != recomputed mergeTokens',
+  );
+  check(
+    '§6 tokens.css',
+    '§6',
+    `[${s}] 含全量页面尺度（layer 全折入 + layout 四键）`,
+    () => {
+      // The whole page-scale layer must be present in the one tokens.css — proven by
+      // layer ⊆ tokens (every --stitch-* the site's layout.css defines is folded in),
+      // so the AI reads one file and sees the complete scale (--stitch-space-*, the full
+      // --stitch-text-<role> type scale, --stitch-space-unit). Plus the stable four-key
+      // layout schema, which every publishable site carries.
+      const tokens = rootDecls(src);
+      const missing = [...rootDecls(readFileSync(layer, 'utf8')).keys()].filter(
+        (p) => !tokens.has(p),
+      );
+      const layoutKeys = [
+        '--stitch-page-max-width',
+        '--stitch-section-gap',
+        '--stitch-card-padding',
+        '--stitch-element-gap',
+      ].filter((k) => !tokens.has(k));
+      return missing.length || layoutKeys.length
+        ? `not folded in — layer props: [${missing.join(', ')}]; layout keys: [${layoutKeys.join(', ')}]`
+        : true;
+    },
+  );
+  check(
+    '§6 tokens.css',
+    '§6',
+    `[${s}] 间距别名 --stitch-spacing-* 解析到 --stitch-space-*`,
+    () => {
+      // P1 (ADR 0012 决策2): the contract's --stitch-spacing-{xs,sm,md,lg,xl} are aliases
+      // var(--stitch-space-N, 字面量). With the layer folded in, each referenced
+      // --stitch-space-N is now DEFINED in the same file → the alias resolves (no dangle).
+      const tokens = rootDecls(src);
+      const bad = [];
+      for (const [prop, val] of tokens) {
+        if (!/^--stitch-spacing-/.test(prop)) continue;
+        const ref = val.match(/var\((--stitch-space-\d+)/);
+        if (!ref)
+          bad.push(`${prop} not a var(--stitch-space-N,…) alias ("${val}")`);
+        else if (!tokens.has(ref[1]))
+          bad.push(`${prop} → ${ref[1]} unresolved (space token missing)`);
+      }
+      return bad.length ? bad.join('; ') : true;
+    },
   );
   check('§6 tokens.css', '§6', `[${s}] 首行含 generated + DO NOT EDIT`, () =>
     /generated.*DO NOT EDIT/.test(src.split('\n')[0])
@@ -494,14 +546,20 @@ check('§7 design-rules', '§7', '== 全局源逐字节', () =>
 );
 
 // =====================================================================
-// §8 rules.md (per preset) — byte-exact copy of the site's rules.md   #29 §8
+// §8 rules.md (per preset) — == stripTrace(源)（#34，原「逐字节」）          #29 §8
+// 源 rules.md 保留 DESIGN.md 来源追溯；build:skill 迁移时 stripTrace 剥掉可剥位置的追溯。
+// 故 parity 不再是「字节相等源」，而是「字节相等 stripTrace(源)」——preset 必须正好是剥离产物，
+// 既不多剥（丢内容）也不少剥（漏 DESIGN.md）。stripTrace 的零残留自检本身保证 preset consumer-clean。
 // =====================================================================
 for (const s of PRESET_SITES) {
   const p = presetFile(s, 'rules.md');
   const { rules } = siteSrc(s);
-  check('§8 rules', '§8', `[${s}] == sites/${s}/rules.md 逐字节`, () =>
+  check('§8 rules', '§8', `[${s}] == stripTrace(sites/${s}/rules.md)`, () =>
     existsSync(p) && existsSync(rules)
-      ? bytesEqual(p, rules) || 'rules.md != site source'
+      ? readFileSync(p, 'utf8') ===
+          stripTrace(readFileSync(rules, 'utf8'), {
+            label: `sites/${s}/rules.md`,
+          }) || 'rules.md != stripTrace(site source)'
       : `missing ${p}`,
   );
 }
@@ -547,6 +605,43 @@ for (const s of PRESET_SITES) {
 }
 
 // =====================================================================
+// §9.5 composition.md (per preset) — CONDITIONAL stripTrace parity (Hook H7)  #29 §9.5
+// The pure-prose composition layer (#30/#31) is OPTIONAL — not part of the publishable
+// quartet, so its parity is conditional on the SOURCE. Like §8 rules.md (#34→#35), the
+// SOURCE keeps its DESIGN.md 追溯（可剥 trace 表 + ← 尾注）；build:skill 迁移时 stripTrace 剥掉：
+//   · source present → preset composition.md exists AND == stripTrace(source)
+//                      （既不多剥丢内容、也不少剥漏 DESIGN.md；stripTrace 零残留自检本身保证
+//                       preset consumer-clean）
+//   · source absent  → preset has NO composition.md (nothing to emit)
+// This is Hook H7 (合成层 preset 不变量): break the strip / delete the source but keep the
+// preset / edit the source → the matching branch below goes red.
+// =====================================================================
+for (const s of PRESET_SITES) {
+  const p = presetFile(s, 'composition.md');
+  const { composition } = siteSrc(s);
+  check(
+    '§9.5 composition',
+    '§9.5',
+    `[${s}] 条件 parity（源在则 == stripTrace(源)·源无则无）`,
+    () => {
+      if (existsSync(composition)) {
+        if (!existsSync(p))
+          return `source composition.md present but preset copy missing`;
+        return (
+          readFileSync(p, 'utf8') ===
+            stripTrace(readFileSync(composition, 'utf8'), {
+              label: `sites/${s}/composition.md`,
+            }) || 'composition.md != stripTrace(site source)'
+        );
+      }
+      return existsSync(p)
+        ? `no source composition.md but preset copy present (should not exist)`
+        : true;
+    },
+  );
+}
+
+// =====================================================================
 // Determinism (command coverage) — idempotence + switch-theme isolation
 // Built into THROWAWAY temp dirs; the real skill and git are never touched.
 // #29 assigns these to pipeline tests; the issue asks check:skill to also cover them.
@@ -557,9 +652,15 @@ function seedSkillDir() {
   return dir; // build:skill makes references/theme{,-presets}/ itself
 }
 const presetFileList = (s) =>
-  [`tokens.css`, `rules.md`, `style.md`].map(
-    (f) => `references/theme-presets/${s}/${f}`,
-  );
+  [
+    `tokens.css`,
+    `rules.md`,
+    `style.md`,
+    // composition.md is OPTIONAL (#31) — include it in the idempotence snapshot only for
+    // sites whose source has one, so the optional 4th preset file is proven byte-idempotent
+    // too, without demanding it where there is no source.
+    ...(existsSync(siteSrc(s).composition) ? [`composition.md`] : []),
+  ].map((f) => `references/theme-presets/${s}/${f}`);
 
 check(
   'Determinism',
@@ -641,6 +742,12 @@ check(
       );
     if (!existsSync(join(dir, 'references/theme/design-rules.md')))
       problems.push('global references/theme/design-rules.md missing');
+    // composition.md is theme-SPECIFIC prose (#31) — it belongs per preset, the mirror
+    // image of design-rules: it must NEVER leak into the global theme dir.
+    if (existsSync(join(dir, 'references/theme/composition.md')))
+      problems.push(
+        'composition.md leaked into global references/theme/ (should be per-preset only)',
+      );
     // SKILL.md skeleton carries no per-site prose beyond the default-site slot: blanking
     // it + catalog yields a theme-free skeleton (no site name anywhere in it).
     const strip = (src) =>

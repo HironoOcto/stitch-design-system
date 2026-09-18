@@ -1,0 +1,42 @@
+// demo/layouts/landing/steep/landing.module.less —— steep hero 的**滚动视差聚拢**（CSS scroll-driven，无 JS）
+//
+// 真站 hero 是一段 scroll-linked 叙事：往下滚时，散落在标题四周的浮动 artifact 上浮、
+// 向中心靠拢、缩小、淡出（hero「收拢」退场）。这里用 CSS scroll-driven 动画复刻那份手感：
+// 动画进度绑最近滚动容器（demo 的 .shell__content），随其前 ~70vh 滚动行程推进。
+//
+// - 纯 CSS、零 JS：不新增结构 Hook，不碰组件库/adapter（demo 连接件层的受控动效）。
+// - 值皆几何位移（translate/scale/opacity），非主题值——不违「连接件只读 var」红线。
+// - @supports 守卫：不支持 scroll-driven 的浏览器自动回退成静态拼贴（动画不生效、无副作用）。
+// - 尊重 prefers-reduced-motion：用户要求减弱动效时整体关闭。
+
+@keyframes steep-collapse-left {
+  to {
+    transform: translate(56px, -48px) scale(0.8);
+    opacity: 0;
+  }
+}
+@keyframes steep-collapse-right {
+  to {
+    transform: translate(-56px, -48px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .collapseLeft,
+    .collapseRight {
+      animation-timeline: scroll(nearest block);
+      animation-range: 0 70vh;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      will-change: transform, opacity;
+    }
+    .collapseLeft {
+      animation-name: steep-collapse-left;
+    }
+    .collapseRight {
+      animation-name: steep-collapse-right;
+    }
+  }
+}

@@ -84,6 +84,31 @@ test('renderBlurbFile is deterministic for the same input', () => {
   );
 });
 
+// #36 — the header contract states what the blurb is faithful TO. With a composition layer
+// fused in, that is "DESIGN.md as corrected by composition.md" (ADR 0013); without one it
+// degrades to the plain "fidelity to DESIGN.md" wording.
+test('renderBlurbFile upgrades the contract header when corrected by composition', () => {
+  const out = renderBlurbFile('steep', parseBlurb(GOOD), { corrected: true });
+  assert.match(out, /as corrected by composition\.md/i);
+  assert.match(out, /DESIGN\.md/);
+  // still a fresh, pending draft — the human gate is unchanged
+  assert.match(out, /pending human sign-off/i);
+  assert.doesNotMatch(out, /human-approved/);
+  // the two sections still round-trip
+  assert.deepEqual(parseBlurb(out), parseBlurb(GOOD));
+});
+
+test('renderBlurbFile keeps the plain DESIGN.md contract when there is no composition', () => {
+  const bare = renderBlurbFile('steep', parseBlurb(GOOD));
+  assert.doesNotMatch(bare, /as corrected by composition\.md/i);
+  assert.match(bare, /fidelity to DESIGN\.md/i);
+  // passing corrected:false is identical to passing nothing (default degrade)
+  assert.equal(
+    renderBlurbFile('steep', parseBlurb(GOOD), { corrected: false }),
+    bare,
+  );
+});
+
 const SECTIONS = {
   subtitle: 'serif analytics on warm paper',
   styleParagraph: 'Steep renders analytics as editorial.',
@@ -107,4 +132,44 @@ test('buildPrompt appends the three extracted sections as INPUT, last', () => {
   assert.match(input, /serif analytics on warm paper/);
   assert.match(input, /Steep renders analytics as editorial/);
   assert.match(input, /## Do's and Don'ts/);
+});
+
+// #36 — composition is an OPTIONAL fusion input.
+test('buildPrompt WITHOUT composition is byte-identical to the pre-#36 prompt (degrade)', () => {
+  // The red line: no composition → original behavior, unchanged. Passing an explicit
+  // null/undefined must equal passing no composition key at all.
+  const bare = buildPrompt(SECTIONS);
+  assert.equal(buildPrompt({ ...SECTIONS, composition: null }), bare);
+  assert.equal(buildPrompt({ ...SECTIONS, composition: undefined }), bare);
+  // and the degrade prompt names no composition layer anywhere
+  assert.doesNotMatch(bare, /composition/i);
+});
+
+test('buildPrompt WITH composition fuses the corrections after the DESIGN INPUT, spine kept', () => {
+  const composition =
+    'steep 的暖纸画布满屏铺着一层位图氛围底 + 颗粒噪声 + overlay 混合；页面下部有一整幕近黑暗场。';
+  const p = buildPrompt({ ...SECTIONS, composition });
+
+  // fixed spine survives (same two-section contract, same value rule)
+  assert.match(p, /Output EXACTLY these two sections/);
+  assert.match(p, /## description/);
+  assert.match(p, /## style-paragraph/);
+  assert.match(p, /NO hex/);
+  assert.match(p, /described as THE style/);
+
+  // the corrections are present, verbatim, as their own labeled block
+  assert.match(p, /COMPOSITION CORRECTIONS/);
+  assert.match(p, /位图氛围底 \+ 颗粒噪声 \+ overlay 混合/);
+
+  // fusion framing: corrections are ground truth from the live site and WIN on conflict
+  assert.match(p, /live site/i);
+  assert.match(p, /win|wins|override|prevail/i);
+
+  // ordering: the DESIGN INPUT block comes before the composition corrections
+  const inputAt = p.indexOf('INPUT:');
+  const corrAt = p.indexOf('COMPOSITION CORRECTIONS');
+  assert.ok(
+    inputAt > 0 && corrAt > inputAt,
+    'corrections follow the DESIGN INPUT',
+  );
 });

@@ -9,5 +9,6 @@
 - [打包发布](./packaging.md) — Vite Library + preserveModules + exports
 - [Demo 站](./demo-site.md) — 本地预览 + 多站切换器（动态发现 + 作用域化）+ 用例来源
 - [接入新站 playbook](./onboard-site.md) — 可复用流程：`DESIGN.md → adapter.css + rules.md`（每加一站跑一次）
+- [补合成层 playbook](./onboard-composition.md) — 接入新站**必跑**：对真站跑探针核合成层 →（该站有未记的合成层才）产出 `composition.md`（第二风格源，运动员/裁判分离；[ADR 0013](../adr/0013-composition-layer.md)）
 - [skill 构建流程](./skill-build-pipeline.md) — 生成唯一 skill：build:skill / refs / blurb
 - [skill 结构验收标准](./skill-acceptance.md) — 结构验收标准：runbook + 9 产物节 + 流程级（check:skill 照此实现）

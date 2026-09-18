@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "demo": "vite",
+    "build:layout": "node scripts/build-layout.mjs",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:refs": "node scripts/build-refs.mjs",
     "build:blurb": "node scripts/build-blurb.mjs",
@@ -19,7 +20,7 @@
     "test:a11y": "vitest run --project a11y",
     "build": "vite build packages/react",
     "ci": "npm run format:check && npm run check:docs && npm run check:skill && npm run check:boundary && npm run lint && npm run test:run && npm run test:a11y && npm run build",
-    "test:units": "node --test"
+    "test:units": "node --test 'scripts/**/*.test.mjs'"
   },
   "dependencies": {
     "clsx": "^2.1.1",

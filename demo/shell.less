@@ -38,6 +38,20 @@ body {
   margin-bottom: var(--stitch-spacing-xl);
 }
 
+// 二级大类标题（COMPONENTS / LAYOUT）—— 比族名更重、领起一组族。
+.shell__cat {
+  font-family: var(--stitch-font-display);
+  font-size: var(--stitch-font-size-sm);
+  color: var(--stitch-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: var(--stitch-spacing-lg) 0 var(--stitch-spacing-md);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
 .shell__group {
   margin-bottom: var(--stitch-spacing-lg);
 }
@@ -135,6 +149,12 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+
+  // 版式样例 full-bleed：零 padding，贴边全宽（通栏底色带贴到内容区边缘，
+  // 正文列由样例自己收 --stitch-page-max-width 居中）。
+  &--bleed {
+    padding: 0;
+  }
 }
 
 .shell__empty {

@@ -49,6 +49,19 @@ test('--out controls where the artifact lands', () => {
   );
 });
 
+test('folds in the page-scale layer AND the aliased contract spacing (ADR 0012)', () => {
+  const { css } = buildTokens({
+    site: 'steep',
+    out: 'packages/tokens/dist/__test__/layer.css',
+  });
+  // page-scale layer present in the merged :root
+  assert.match(css, /--stitch-space-160:\s*160px;/);
+  assert.match(css, /--stitch-section-gap:\s*80px;/);
+  assert.match(css, /--stitch-text-display:\s*90px;/);
+  // contract's aliased spacing resolves through the layer, kept verbatim (H4)
+  assert.match(css, /--stitch-spacing-md:\s*var\(--stitch-space-12, 12px\);/);
+});
+
 test('flip via --site changes the written artifact', () => {
   const s = buildTokens({
     site: 'steep',

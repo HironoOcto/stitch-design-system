@@ -27,7 +27,7 @@
 - **静态**：grep / wc（名字、长度、无残留、无 hex…）。
 - **从源算期望再比**（针对生成物）：用**纯函数**从源算出「本该长这样」，跟产物比——`mergeTokens(contract, adapter, 当前站)` 之于 tokens.css、`renderCatalog(builtFamilyRows(parseFamilies(…), 组件参考目录))` 之于 catalog（**只列已落盘的族**，族表里列了、但源码尚无对应组件的族不出链）、抽 `<X>Props` 之于组件参考、`diff 拷贝 vs 源` 之于 rules/design-rules。**调纯函数算期望，不是跑 `build:*` 编排**（那会写文件、要还原 git）。这些纯函数**必须复用 `build:*` 用的同一份 lib**（别各写一份，否则期望值自己就漂）。
 
-> **`<发布默认>` = 本仓库 `stitch.config.json` 的 `activeSite`**；**`<可发布站>` = `listPublishableSites()`**（三件套齐全，判据里的占位符）。全程**不写死某站**——预置逐站核时对 `<可发布站>` 每一站跑同一组判据。
+> **`<发布默认>` = 本仓库 `stitch.config.json` 的 `activeSite`**；**`<可发布站>` = `listPublishableSites()`**（四件套 `{adapter.css, layout.css, rules.md, skill-blurb.md}` 齐全，判据里的占位符）。全程**不写死某站**——预置逐站核时对 `<可发布站>` 每一站跑同一组判据。
 >
 > **本验收在源仓库内跑**：判据要读上游源（`contract.css`/adapter/组件源码/`component-families.md`/`docs/`/`sites/`）。验一份已拷进 `~/.claude/skills/` 的**脱源副本**不在本文范围。
 
@@ -130,19 +130,21 @@
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| 预置站集合 == 可发布站 | `theme-presets/` 下的子目录名（排序）== `listPublishableSites()`（#7 三件套判据）——不多一站、不缺一站 | 机器 | 某可发布站漏出预置；或多出个残留站目录 |
-| 发布默认站有预置 | 发布默认（本仓库 `activeSite`）∈ 预置站集合 | 机器 | 默认站三件套不全、却被当默认 |
+| 预置站集合 == 可发布站 | `theme-presets/` 下的子目录名（排序）== `listPublishableSites()`（四件套判据）——不多一站、不缺一站 | 机器 | 某可发布站漏出预置；或多出个残留站目录 |
+| 发布默认站有预置 | 发布默认（本仓库 `activeSite`）∈ 预置站集合 | 机器 | 默认站四件套不全、却被当默认 |
 
-> §6 / §8 / §9 对 **`<可发布站>` 每一站的预置** 各跑一遍（占位符即 `theme-presets/<站>/…`），全站全绿才算过。§7 design-rules 是全局单份、不进预置。
+> §6 / §8 / §9 对 **`<可发布站>` 每一站的预置** 各跑一遍（占位符即 `theme-presets/<站>/…`），全站全绿才算过。§9.5 亦逐站跑，但**条件化**（源在才核字节相等、源无则核「预置也无」）。§7 design-rules 是全局单份、不进预置。
 
 ### 6. `references/theme-presets/<站>/tokens.css`（生成 · 每可发布站一份）
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| == contract + 该站 adapter 合并 | `mergeTokens(contract, sites/<站>/adapter, 站)` 的输出（含头部 `generated for site: … DO NOT EDIT` 行 + `:root` 体）== 该站预置 `tokens.css`（纯函数算期望、比对；**不跑 build:skill、不动 git**） | 机器 | 手改 hex、与合并结果不符 |
+| == contract + 该站 layer + 该站 adapter 三输入合并 | `mergeTokens(contract, sites/<站>/layout.css, sites/<站>/adapter, 站)` 的输出（含头部 `generated for site: … DO NOT EDIT` 行 + `:root` 体）== 该站预置 `tokens.css`（页面尺度层已**折入这一个 tokens.css**，ADR 0012 决策5；adapter 仍最后胜。纯函数算期望、比对；**不跑 build:skill、不动 git**） | 机器 | 手改 hex；或 layer 没折进去、与三输入合并结果不符 |
+| 含全量页面尺度（layer 全折入 + layout 四键） | 该站 `sites/<站>/layout.css` 的每个 `--stitch-*` 都在预置 `tokens.css` 里（`layer ⊆ tokens`，证明页面尺度层已折入——完整 `--stitch-space-*`、全字阶 `--stitch-text-<角色>`、`--stitch-space-unit`），且四个 layout 键（`--stitch-page-max-width` / `--stitch-section-gap` / `--stitch-card-padding` / `--stitch-element-gap`）均在 | 机器 | 只合了 contract+adapter、页面尺度层没折入；或漏了某个 layout 键 |
+| 间距别名 `--stitch-spacing-*` 解析到 `--stitch-space-*` | 每个 `--stitch-spacing-{xs,sm,md,lg,xl}` 的值是 `var(--stitch-space-N, 字面量)` 别名（P1，ADR 0012 决策2），且它引用的 `--stitch-space-N` 在**同一份** tokens.css 里已定义（层折入后别名可解析、不悬空） | 机器 | 别名引用的 `--stitch-space-N` 缺失、只能兜底回字面量（层没折入）；或别名被改成写死值 |
 | 顶部 DO NOT EDIT 行 | grep 首行含 `generated`+`DO NOT EDIT` | 机器 | 缺标记 → 验收 grep 兜不住 |
-| 单个 `:root` | `grep -c '^:root'` == 1 | 机器 | contract/adapter 两个 `:root` 直接拼 |
-| 全 `--stitch-*` 前缀 | 所有自定义属性名匹配 `^--stitch-` | 机器 | 混进 `--refero-*`/`--ant-*` |
+| 单个 `:root` | `grep -c '^:root'` == 1 | 机器 | contract/layer/adapter 多个 `:root` 直接拼 |
+| 全 `--stitch-*` 前缀（含折入的新层，即 H6） | 所有自定义属性名匹配 `^--stitch-`——折入的页面尺度层也只含 `--stitch-*`，不泄漏 `--text-*`/`--spacing-*`/站名/源 hex（H6 就在这条兜） | 机器 | 混进 `--refero-*`/`--ant-*`；或 layer 泄漏了源前缀 |
 | 派生 `color-mix()` 未被求值 | contract 里以 `color-mix()` 定义的派生 token，合并输出里**逐一仍是 `color-mix()`**（对派生集合**逐项**核，非「全文含 `color-mix` 即过」；某主题若 adapter 把某派生 token 覆盖成静态值，则该 token 不参与此检查） | 机器 | 派生被算成静态 `#...` → 换主题不跟随 |
 
 ### 7. `references/theme/design-rules.md`（生成 · 拷贝 · 全局单份）
@@ -151,11 +153,14 @@
 |---|---|---|---|
 | == 源逐字（全局源、拷贝无加工） | `diff SKILL_DIR/references/theme/design-rules.md docs/design-system/design-rules.md` == 空（源是全局的、与主题无关，故这份拷贝天然主题无关；单份、不进任何预置） | 机器 | 副本被手改、与源漂移；或被复制进某预置目录 |
 
-### 8. `references/theme-presets/<站>/rules.md`（生成 · 拷贝 · 每可发布站一份）
+### 8. `references/theme-presets/<站>/rules.md`（生成 · 迁移剥离 · 每可发布站一份）
+
+> #34 起：源 `sites/<站>/rules.md` **保留 DESIGN.md 来源追溯**（可追溯，onboard 忠实产物），追溯只落【小节标题 `←` 尾注 + `<!-- trace -->` 追溯容器】；`build:skill` 拷进预置时走 **`stripTrace(源)`** 确定性剥离（删 `←` 尾注 + 删追溯容器），preset 发布副本 consumer-clean（零 DESIGN.md）。故 parity 从「逐字节 == 源」改为「== `stripTrace(源)`」。`stripTrace` 的**剥后零残留自检**（正文自由句里有 DESIGN.md 即抛错、`build:skill` 失败并指出源哪行）是新站的机器强制——放错位置直接红，不靠文档自觉。
 
 | 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
 |---|---|---|---|
-| == 该站 rules 逐字 | 对每个可发布站，`diff theme-presets/<站>/rules.md sites/<站>/rules.md` == 空 | 机器 | 副本手改、与 `sites/<站>/rules.md` 不符 |
+| == `stripTrace(该站 rules)` | 对每个可发布站，`theme-presets/<站>/rules.md` 逐字节 == `stripTrace(sites/<站>/rules.md)`（[strip-trace.mjs](../../scripts/lib/strip-trace.mjs)） | 机器 | 副本手改；或多剥（丢内容）/ 少剥（漏 DESIGN.md）与剥离产物不符 |
+| preset 零 DESIGN.md 残留 | `grep -c DESIGN.md theme-presets/<站>/rules.md` == 0（`stripTrace` 自检 + check:boundary 发货面双保险共同保证） | 机器 | 追溯落到不可剥位置（正文自由句）→ `build:skill` 抛错 |
 
 ### 9. `references/theme-presets/<站>/style.md`（生成 · 每站招牌散文 · 源为 skill-blurb.md）
 
@@ -168,6 +173,17 @@
 | description ≤ 1024·无 hex / style 一段·无 hex·只招牌尺寸 | `lintBlurb`：`## description` ≤ 1024 且无 hex；`## style-paragraph` 一段、无 hex、只留 hero 字号/卡片圆角/区块间距几个尺寸 | 机器 | 段里写死 `#fbe1d1`；或复述整张 token 表 |
 | 忠实 DESIGN.md、无编造 | LLM 读该站 blurb vs `sites/<站>/source/DESIGN.md`：每句可溯源、没借别站 | agent判 | blurb 编了 DESIGN.md 没有的视觉词 |
 | 人最后定稿签字 | `sites/<站>/skill-blurb.md` 顶部注释含 human-approved；维护者一眼过（唯一人工闸） | 人签 | 未审直接发布 |
+
+### 9.5 `references/theme-presets/<站>/composition.md`（生成 · 迁移剥离 · **可选** · 每有源站一份）
+
+> 合成层散文补充（#30/#31）：DESIGN.md 没覆盖、`rules.md` 也没有的那层——氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单。**纯散文通道**，不引入任何 token 槽 / 契约 / 组件改动。**可选**（不进「可发布四件套」）：站有 `sites/<站>/composition.md` 才纳入预置；站无源则预置**无**该文件。#35 起：源 composition.md 采「**正文正向散文 + 可剥维护者追溯表**」混合体例——正文 consumer-clean（零 DESIGN.md、零孪生横指 `adapter.css`/`variables.css`），DESIGN.md 追溯/勘误只落【小节标题 `←` 尾注 + `<!-- trace -->` 追溯容器】；`build:skill` 纳入预置时走 **`stripTrace(源)`** 确定性剥离（同 `rules.md` §8），preset 发布副本只留正向散文。故 parity 从「逐字节 == 源」改为「== `stripTrace(源)`」；`stripTrace` 的**剥后零残留自检**（正文自由句里有 DESIGN.md 即抛错、`build:skill` 失败并指出源哪行）是机器强制。parity 仍**条件化**（源在才有）、绝不升级为强制。此条即 **Hook H7（合成层 preset 不变量）**。SKILL.md「Active theme」指引 AI 读它（folder 有才读，无则该主题无合成层、不臆造）。
+
+| 查什么(白话) | 怎么算过(命令/grep/diff 或判据) | 类型 | 不过长啥样(失败例子) |
+|---|---|---|---|
+| 条件 parity（源在则 == `stripTrace(源)`·源无则无） | 对每个可发布站：`sites/<站>/composition.md` 存在 → `theme-presets/<站>/composition.md` 逐字节 == `stripTrace(sites/<站>/composition.md)`（[strip-trace.mjs](../../scripts/lib/strip-trace.mjs)）；源不存在 → 预置目录里**无** `composition.md`（`existsSync` == false）。**不跑 build:skill、不动 git** | 机器 | 副本手改（与剥离产物漂移）；或多剥（丢内容）/ 少剥（漏 DESIGN.md）；或删源却留着预置副本；或改源没重生成预置 |
+| preset 正文 consumer-clean | `grep -c DESIGN.md theme-presets/<站>/composition.md` == 0，且无孪生横指 `见 adapter`/`adapter.css`/`variables.css`（`stripTrace` 自检 + check:boundary 发货面双保险共同保证；#35 已拆除 composition 的 EXEMPT、纳入发货面扫描） | 机器 | 追溯落到不可剥位置（正文自由句）→ `build:skill` 抛错；横指泄漏 → check:boundary 红 |
+| 幂等纳入（源在的站） | `build:skill` 重跑，源在的站其预置 `composition.md` 逐字节不变（并进幂等快照文件表） | 机器 | 重跑后 composition.md 抖动 |
+| 换主题隔离（不泄漏全局） | composition.md 是**主题专属**散文（`design-rules.md` 的镜像反面）——只在预置目录，**绝不**落到全局 `references/theme/` | 机器 | composition.md 漏进 `references/theme/`（当成全局件） |
 
 ---
 

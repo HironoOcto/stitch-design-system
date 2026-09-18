@@ -50,6 +50,10 @@
 - **H4 生成 tokens 不变量**（#2 引入）：`mergeTokens` 合并出的 tokens 恒满足——**单一 `:root`** + 首行 **`DO NOT EDIT`** 头 + **派生 `color-mix()` 原样保留**（不求值成 hex）+ **生成物永不手改**（默认落点 `packages/tokens/dist/` 已 gitignore、不进 git，`git check-ignore` 断言）。由 [merge-tokens.mjs](../scripts/lib/merge-tokens.mjs) 保证，[merge-tokens.test.mjs](../scripts/lib/merge-tokens.test.mjs) grep 断言。
 - **H5 CI 管线存在性**（#4 引入，#33 起含 `check:skill`，#59 起含 `check:boundary`）：`npm run ci` = `format:check → check:docs → check:skill → check:boundary → lint → test:run → test:a11y → build` 八步齐备，且对**空 `packages/react`** 全绿（退出码 0）——后续每个组件 issue 的「绿」标尺。`npm run ci; echo $?` 断言。管线细节见 [sync-and-ci.md](../contributing/sync-and-ci.md)。
 
+- **H6 页面尺度层生成不变量**（[ADR 0012](./adr/0012-page-scale-layer.md) 引入，GH #23 落地，#25 修正判据）：页面尺度层（`--stitch-space-*` / `--stitch-text-<角色>` / `--stitch-leading·tracking-<角色>` / layout 四键）与组件角色契约**并列、同为 `--stitch-*` 公开 API**，但**生成·非手写**——每站 `sites/<site>/layout.css` 由 `build:layout` 从 `source/variables.css` 确定性映射产出，恒满足：**幂等** + 首行 `DO NOT EDIT` 头 + **只含 `--stitch-*`**（无泄漏 `--text-*`/`--spacing-*`/`--color-*`/站名/源 hex）+ **缺角色/档位不生成**（不发明默认）。**`layout.css` 是 `adapter.css` 的成对值文件**（一个站的两份「值文件」，永远成对）：`build:layout` 对**每个有 `adapter.css` 的站**（`listAdapterSites`）生成，**不 gated 在可发布**；「可发布站」判据升为**四件套** `{adapter.css, layout.css, rules.md, skill-blurb.md}`（`listPublishableSites`），demo 发现站 = **有 adapter ∩ 有 layout**——被展示/发布的站按判据本就必有 `layout.css`，**无「容缺」分支**（无循环：先有 adapter → `build:layout` 生成 layout → 四件套才可能齐）。`mergeTokens` 为三输入 `(contract, layer, adapter)`、**adapter 仍最后胜**；契约 `--stitch-spacing-xs..xl` 退化为 `var(--stitch-space-N, 旧值)` 别名（组件零行为变更）。由 [extract-layout.mjs](../scripts/lib/extract-layout.mjs) + [build-layout.mjs](../scripts/build-layout.mjs) + [publishable-sites.mjs](../scripts/lib/publishable-sites.mjs) 保证；文件级不变量（幂等 / `DO NOT EDIT` / 只含 `--stitch-*` / 无站名·hex·外来 `--var` 泄漏 / committed==重生成 / 缺角色不生成）由 [build-layout.test.mjs](../scripts/build-layout.test.mjs) + [extract-layout.test.mjs](../scripts/lib/extract-layout.test.mjs) grep 断言，四件套判据（adapter 集/可发布集/缺 layout 排除）由 [publishable-sites.test.mjs](../scripts/lib/publishable-sites.test.mjs) 断言，三输入合并（adapter 最后胜 + 别名 `var()` 保留）由 [merge-tokens.test.mjs](../scripts/lib/merge-tokens.test.mjs) 断言。`layout.css` 落 [check-boundary.mjs](../scripts/check-boundary.mjs) 的 `sites/*` 豁免区（= H1 设计，生成文件不进三层扫描）；契约别名的组件零行为变更由 `ci` 的 `test:run`/`test:a11y` 反证。
+
+- **H7 合成层 preset 不变量**（[#31](https://github.com/HironoOcto/stitch-design-system/issues/31) 引入；地基 [#30](https://github.com/HironoOcto/stitch-design-system/issues/30) + [ADR 0013](./adr/0013-composition-layer.md)）：合成层散文 `composition.md`（氛围铺底 / 明暗幕 / 图像材质 / 字形设备 / 拒绝清单——DESIGN.md 没覆盖、`rules.md` 也没有的那层）是 skill 消费通道里的**可选第 4 个 preset 文件**、**纯散文通道**——**不引入任何 token 槽 / 契约 / 组件改动**（合成层里可 token 化的部分留作后续）。恒满足：**条件 parity**——站有 `sites/<站>/composition.md` → 预置 `theme-presets/<站>/composition.md` **byte-exact** 拷贝（同 `rules.md` 语义）；站无源 → 预置**无**该文件（**可选、不进「可发布四件套」，parity 绝不升为强制**）+ **幂等**（源在的站重跑逐字节不变、进幂等快照表）+ **换主题隔离**（主题专属散文，只在预置目录、绝不泄漏进全局 `references/theme/`）+ SKILL.md「Active theme」指引 AI「folder 有则读」（引用一层深 / 自包含 / 骨架无站名不破）。由 [build-skill.mjs](../scripts/build-skill.mjs)（⑥ 条件拷贝）保证，[check-skill.mjs](../scripts/check-skill.mjs) §9.5 条件 parity + 幂等/隔离断言 + [build-skill.test.mjs](../scripts/build-skill.test.mjs) 命令覆盖守护；正本 [skill-acceptance.md](./contributing/skill-acceptance.md) §9.5 + [skill-build-pipeline.md](./contributing/skill-build-pipeline.md) ⑥。
+
 > 未来 Hook（到相应阶段补）：**check:docs 覆盖 teeth**（组件 ↔ skill references 覆盖强制，脚本已随 #4 就位、空库天然过，真组件 + skill 参考到位后见效）等。
 
 ---
@@ -477,6 +481,187 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/16
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/17
 依赖：#13（ChatMessage 就位）。可与 #14/#15/#16 并行。
+
+---
+
+## #19（AFK）：内容链接 `<a>` 从 `--stitch-accent` 改读 `--stitch-link`（仅链接）
+
+> 组件把「填充角色」`--stitch-accent`（契约明写「主行动色，可为浅色」）当成内容链接文字色——phantom accent = Ghost Lavender `#e2dffe` 当链接 on 白 canvas = 1.27:1 隐形。链接本就该走 `--stitch-link`（各站已各自填对：phantom `#3c315b` / seline `#3398e1` / steep `#777b86`）。**范围只限真链接 `<a>`；nav 当前项 / Select 选中项等「品牌前景强调」不在此——见 ADR 0011 + #22。**
+
+> ✅ 已完成并 close（commit `ed308f0`，2026-09-12，用户验收通过）。Collapse 面板 + ChatMessage 气泡正文 `<a>`：`var(--stitch-accent)` → `var(--stitch-link)`，hover 因无 `--stitch-link-hover` 契约槽走内联 `color-mix(in srgb, var(--stitch-link), black 12%)`（不新增 token，contract.css 零 diff）。**验收中根治 issue 前提漏洞**：原断言「各站已各自填对 `--stitch-link`」对 **steep 不成立**——steep `--stitch-link=#777b86` 是它的**次要文本槽**（on 白 4.23:1、与 helper 撞色），而 DESIGN 组件规格 **Text Link=#17191c**。根因：`multi-site-theming §9.4.2` 抽取示例把「链接」从 **Colors 表 Role 列**抽（图例把 链接/helper/footer 并成一档）、错例被固化，且 `--stitch-link` 在本件前无内容链接消费者 → 潜伏。**修法新增规则 B**（`§9.4.2` + `§9.4.3` 示例 + `§9.5.2` 模板 + [onboard-site-review.md](./contributing/onboard-site-review.md) §2）：**色角色归属以 DESIGN 组件规格为准、非 Colors 表 Role 列；冲突组件规格赢、缺则 ③；前景文字色先按组件规格定值再按 §5 验对比度**。重跑 onboard 修 steep：`--stitch-link` `#777b86` → `#17191c`（组件 Text Link，15.74:1 on card）+ 同步 `sites/steep/rules.md` + 再生成 steep skill preset。**① 结构 Hook**：contract.css 零 diff、`check:boundary` 三层零越界、`check:skill` 59/59（build:skill 幂等）、`check:docs` ✓、`npm run ci` EXIT 0（pre-commit）、a11y 147/147、无 emoji/裸svg/Unicode，复核 subagent 判定 steep 两产物**通过** 🟢。**② 真实 case dry_run**（真实浏览器逐站）：phantom link `#3c315b`/**11.52:1**（改前 accent `#e2dffe`/1.29 隐形）、**steep** link `#17191c`/**15.74:1**（曾被迁成灰 `#777b86`/4.23，规则 B 定对无回退）、seline link `#3398e1`/**3.13:1** 🟡 保持（品牌唯一彩色声音的 §5 固有张力，非本次引入，用户裁决豁免）🟢。两块表见 GH #19 评论。**顺带发现（非本件，另行跟进）**：steep `--stitch-text-muted:#979799` vs DESIGN placeholder `#a3a6af` 可能该对齐（muted/placeholder 归属，不碰链接）。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/19
+依赖：无，可立即领取。与 #20/#21 并行；与 #22 互不阻塞（本件只碰 `<a>`）。
+
+---
+
+## #22（AFK）：契约新增 `--stitch-brand` 前景品牌角色（默认=accent）+ phantom 覆盖 + 组件品牌强调迁移
+
+> 落地 [ADR 0011](./adr/0011-brand-foreground-vs-action-accent.md)（**已接受**）。契约只有一个品牌槽 `--stitch-accent`（填充，可为浅色），组件却用它兼任「品牌前景强调」（nav 当前项 / Select 选中项·勾·箭头）。对 steep(黑)/seline(青，DESIGN 明写 active links=accent)正确且是本意，唯 phantom 把品牌拆成脊 Aubergine + 行动 Ghost Lavender → accent 当前景 1.27:1 隐形。**修法：契约加 `--stitch-brand: var(--stitch-accent)`（默认继承，steep/seline 零变化）、phantom 覆盖 `#3c315b`、组件前景强调迁 `--stitch-brand`。**
+
+> ✅ 已完成并 close（commit `1a80745`，2026-09-12）。落地 ADR 0011：契约新增 `--stitch-brand: var(--stitch-accent)`（派生·默认跟随 accent，站可覆盖；经 `mergeTokens` 保留未求值 `var()`，H4 不破）；phantom adapter 覆盖 `#3c315b`（Aubergine 脊色，on canvas 11.52:1），steep/seline 不写 → 继承 accent、零变化；组件「品牌前景强调」从 accent 迁到 brand 共 **4 处**（`NavigationMenu .link[data-active]` · `Select .optionSelected/.checkMark/.arrowOpen`）；`design-rules.md` 补硬规则 8（accent/brand/link 三角色分工）+ `NavigationMenu` JSDoc 同步；再生成 seline/steep preset `tokens.css`。**明确不动**（grep 双证）：`Form .item-is-validating` 仍 accent、`--stitch-focus-ring` 仍 `var(--stitch-accent)`、`Select` border-color、Button 家族。**① 结构 Hook**：H2 新角色落 `contract.css :root`（公开 API）+ 组件只读 `--stitch-*`（`check:boundary` 三层零越界）🟢；H4 seline/steep preset 为 `var(--stitch-accent)` 非 hex 🟢；`check:skill` 59/59、a11y 147、unit 708、lint clean、无 emoji/裸svg/Unicode 🟢。**② 真实 case dry_run**（phantom demo 真实浏览器）：nav 当前项「首页」`#e2dffe`/1.27:1 → `#3c315b`/**11.52:1**（开篇↔结尾达 ADR 预期），Select 选中项+勾+展开箭头同 `#3c315b`/11.52:1、与常态 `#1c1c1c`+加粗可区分；跨站实测 seline `brand=accent=#3ba6f1`（青）、steep `brand=accent=#17191c`（黑）零回退 🟢。两块表见 GH #22 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/22
+依赖：ADR 0011 已接受，可立即领取（与 #19/#20/#21 并行；本件独占 contract.css 一行新增）。
+
+---
+
+## #20（AFK）：ChatMessage 气泡统一 elevated 表面 —— 修 received 在 `bg-card==canvas` 站隐形
+
+> ✅ 已完成并 close（commit `f8e6b08`，2026-09-12，用户验收通过）。ChatMessage 共享 `.bubble` 块新增一行 `box-shadow: var(--stitch-shadow-base)`——sent/received 从此统一同一 elevated 表面（独立浮起面），仅填充色分身份（received=`--stitch-bg-card`、sent=cat-1 兑色底+ink，填充配方零改动）。修 `--stitch-bg-card == --stitch-bg-canvas` 的站（phantom `#fdfcfe`）上 received 气泡 canvas-on-canvas（1.00:1）隐形。phantom `--stitch-shadow-base` = 其允许的 4px violet glow → 浮起天然 on-brand、不破「除 4px violet glow 外无投影」硬规则；seline/steep 取各自 shadow-base。**① 结构 Hook**：box-shadow 落在共享 `.bubble`（两 variant 表面逐字节一致、仅 background 不同）、H2 阴影只读 `var(--stitch-shadow-base)` 无硬编码 hex/裸阴影、无新增契约 token、注释不点站名（`check:boundary ✓ 三层零越界`）、无 emoji/裸 svg/Unicode，`npm run ci` 七步全绿（含 `test:a11y 147/147`、`check:skill 59/59`，pre-commit EXIT 0）🟢。**② 真实 case dry_run**（demo 真实浏览器 computed style）：phantom received `box-shadow=rgb(226,223,254) 0 0 4px`（改前 1.00:1 隐形 → 改后靠 4px violet glow 浮起可辨）、sent 同一道 glow + 保留 cat-1 兑色底、两者成对一致；跨站抽查 steep received=该站 `oklab(…)1px + 0 8px 40px rgba(0,0,0,.1)`、seline=`rgba(0,0,0,.05) 0 4px 16px`，各站取本站 shadow-base 无回退无泄漏；观感确认 violet glow 未过度冒充「主 CTA 信号」。两块表见 GH #20 评论。**迁移笔记（预建笔记.md 轮 11）**：登记新原创取舍「气泡定为独立浮起面（shadow-base，两 variant 一致）」，并**推翻轮 8-9『气泡 = Card filled 逐字节相同』**——气泡现有影、Card filled 无影，逐字节相同只剩「填充配方 bg+ink」两条属性（轮 8/9 行已就地标注）。**给后续**：chat 族气泡表面处理判据已立（浮起靠 shadow-base、身份靠填充），后续 chat 件沿此。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/20
+依赖：无。已与 #19/#21 并行完成。
+
+---
+
+## #21（AFK）：图表图例文字走中性 `--stitch-text-primary`、色卡留分类色（Pie/Bar/Line）
+
+> ✅ 已完成并 close（commit `2771912`，2026-09-12，用户验收通过）。recharts `<Legend>` 默认把每项文字也染成系列色（= 分类填充色 `--stitch-cat-*`）——鲜艳/极淡分类色当白底文字对比极低（phantom Firefox=Buttercream 1.01:1 隐形）。**落库原则：分类色是「色块/填充色」，永不当「文字色」。** 两处 inline formatter 本相同 → 抽进 `_internal/dataviz` 私有原语 [`renderLegendLabel`](../packages/react/src/components/_internal/dataviz/ChartLegendLabel.tsx)（同 `catColor`/`ChartTooltip`/`ChartFrame` 单一来源、可 jsdom 直测），把 Legend **标签文字**裹成 `var(--stitch-text-primary)`；**色卡**（recharts 默认 svg `<path fill>` = 系列色）不碰 → 分类靠「色卡 + 文字」双通道（守 WCAG 1.4.1）。[PieChart](../packages/react/src/components/PieChart/PieChart.tsx) / [BarChart](../packages/react/src/components/BarChart/BarChart.tsx) `<Legend>` 改 `formatter={renderLegendLabel}`，**顺删原 `wrapperStyle` 容器色**（per-label 显式着色已完全盖过，留着是死断言——用户验收拍板删）。[LineChart](../packages/react/src/components/LineChart/LineChart.tsx) 无 `<Legend>`、末端标名 `.endLabel` 已 `text-primary`，仅确认无改。**① 结构 Hook**：H2 只读 `var(--stitch-*)`（文字接 `--stitch-text-primary`、swatch 仍 `--stitch-cat-*`、源零 hex）🟢、contract.css 零 diff（无新增 token）🟢、无 emoji/裸 svg/Unicode（svg 全由 recharts 出）🟢、`check:boundary` 三层零越界 / `check:docs` ✓ / `check:skill` 59/59 / `npm run ci` 八步 **EXIT 0**（pre-commit）🟢、test:run 709/709 + test:a11y 147/147（含新增 1 case）🟢。**② 真实 case dry_run**（真实浏览器 recharts 实渲染 computed 值）：**phantom Pie · Firefox** 图例文字 改前 Buttercream `rgb(255,255,196)`/**1.01:1** 隐形 → 改后 ink `#1c1c1c`(text-primary)/**16.66:1** 可读、swatch 仍 `var(--stitch-cat-3)`（开篇 Chrome…结尾 其他 全 5 项达预期）🟢、跨站 **seline** `#0c0a09` / **steep** `#17191c` 图例文字亦 text-primary、swatch 留 cat 色 🟢、**BarChart 多系列**（phantom/seline 独立访客·页面浏览）标签 = text-primary / swatch = cat 🟢、console 无 error/warn 🟢；过 #29 skill-acceptance §5 相关节（`props==源码` 无变、data-viz.md 无 diff）🟢。两块表见 GH #21 评论。
+
+---
+
+## #23（AFK）：页面尺度层地基 —— build:layout 生成器 + 三输入 mergeTokens + 契约间距别名
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md)（已接受）第 1/3 步：页面尺度层地基 = ① `build:layout` 从每站 `source/variables.css` 确定性生成 `sites/<site>/layout.css`（layout 四键 + `--stitch-space-*` + `--stitch-text/leading/tracking-<角色>`，缺则不提供）+ ② `mergeTokens` 扩三输入（contract+layer+adapter，adapter 最后胜）+ ③ `contract.css` 间距旧名退化为 `var(--stitch-space-N, 旧值)` 别名。引入 **H6**；阻塞 #24 / #25。
+
+> ✅ 已完成并 close（commit `9b8e3a6`，2026-09-13）。页面尺度层地基落地 ADR 0012 第 1/3 步：① 新增 `scripts/lib/extract-layout.mjs`（纯映射 + 三条归一化：phantom element-gap 区间取下界 8px / saybriefly 8px 基走 4px 网格 / spacing-unit 作元数据；缺角色不生成）+ `scripts/build-layout.mjs` + `build:layout`，对每个可发布站（`listPublishableSites`，当前 phantom/seline/steep）写 `sites/<site>/layout.css`（`DO NOT EDIT` 头、只含 `--stitch-*`、committed）；② `mergeTokens` 扩三输入 `(contract, layer, adapter, site)`、`layer` 可空、adapter 最后胜——`build-tokens` 传真 layer 自证，`build-skill`/`check-skill`/`vite` 虚拟模块传 `null`（产物逐字节不变，折入预置归 #24、运行时/demo 重排归 #25）；③ `contract.css` 间距 5 行退化为 `var(--stitch-space-N, 旧值)` 别名（P1 值恒等、组件零行为变更）。文档正本同步：multi-site-theming §9.4.4、design-rules 规则1、maintainer-runbook（build:layout 步 + 命令速查）、onboard-site（两手写 + 一生成）、issue-management H6 校准。**① 结构 Hook**：H6 / H4 / H2 / H1 全 🟢（`build-layout.test`(6)+`extract-layout.test`(13)+`merge-tokens.test`(12) grep 断言；layout.css 落 check:boundary `sites/*` 豁免区）。**② 真实 dry_run**：build:layout（steep `space-160`/`text-display:90px`/`leading-display:1.3`/`section-gap:80px`、phantom `element-gap:8px` 区间归一、seline 无 `text-body`）+ build:tokens（新层 + 别名 `spacing-md: var(--stitch-space-12,12px)` + adapter 覆盖）🟢；`npm run ci` 八步全绿（EXIT 0，test:run 709 / test:a11y 147 反证组件零行为变更）🟢。**范围外**：phantom 的 `skill-blurb.md`/`theme-presets` 属另一在途 WIP，本 commit 未含（`phantom/layout.css` 已含）。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/23
+依赖：无（ADR 0012 已接受，可立即领取）。阻塞 #24 / #25。
+
+---
+
+## #24（AFK）：页面尺度层折入 skill 预置 + 校验闸 + 消费文档
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 2/3 步：`build:skill` 把页面尺度层**折入现有预置 `tokens.css` 一个文件** + `check:skill`/`check:boundary` 扩断言守住它 + `SKILL.md`/`react-project.md`/`standalone-html.md` 讲清 AI 心智（写页面用 `--stitch-space-*`/`--stitch-text-<角色>`/layout 键；`spacing-xs..xl`、`font-size-*` 是组件内部接口不用管）。依赖 #23。
+
+> ✅ 已完成并 close（commit `5c9419e`，2026-09-13）。落地 ADR 0012 第 2/3 步（决策5，折入一个 `tokens.css`）：① `build:skill` 预置 `tokens.css` 改三输入 `mergeTokens(contract, sites/<站>/layout.css, adapter, 站)`——页面尺度层折入同一文件（不另开 `layout.css`），adapter 仍最后胜，三站预置重生成入库；② `check:skill §6` 合并断言改三输入 + 新增「含全量页面尺度（layer ⊆ tokens + layout 四键）」「间距别名 `--stitch-spacing-*` 解析到 `--stitch-space-*`」两断言（×3 站，70→76）；H6（折入层只 `--stitch-*`）由 §6 前缀断言在合并文件上兜，`check:boundary` 零越界；③ 消费文档 SKILL.md（token 组补全量尺度 + AI 心智：写页面用 `--stitch-space-*`/`--stitch-text-<角色>`/layout 四键，`spacing-xs..xl`/`font-size-*` 是组件内部接口 + 去 spacing 封顶误导）、react-project.md（boilerplate 硬编码 1200/32/16 → `var()` + 页面尺度指引）、standalone-html.md（never-literal 清单点名 spacing/layout/字阶）；④ 契约文档 skill-acceptance.md §6、skill-build-pipeline.md §4 现状注 + §4.5 表行同步三输入折入，merge-tokens 相邻旧注释校准（#24 已折入、vite 待 #25）。**① 结构 Hook**：H3（`check:skill ✓ 76/76`；SKILL.md 98 行/body 1296 tok/desc 730 均达标）/ H6（三站 `grep -v stitch-` 零命中 + `check:boundary ✓`）/ H4（`§6 单 :root`+`color-mix() 未求值`）/ H2（别名解析 ×3 站）全 🟢。**② 真实 dry_run**（生效主题 seline）：预置 `tokens.css` 一个文件内同含 `--stitch-space-160`/全字阶 `--stitch-text-<角色>`/layout 四键/`--stitch-spacing-md: var(--stitch-space-12, 12px)` **+** 其目标 `--stitch-space-12:12px`（改前别名悬空）🟢；`check:skill` 折入后先 RED（3 站 mergeTokens 不符）→ 扩断言后 76/76 🟢；`npm run ci` 八步 EXIT 0（test:run 709 / test:a11y 147 / build）🟢。**范围外**：运行时/demo 重排归 #25。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/24
+依赖：#23（页面尺度层地基）。可与 #25 并行（#24 碰预置/文档、#25 碰运行时/demo，互不重叠）。
+
+---
+
+## #25（AFK）：页面尺度层运行时/demo 重排 —— scope-theme + /themes 导出 + demo
+
+> 落地 [ADR 0012](./adr/0012-page-scale-layer.md) 第 3/3 步：让**运行时切 `/themes/<site>`** 与 **demo 切站**时页面尺度层（layout/间距/字阶）也随之重排 —— `scope-theme.mjs` 连 `layout.css` 一起作用域化到 `[data-site]`、包 `/themes/<site>` 层含新层、`demo/theme.ts` glob `layout.css`。依赖 #23。
+
+> ✅ 已完成并 close（commit `70f40cf`，2026-09-13，用户验收通过）。落地 ADR 0012 第 3/3 步（运行时 + demo 页面尺度层重排），并**纠正 #23 的判据建模**（作为修正提交，不回退 #23 产物）。**核心模型修正**：`layout.css` 与 `adapter.css` **同级、成对，永远配对**——① `build:layout` 对**每个有 `adapter.css` 的站**（新增 `listAdapterSites`）生成，**不 gated 在可发布**；② 「可发布站」判据 `TRIAD`→**四件套 `QUARTET` {adapter, layout, rules, blurb}**；③ demo 发现站 = **有 adapter ∩ 有 layout**；④ **「容缺」整个删除**（被展示/发布的站按判据本就必有 `layout.css`；无循环：先有 adapter→生成 layout→四件套才齐）。落地：`scope-theme.mjs` `scopeAdapter` 折 `adapter+layer` 入 `[data-site]`、`layerPath` 必需（去 `existsSync`）；`vite-plugin` `load` 折入 activeSite layer（`style.css :root` 含新层）、`generateBundle` scope 传 layer；`demo/theme.ts` glob `layout.css` 取交集发现。**① 结构 Hook**：**H6**（`build:layout` 集=`listAdapterSites`、可发布=`QUARTET`、demo=adapter∩layout、无容缺；`publishable-sites.test` 断言 `no-layout` 站被排除）/ **H2**（三站 `/themes` 块非 `--stitch-*`=0、恒定/派生 accent-hover/border-width=0）/ **H1**（改动源零写死站名，走 `listAdapterSites`/`listPublishableSites`/glob）全 🟢。**② 真实 dry_run**：`build:layout` 三站 layout.css byte 零变化、生成集 `{phantom,seline,steep}` 🟢；可发布集不变 `[phantom,seline,steep]`（判据升四件套）🟢；demo 真实浏览器三站在、切站 `--stitch-section-gap` computed steep 80 / seline 96 / phantom 64 重排、console 无 error 🟢；`test:units` 96/96 + `npm run ci` 八步 EXIT 0（check:docs ✓ / check:skill 76/76 / check:boundary ✓ / test:run 709 / test:a11y 147 / build）🟢。**范围**：只碰作用域化/运行时/demo/判据，不碰 #24 预置。两块表见 GH #25 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/25
+依赖：#23（页面尺度层地基）。与 #24 可并行。
+
+---
+
+## #26（AFK）：版式样例 —— demo 二级导航 + 落地页 showcase + 验收文档
+
+> 一个交付 = demo 二级导航（COMPONENTS/LAYOUT）+ 落地页版式样例（真组件组合、full-bleed）+ 独立验收文档 `layout-showcase-acceptance.md`。
+
+> ✅ 已完成并 close（commit `83d1b23`，2026-09-14，用户验收通过）。版式样例（layout showcase）三块一并：**demo 二级导航** COMPONENTS/LAYOUT（LAYOUT = 独立发现支路 `demo/layouts/*/index.tsx`、不经族表、丢文件夹即自动上架，与组件页对称；shell 内容分支 components 套 `.page` / layout 走 **full-bleed**——零 padding、贴边全宽、不注入标题描述）+ **落地页** `demo/layouts/landing/`（全真组件组合，仅连接件 `Band`/`Brand`/网格手写且只读 `var(--stitch-*)`；压满页面尺度层四键 + display→caption 整条字阶；三站 seline/steep/phantom 综合换肤含**图表 cat 色跟随**；fluid-graceful 折行不破版）+ **验收文档** `docs/contributing/layout-showcase-acceptance.md`（8 维度，结构照 demo-acceptance.md）。CONTEXT.md 落「版式样例」术语。**demo-only**：不进 build:refs/skill、不碰族表、不新增结构 Hook（`check:boundary` 本就豁免 `demo/`，连接件红线靠人眼+grep 兜）。**结构 Hook**（可 grep）：H2 连接件无硬编码主题值 / H1 无源主题残留 / 无 emoji·裸 svg·Unicode（中文「」全角）全 🟢；`npm run ci` EXIT 0。**用户验收轮修（连接件内，未越界）**：导航条 tight bar + `Brand` 徽标 logo；页脚多列 + 列标题 `subheading` + 标题/链接左对齐 + 去 space-between 空谷；区块节奏每带各出半个 `section-gap`（去 2× 松垮）；眉标 `caption`→body kicker；Feature 图标块改中性面（修 seline `bg-accent`+`text-on-accent` 2.29:1 低对比）；CTA 改 `bg-inverted` 暗带 + 浅色 `default` 按钮（修 phantom `accent`≈`bg-accent` 按钮隐形）；StatGroup 去重复 18；证言全角「」；高亮定价卡 accent 环 + `shadow-lg` 抬升 + `Tag`「最受欢迎」角标；Hero `text-wrap: balance` 消孤字；验收文档同步补强维度 3（层级不倒挂/caption 不当标题）、4（逐站对比可读）、8（节奏均衡 + 骨架件成型）。**待另开 issue**（根在 site adapter / 组件层，本 demo-only issue 不动手，showcase 忠实暴露各站 token/组件真实对比问题）：steep `--stitch-cat-*` 图表对白底不可辨（高）/ phantom `--stitch-accent` 太浅 primary 角色失效（高，连带高亮卡 CTA / 主次不分）/ primary 按钮外轮廓 <3:1（中）/ steep soft Tag 无色块边界（中）。两块表见 GH #26 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/26
+依赖：#23–#25（页面尺度层四件套 + demo 切站重排）均已完成，可立即领取。
+
+---
+
+## #27（AFK）：landing 分发管道 + steep 版 —— 按 active-site 分结构支
+
+> 一个交付 = demo「Landing」按 active-site 分发到 per-site 落地页 + steep 版（**读 skill 自行设计**，不喂设计）。#28/#29 依赖它。Parent #26。
+
+> ✅ 已完成并 close（commit `9bf4f7b`，2026-09-18，用户验收通过）。**① 分发管道** `demo/layouts/landing/index.tsx`：用 `useSyncExternalStore` + `MutationObserver` 订阅 `documentElement[data-site]`，切主题切换器即切该站 landing（dispatch + `ScrollTimeline.source` 均 headless 验过）；未列站回退**共享** `_fallback.tsx`（theme-agnostic，seline/phantom 待 #28/#29）。**② steep 落地页** `steep/index.tsx`：真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Input）组合导航/hero/feature/指标/编辑强调卡/定价/FAQ/AI 暗场/footer，连接件只读 `var(--stitch-*)`。**读 skill 得出的 steep 长相**（逐条贴 theme-presets/steep/rules.md）：Signifier 恒 400 + 每标题一处 `<em>` 斜体强调（composition 字形设备）；全药丸按钮 filled+次要成对；文字链箭头后缀走 `<Icon>`；Neutral Card=`variant="filled"` 无阴影，唯**浮动 artifact**=`variant="elevated"` 抬升 shadow-lg；**唯一**桃色编辑卡=`filled color="accent"`（定价主推卡改深墨 accent 环、不复用桃色）；80px 节奏 paper/fog 交替；近黑 AI 暗场 `bg-inverted` + 白→透明渐隐带 + 毛玻璃 composer；Stat delta 走 caption 灰字不上彩色 trend。**桃色边界厘清**：`--stitch-bg-accent`（编辑面，一页一次，守住）≠ `--stitch-cat-1`（图表分类槽，系统按序分配、无 per-series 颜色 prop，不越界改）。**用户轮修**：编辑卡引言 ch→rem + `text-wrap: balance` 消孤字尾；hero 改**真站式环绕拼贴**——下载真站氛围位图 `steep/bg.jpg` 本地铺底（不热链、`check:boundary` 豁免 demo）+ 四周浮动 artifact + **滚动视差聚拢**（`steep/landing.module.less`，CSS scroll-driven 无 JS、`@supports`/`prefers-reduced-motion` 守卫、绑 `.shell__content`）；**每主题一个自包含子目录**（`steep/` 下 index+landing.module.less+bg.jpg），registry 单层 glob `layouts/*/index.tsx` 不误上架，seline/phantom 照建平级子目录 + `bySite` 加一行即可。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；红线（连接件只读 var、无硬编码 hex·圆角·字体、无源主题残留、无 emoji/裸 svg/Unicode）代码层零命中；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #27 close 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/27
+依赖：#26（版式样例地基，已完成）。#28/#29 依赖本 issue 的分发管道。可立即领取。
+
+---
+
+## #28（AFK）：landing · seline 版 —— 读 skill 完成 seline 落地页
+
+> 在 #27 分发管道之上，**读 skill 的 seline 主题自行设计**并完成 seline 落地页。Parent #26。
+
+> ✅ 已完成并 close（commit `3f11450`，2026-09-18，用户验收通过）。**seline 落地页** `demo/layouts/landing/seline/index.tsx`（纯 index.tsx——静态拼贴无需动画模块）+ 分发器 `bySite` 加 `seline` 一行。十区块全真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Icon）组合导航/hero/feature/指标/图表/证言/定价/FAQ/CTA/footer，连接件（Band/Hl/Brand/DashboardPreview）只读 `var(--stitch-*)`。**读 skill 得出的 seline 长相**（逐条贴 theme-presets/seline/rules.md）：Roobert 恒 400；每标题**恰好一处**柔蓝高亮 wash（`bg-accent` 底 + `text-on-accent` 字，`nowrap` 保短语整枚）；青色填充 CTA 每屏至多一次（定价仅主推卡青、余 ghost，sticky nav 常驻青作站 chrome 单一之声）；内容卡 `variant=outlined`（发丝边 + 极淡 shadow-base）、**唯一** `variant=elevated` 浮动仪表盘预览吃 shadow-lg + `grayscale(1) contrast(0.94)` 静音单色；feature 卡 override `radius-image`(16px)；Stat delta 走 caption 不上彩色 trend（不引绿/红）；玻璃只给 sticky nav（`blur(12px)`）内容面零玻璃；预览底 Tab Pill 组激活 `bg-inverted`(Soot) 白字。**composition 合成层**：纯平铺底（唯一渐变=achromatic 边缘淡出）、**刻意无暗幕**（CTA 落纸上平白卡非反色带）、缩放旋转负位移拼贴（主预览 -1.5° + 角贴纸 scale .85/rotate 5° 略叠入下一区块）、玻璃只给 chrome。**两处红线取舍**（AGENTS 硬规则 > 预置文档，文件头注明）：无 ★（Unicode 符号）/star 图标/裸 SVG → 信任行改**数值评分 + 平台名内联**；灰阶轮廓吉祥物贴纸需内联裸 SVG 内容资产、demo 无素材 → **不放**（其余承重项全落地）。**行高取舍**：body 取 token `line-height-base`(1.5) 而非 rules 散文的 1.64（源码/tokens 赢 rules）。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；seline 真实配色原样保留；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #28 close 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
+依赖：#27（landing 分发管道）。
+
+---
+
+## #29（AFK）：landing · phantom 版 —— 读 skill 完成 phantom 落地页
+
+> 在 #27 分发管道之上，**读 skill 的 phantom 主题自行设计**并完成 phantom 落地页。Parent #26。（注：与旧 study 仓 #29 撞号，靠 Issue URL 区分。）
+
+> ✅ 已完成并 close（commit `7466db3`，2026-09-18，用户验收通过）。**phantom 落地页** `demo/layouts/landing/phantom/index.tsx`（纯 index.tsx——静态拼贴无需动画模块）+ 分发器 `bySite` 加 `phantom` 一行。十区块全真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Icon/AspectRatio）组合药丸导航/hero/bento/指标/图表/证言/定价/FAQ/CTA/footer，连接件（`CANVAS`/`Band`/`Tile`/`Ghost`/`Brand`）只读 `var(--stitch-*)`。**读 skill 得出的 phantom 长相**（逐条贴 theme-presets/phantom/rules.md，浏览器 computed 佐证）：**淡紫近白画布** `color-mix(bg-canvas, accent 30%)`（无 mesh/颗粒/毛玻璃/背景图，氛围来自色相）；**实心彩糖 bento 瓦**（cat-1..4 糖色 + `bg-inverted`aubergine/`text-primary`obsidian 深瓦，每块罩 `shadow-base` 4px 淡紫环境光晕=系统唯一阴影）；低语 display 恒 350 永不加粗 + -0.025em 紧字距（走 tracking-* 角色变量、96px 行高塌到 1.0）；**药丸几何**全 100px 胶囊（导航/按钮/标签）、瓦片 24px 柔角；主 CTA=`type=primary`（`accent` 面 + `accent-text` 深字 + 光晕）；**玻璃全禁**（sticky 导航实心白药丸不磨砂，区别于 seline）；图表系列色取 `cat-1` periwinkle 随站换肤；成功徽章 `cat-6` mint 少用。**三处刻意判定**（文件头注明，AGENTS 硬规则 > 预置；style.md/composition.md 是吸收 composition 修正后重生成的更新真相 > rules.md 旧组件规格段）：① **无满幅暗幕**——`composition.md §4`+`style.md` 明确 dark 只活在瓦片、never full-bleed，压过 rules.md「Hero（暗）满幅 aubergine / 交替亮暗区块」，故深色只作单块瓦片、10 section 全画布无通栏暗带；② **实心彩糖瓦=连接件**——真 `Card color=cat-N` 是契约 a11y 软底（cat 混 canvas 88% 淡 wash）=白底描边卡、非实心糖色，故招牌瓦片手写连接件外壳（bg 读 `var(--stitch-cat-N)` 实心 + `shadow-base` 光晕）**内装真组件**，正合本 issue「区块=真组件+连接件」模型，真 `Card` 留给中性浅色内容容器（图表/FAQ）；③ **幽灵吉祥物=纯 CSS**——图标集无 `ghost`、红线禁裸 SVG/emoji/Unicode、demo 无素材，故纯 CSS 药丸几何塑 periwinkle 幽灵（沿 seline 纯 CSS 抽象先例，色读 `cat-1`/眼读 `bg-inverted`），内联替换 hero 标题 Phantom 的元音 o。**Hero「视频秀」取舍**：视频是每站自备内容资产、demo 无素材 + 意象规则禁摄影/截图，故以全宽圆角 obsidian 深瓦「视频框」（真 AspectRatio 16:9 + 光晕 + play 可供性 + 静音自动循环说明）忠实复刻形、不臆造影像。**用户验收轮修**：footer 竖排链接改 `paddingInline:0`+`justifyContent:flex-start` 齐左（link 按钮盒 center + 16px 内距致不同字数标签浮于列中参差、与列标题错位显歪；修后三列链接左边缘与各自列标题对齐 583/730/877）。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；phantom 真实配色（含 light-on-light、cornflower 上 obsidian 字等刻意做法）原样保留；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #29 close 评论。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/29
+依赖：#27（landing 分发管道）。
+
+---
+
+## #30（AFK）：合成层「生成+验证」闭环 —— emergent-probe + 验收协议 + onboard-composition playbook + ADR 0013
+
+> 一个交付 = 给任意站产出并验收 composition.md（合成层补充）的可复用闭环，与 adapter/rules 的 onboard-site 生成 + review 验证对齐。只落「能生成+能验证」，不碰出图消费。#31/#32 依赖它。
+
+> ✅ 已完成并 close（commit `bc76915`，2026-09-15）。立起合成层「能生成+能验证」的可复用闭环。① **ADR 0013**：合成层=第二风格源 + 单槽判据（类比 ADR 0012）；关键取舍——composition.md 是 **consumer-clean 发布件**（体例照 rules.md、随 skill 发给消费方），**流程必跑·产物按需**（核合成层每站必跑因漏是静默的、忠实站无此文件），不进四件套闸门、存档不改、勘误表达成设计事实。② **onboard-composition.md** 生成 playbook（`<site>` 换名即用，对齐 onboard-site.md）：**运动员/裁判分离**——两份独立 prompt、两个 agent；防作弊靠「裁判独立从真站重新求证」而非藏考题；**发布件 vs 维护者报告两分**（探针证据/覆盖面/`:行号` diff/归宿进报告，不进发布件）。③ **multi-site-theming §9.9** 正本（layout.css↔composition.md 对照）+ CONTEXT 术语；`emergent-probe.js` 注释中性化（红线字面全绿）。④ **覆盖面纪律**：探针单页工具、覆盖代表性页面取并集；UNGROUNDED 只在扫过该面才成立（零命中≠不存在），防误删真效果。**① 结构 Hook**：H1 自包含（composition.md 0 内部链接/术语/`:行号`、无外来 `--var` 前缀）/ H2 只读 `--stitch-*`（纯文档零组件改动）/ 存档不改 / 探针零写死站名（字面 grep 全绿）/ 四件套闸门不读 composition.md（缺它构建照绿）全 🟢；`npm run ci` 全绿（check:skill 76/76 / test / a11y / build）🟢。**② 真实 case**（端到端 C 演示，两个独立 agent 各自真驱动浏览器真站真跑）：运动员 agent 对 `steep.app` `/`+`/ai` @1440 真跑探针、独立产出 consumer-clean `sites/steep/composition.md`（0 内部引用）→ 独立裁判 agent（不给 JSON、自己重跑两页）逐条像素级吻合 + 4 条勘误回 DESIGN.md 核实 → **通过、零必改** 🟢；覆盖面=首页(11969)+/ai(8979) 并集、零 UNGROUNDED（全正命中）；三类缺陷 diff（位图铺底 vs :200「no abstract graphics」🔴WRONG、feTurbulence 颗粒 🔴MISSING、暗幕 18/35/26 分档 vs Theme:light 🔴WRONG、blur12-16px 毛玻璃 🟠MISSING、`<em>` 斜体 🟠UNDER）登记进 GH 评论（维护者记录）。**边界**：接进 skill 消费通道（build:skill 拷 composition.md 进 preset）归 #31（已解锁）。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/30
+依赖：无，可立即领取。#31/#32 依赖本 issue。
+
+---
+
+## #31（AFK）：合成层进消费 —— composition.md 自成第 4 个 preset 文件（AI 读它，纯散文通道）
+
+> composition.md 接进 skill 消费通道：自成第 4 个 preset 文件（纯散文，与 rules.md/style.md 同类），AI 生成 UI 时读到合成层。**零 token 槽、零契约/组件改动。** #32 依赖它。
+
+> ✅ 已完成并 close（2026-09-15）。把合成层散文 `composition.md` 接进 skill 消费通道——**纯散文通道**，全程零 token 槽 / 零契约 / 零组件改动。① **build:skill ⑥ 条件拷贝**（[build-skill.mjs](../scripts/build-skill.mjs)）：站有 `sites/<站>/composition.md` 则 byte-exact 拷进 `theme-presets/<站>/composition.md`（同 `rules.md` 语义），无源则不产。② **check:skill §9.5 条件 parity（Hook H7）**（[check-skill.mjs](../scripts/check-skill.mjs)）：源在则字节相等、源无则预置无；并把 composition.md 纳入**幂等快照表**（源在的站）+ **换主题隔离**（禁漏进全局 `references/theme/`）。③ **三条消费路由全接上合成层**——[SKILL.md](../skills/stitch-design-system/SKILL.md)「Active theme」三文件→四文件（+composition.md 条件读）；本轮经用户指正，补齐 [react-project.md](../skills/stitch-design-system/references/react-project.md)（建页壳段）+ [standalone-html.md](../skills/stitch-design-system/references/standalone-html.md)（手搓页段）各自条件路由到 rules.md + composition.md（原判「react 不用改」被推翻——React 建页同样在合成整页）。④ 正本同步：[skill-acceptance.md](./contributing/skill-acceptance.md) §9.5 机器档 + [skill-build-pipeline.md](./contributing/skill-build-pipeline.md) ⑥ + 本文 Hook H7 登记。均用 inline code 路径（非 markdown 链接）给出，可选主题不变死链。**① 结构 Hook + CI**：H3 skill 自包含（`check:skill` 79/79）🟢、H7 合成层 preset 不变量（§9.5 三站条件 parity + 幂等 + 隔离）🟢、H7 破坏演示（改 preset 副本 / 删源留 preset / 改源）各触发对应红、复原即绿 🟢、`npm run ci` 八步全绿（format / check:docs / check:skill 79/79 / check:boundary / lint / test:run 709 / test:a11y 147 / build，exit 0）🟢。**② 有源站有副本 / 无源站无**：steep 有源→有副本·字节相等 🟢、phantom 无源→无副本 🟢、seline 无源→无副本 🟢。**边界**：合成层里可 token 化的部分留作后续（与并行 #27 字重模型不冲突）；composition.md 可选、不进「可发布四件套」，parity 严格条件化未升为强制。**顺带**：`build:refs` 暴露 `form-controls.md` 的 Select 图标 JSDoc 陈旧漂移（#22 源改 accent→brand、生成物没跟），已独立修复提交 `4fd3e63`，未夹带进本 issue。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/31
+依赖：#30（生成方法论 + steep/composition.md 作消费输入）。
+
+---
+
+## #32（已完成 ✅）：其余三站产出 composition.md（跑 onboard-composition playbook）
+
+> ✅ 已完成并 close（commit `7c41dd3`，2026-09-16）。跑 #30 的 onboard-composition playbook（运动员/裁判分离），为 **seline + phantom** 各产出 consumer-clean `composition.md` 并随 #31 preset 通道带进 skill。纯应用方法论：零 token 槽、零契约/组件改动、`source/` 存档零改。**saybriefly 从 #32 拆出**——它未接入四件套（只有 `source/`），`build:skill` 只对可发布站（`listPublishableSites`）发 preset，无通道承载其 composition.md；经用户裁决拆出，留待 onboard-site 接入后另开 follow-up issue。**运动员**对真站跑 `emergent-probe.js`（seline: seline.com @1440 Claude Browser；phantom: phantom.com @1440 chrome-devtools+代理——应用内浏览器与 playwright 均被反爬拦截，仅 chrome-devtools+代理打通）→ 写 composition.md；**另派独立裁判** agent 不接运动员 JSON、自己重跑两站真站复核 → **seline / phantom 均通过、零必改**（抽核各 3 条信号 + 勘误回 DESIGN.md 核实、卡色普查 + 截图铁证）。**勘误登记**：seline「无渐变」澄清为「无装饰**彩色**色晕」（真站仅一道无彩白渐隐）；phantom DESIGN.md 的「pure typography / no product screenshots / no abstract graphics / Content Card=flat paper white」与真站相反（插画+截图双密集、饱和糖果瓦片=精确 token 色、逐行暗卡=明暗摆荡）。**产物**：seline 薄（4 节，真站基本忠实、只补分层拼贴那层）、phantom 厚（6 节 steep 量级，DESIGN 建模写反需大改）。**① 结构 Hook**：H3 skill 自包含（`check:skill` 79/79、§9.5 composition 条件 parity 全绿）/ H7 合成层 preset 不变量（`build:skill` 拷进 {phantom,seline,steep}、字节相等）/ 探针零写死站名 / H1 发布件自包含（0 内链/桶名/`:行号`/缺陷标记/非-stitch var）/ 存档不改 / `npm run ci` 全绿（format / docs / skill 79/79 / boundary / 709 test / 147 a11y / build，EXIT=0）全 🟢。**② 真实 case**：seline.com @1440 分层拼贴+灰度图+双深影+highlight → 裁判 Claude Browser 重跑通过、preset 字节相等 🟢；phantom.com @1440(代理) dark 视频 hero+糖果瓦片+逐行暗卡+violet glow+ghost-in-headline → 裁判 chrome-devtools+代理重跑通过、preset 字节相等 🟢；均零 UNGROUNDED（DESIGN.md 首页 reference、断言面=首页）。**边界**：saybriefly 待接入四件套后随 onboard-composition 补跑。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/32
+依赖：#31（composition.md 进 preset 的消费通道就位）。
+
+---
+
+## #33（作废 ✂️）：发布件 consumer-clean —— 已拆分为 #34–#37
+
+> ✂️ 作废 / superseded（closed not-planned，2026-09-16）。本为手写单体大 issue；方案在讨论中演进为「**源留追溯 + 迁移时 build:skill `stripTrace` 确定性剥离 + check:boundary 白名单边界守（禁引用 `<skill>` 外、放行 `.agent/stitch.theme.json`）+ style.md 吸收 composition 重生成**」，用 /to-issues 按 vertical slice 拆为 #34–#37。原单体不执行。**关键决策**：composition.md / rules.md **源保留 DESIGN.md 追溯**（可追溯，onboard 产物），**迁移到 preset 时确定性剥离**（consumer-clean）；composition.md 采「**散文正文 + 可剥维护者追溯表**」混合体例（追溯表列含「判断依据·归宿」）；build:skill 仍纯确定（LLM 只在 build:blurb + 人审冻盘）；check:boundary 用白名单边界守而非单禁 DESIGN.md。
+
+> 四条共用 AFK 约定：先读 issue 正本（`GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view <N> --comments --repo HironoOcto/stitch-design-system`），在 `stitch-design-system/` 执行（先 pwd）；gh 一律带 `GH_CONFIG_DIR` + `--repo`。按依赖顺序领取。排序：宜在 #28/#29 landing 之前或并行（landing 读 style.md，本组前做会用到旧 austere 框）。
+
+## #34（已完成 ✅）：迁移剥离基建 —— stripTrace + check:boundary 边界守（rules.md 端到端）
+
+> ✅ 已完成并 close（commit `ceb331f`，2026-09-16）。建「源留追溯、迁移剥离」基建 + 强制契约，并**根治「onboard 生成 rules.md 老带 adapter 横指」的流程病**——「见 adapter」不来自 DESIGN.md（DESIGN.md 干净），是单 prompt 同产 adapter+rules、LLM 在同一上下文回指孪生所致；修法不是手洗产物（会掩盖流程病、新站照旧犯），而是**拆双 prompt**——`prompt-2(rules)` 只吃 DESIGN.md、上下文里根本没有 adapter → 结构上无从「见 adapter」；3 站 rules.md 用该正规流程（干净上下文 subagent，禁读 adapter/旧 rules）**重生成**，非手改。**基建**：通用 `stripTrace()`（[strip-trace.mjs](../scripts/lib/strip-trace.mjs)，剥小节标题 `←` 尾注 + `<!-- trace -->` 容器 → 剥后零 DESIGN.md 残留自检、抛错指源哪行、放错即 build 红 + 幂等；#35 复用）；build:skill 拷 rules.md `copyFileSync → writeFileSync(stripTrace(源))`；check:skill §8 parity `== stripTrace(源)`；check:boundary 加发货面「无外资源引用」边界守（[outside-refs.mjs](../scripts/lib/outside-refs.mjs)，种子 `DESIGN.md`/`docs/`/`scripts/`/`CONTEXT`/`source/`/`ADR` + 孪生横指 `adapter.css`/`variables.css`/`见 adapter`，白名单 `.agent/stitch.theme.json`，`composition.md` 暂 EXEMPT → #35）。**根因修复**：[onboard-site.md](../docs/contributing/onboard-site.md) 执行 prompt 拆 prompt-1(adapter 值视图) + prompt-2(rules 规则视图·只吃 DESIGN.md·硬隔离)，孪生同源平行、互不引用；3 站 rules.md 重生成后 consumer-clean、零横指、DESIGN.md 只落可剥位置，DESIGN 未规定的判断值（input 圆角 / icon 描边）下沉 adapter/token 层不再进 rules.md。**① 结构 Hook**：H1 边界守扩展（发货面零外资源引用）🟢、H3 skill 自包含（§8 parity=stripTrace(源)）🟢、stripTrace 零残留新不变量（放错即 build 红、幂等）🟢、H5 `npm run ci` EXIT 0（check:skill 79/79、check:boundary 三层零越界 + 发货面零外资源、709 unit + 147 a11y、build）🟢。**② 真实 case dry_run**：正文注 DESIGN.md → build 失败指「源第 87 行」；发货面注 `docs/`/`见 adapter`/`adapter.css`/`variables.css` → check:boundary 红指行（9 处），重建复绿；3 站正规流程重生成产物零横指 + 正文零 DESIGN.md + stripTrace 剥后 0 残留 + 9 节齐全；preset 其余文件（tokens/style/composition/design-rules）零改动 🟢。两块表见 GH #34 评论。下游：#35 composition.md 复用 stripTrace + 同把边界种子。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/34
+依赖：无（可立即领取）。
+
+## #35（已完成 ✅）：composition.md 新规重建 —— 散文正文 + 可剥追溯表 + stripTrace 迁移剥离 + 文档
+
+> ✅ 已完成并 close（commit `e04afc0`，2026-09-17）。删旧 3 站 composition.md（纠错版坏料），按混合新规范经**正规流程**重建：3 个独立运动员 subagent 干净上下文执行 onboard-composition playbook + 对真站真跑 emergent-probe 产出、3 个独立裁判各自真站重跑复核（运动员/裁判分离）。**过程教训**：主体 agent 一度**手写** 3 站产物被用户抓出——手洗产物会掩盖流程病，已改为派 subagent 重生成（同 [onboard-composition.md](../docs/contributing/onboard-composition.md) 正规流程）。**混合体例**：正文正向散文（零 `DESIGN.md`、零孪生横指 `adapter.css`/`variables.css`；值层→同目录 `tokens.css`、组件规格→同预置 `rules.md`），DESIGN.md 追溯/勘误落可剥 `<!-- trace -->` 维护者表（列：合成层特征｜探针实测｜DESIGN.md 现状｜缺陷｜判断依据·归宿）+ 小节 `←` 尾注。**机制**：build:skill composition `copyFileSync → writeFileSync(stripTrace(源))`（复用 #34 stripTrace）；check:skill §9.5 条件 parity `== stripTrace(源)`；check:boundary 拆除 #34 给 composition 埋的 EXEMPT、纳入发货面扫描（横指/DESIGN.md 泄漏即红）；build-skill.test 改。**文档**：[onboard-composition.md](../docs/contributing/onboard-composition.md)（写法规范 + 生成 prompt 隔离 adapter + 复核 grep 改对 stripTrace 后正文）+ [emergent-layer-acceptance.md](../docs/contributing/emergent-layer-acceptance.md)；doc-sync：[ADR 0013](../docs/adr/0013-composition-layer.md) 决策 3、[skill-acceptance §9.5](../docs/contributing/skill-acceptance.md)、[CONTEXT.md](../CONTEXT.md) 术语。**① 结构 Hook**：正文零 DESIGN.md + 零孪生横指（stripTrace 自检 + check:boundary 发货面双保险）🟢、§9.5 `== stripTrace(源)`🟢、composition EXEMPT 拆除后 check:boundary 绿🟢、stripTrace 幂等🟢、探针零写死站名🟢、`sites/*/source/` 存档零改动🟢、`npm run ci` EXIT 0（check:docs、check:skill 79/79、check:boundary 三层零越界 + 发货面零外资源、709 unit + 147 a11y、build）🟢。**② 真实 case**（三站真站独立重跑，运动员/裁判分离）：steep（bg-home/bg-ai 位图铺底 + feTurbulence 颗粒 + overlay/multiply + dark_region L0.07 + blur16px 毛玻璃 + `<em>"zero chaos"`；2×WRONG 多 MISSING、零 UNGROUNDED）🟢；seline（分层缩放旋转拼贴 + grayscale + 双深软影 + wash 强调 + 零 dark_region；裁判独立重跑抓出真站 sticky 顶栏磨砂玻璃被误记「刻意无玻璃」= WRONG，运动员订正为「玻璃只给 chrome、不给内容卡」后复验通过）🟢；phantom（chrome-devtools+代理：视频 hero + 糖果瓦片 + 每块 4px 淡紫辉光 + obsidian L0.11 / aubergine L0.213 直查 bg + 满幅暗幕 UNGROUNDED 独立证实）🟢。两块表见 GH #35 评论。下游：#36 build:blurb 吸收本 composition。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/35
+依赖：#34（stripTrace / check:boundary 基建）。
+
+## #36（AFK）：build:blurb 吸收 composition 修正（机制 + 契约升级）
+
+> ✅ 已完成并 close（commit `e48a522`，2026-09-17，用户验收通过）。`composition.md` 成 `build:blurb` **可选融合输入**，从机制上消除 `style.md`（继承 `DESIGN.md` austere 框）与 `composition.md`（真站 rich 真相）的矛盾。**只建机制**、不重生成/冻盘产物（归 #37）；`build:skill` 仍纯确定、LLM 只在 build:blurb 这步。**机制**：`extractComposition`（[design-sections.mjs](../scripts/lib/design-sections.mjs)）= `stripTrace(源)` consumer-clean 正文（= 发货正文、零 `DESIGN.md` 泄漏），缺则 `null` → `buildPrompt` 退化；`buildPrompt` 有 composition 则加融合序言 + DESIGN INPUT 之后附 `COMPOSITION CORRECTIONS` 块（冲突以真站修正为准），无则**逐字节退化**为 pre-#36；`renderBlurbFile` 契约升级为 `faithful to DESIGN.md as corrected by composition.md`（头注是注释、`parseBlurb` 不读 → 不入 preset `style.md`）；`main()` 自动探测 + `--dry-run`（全流程到 stdout、不落盘）。**文档同步**（源码赢）：[skill-build-pipeline §4.4①/a′](./contributing/skill-build-pipeline.md) + 依赖顺序、[maintainer-runbook](./contributing/maintainer-runbook.md) onboard 次序 + 命令表、[ADR 0013](./adr/0013-composition-layer.md) Consequence + 契约落地、[onboard-composition](./contributing/onboard-composition.md) 消费路径。**① 结构 Hook**：无 composition → prompt 逐字节退化（`{composition:null/undefined}==bare`、saybriefly `--prompt-only` 0 处）🟢、build:skill 不引入 LLM🟢、融合逻辑 6 条新单测覆盖🟢、契约 corrected↔plain 二态不入 style.md🟢、产物零改动（skills//skill-blurb.md//composition.md//style.md 未触，归 #37）🟢、`npm run ci` EXIT 0（check:skill 79/79、check:boundary、709 unit + 147 a11y、build；pre-commit）🟢。**② 真实 dry-run**（对 #35 真 composition）：`steep --prompt-only`（有）→ 融合序言 + `COMPOSITION CORRECTIONS`（氛围铺底/明暗幕/辉光·毛玻璃/字形设备/刻意拒绝 consumer-clean 正文）未写盘🟢、`saybriefly --prompt-only`（无）→ 0 处、退化🟢、`steep --dry-run` 对真 #35 composition 产出**融合 style-paragraph**（颗粒氛围底/近黑暗幕/毛玻璃/错位拼贴/斜体设备 融进 DESIGN 骨架）带升级契约头注、lint 干净、**未落任何产物**（`claude -p` 本环境无法嵌套 spawn，LLM 步代跑经 `--dry-run --from`，组装/渲染/契约路径即真实那条）🟢、`node --test` 110/110🟢。两块表见 GH #36 评论。下游：#37 用本机制重跑 build:blurb 吸收 #35 新 composition → 人审冻盘 style.md。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/36
+依赖：#35（composition.md 重建，提供正确 composition 供吸收）。
+
+## #37（AFK + 人审门）：重生成 style.md 吸收修正 + 端到端零矛盾验证
+
+> ✅ 已完成并 close（commit `bc1511e`，2026-09-17，用户验收通过）。用 #36 融合机制重跑 `build:blurb`（吸收 #35 重建的 `composition.md`），为**三站**生成**消除 austere 框**的新 style-paragraph，收敛 consumer-clean 链。生成走 **athlete**（fresh-context LLM roll 经 `build:blurb --from`，非手写）→ 三站**独立裁判**核 style↔composition 零矛盾 → **人审冻盘**（`Status: human-approved`）→ `build:skill` 出 preset。**范围**：issue 原文 phantom/steep，**seline 系用户在本 issue 内追加**（seline 也有 composition），同一 fusion 处理。**修正真相**：phantom 画布 lavender（非 `near-monochrome white`）/ 暗=瓦片级（非满幅 aubergine）/ 辉光罩全瓦片（非 CTA-only）/ 补 hero 视频 + 实心彩色 bento 网格 / 去 `resolutely flat`·`not ornament`；steep 分层氛围底（gradient bitmap + turbulence grain + overlay，非 flat white）/ 满幅近黑 AI 暗幕 + 白→透明渐隐带 / 毛玻璃 composer + 磨砂 nav / 每标题一处斜体 / 内容卡无影 vs 浮动件 earn elevation（非 `flat and shadowless`）；seline 折入缩放旋转拼贴（0.8–0.9 / 2–8°）/ 灰阶降对比图像 / 轮廓吉祥物贴纸 / 深大扩散软影（supersede 旧 16px-blur）/ 玻璃仅 chrome，保留全部 refuses（纯平铺底 / 无暗幕 / 无彩色辉光 / 无斜体）。**① 结构 Hook**：`check:skill` **79/79**、`check:boundary` 三层零越界、preset parity（含 stripTrace，§9 style==冻盘 blurb / §9.5 composition==stripTrace 源）、`npm run ci` **EXIT 0**（709 unit + 147 a11y + build；pre-commit）🟢。**② 真实 case**：phantom/steep/seline 三站独立裁判均 **zero-contradiction** + austere 框确认缺席、消费方读到统一真相 🟢。**红线全过**：三站新 style.md 无 austere 矛盾措辞 / preset parity 绿 / check:boundary 绿。两块表见 GH #37 评论。收敛：consumer-clean 链（#34→#35→#36→#37）闭环。
+
+Issue: https://github.com/HironoOcto/stitch-design-system/issues/37
+依赖：#36（build:blurb 吸收机制；composition 原料经 #35 已就位）。
 
 ---
 

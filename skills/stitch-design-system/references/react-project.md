@@ -55,10 +55,16 @@ import { Button, Card, Input, Table } from '@octohirono/stitch-design-system';
 
 export default function App() {
     return (
-        <main style={{ maxWidth: 1200, margin: '0 auto', padding: 32 }}>
+        <main
+            style={{
+                maxWidth: 'var(--stitch-page-max-width)',
+                margin: '0 auto',
+                padding: 'var(--stitch-space-32)',
+            }}
+        >
             <Card>
                 <Input placeholder="Ask anything…" />
-                <Button type="primary" style={{ marginTop: 16 }}>Post</Button>
+                <Button type="primary" style={{ marginTop: 'var(--stitch-space-16)' }}>Post</Button>
             </Card>
         </main>
     );
@@ -70,8 +76,22 @@ export default function App() {
 - Use role tokens: `color: var(--stitch-text-primary)`,
   `background: var(--stitch-bg-card)`, `border-radius: var(--stitch-radius-card)` —
   so custom UI stays on-palette.
+- Size layout with the page-scale tokens, not literal px: spacing/padding/gaps from
+  `var(--stitch-space-*)` (e.g. `var(--stitch-space-24)`), page width from
+  `var(--stitch-page-max-width)`, section rhythm from `var(--stitch-section-gap)`,
+  card padding from `var(--stitch-card-padding)`, and page type from
+  `var(--stitch-text-<role>)` (e.g. `--stitch-text-heading`, `--stitch-text-body`) with its
+  matching `var(--stitch-leading-<role>)`. (`--stitch-spacing-*` / `--stitch-font-size-*` are
+  the components' own internal aliases — don't use them for your app UI.)
 - Exact token values: the active theme's `theme-presets/<active-theme>/tokens.css` (resolve
   `<active-theme>` as in [SKILL.md](../SKILL.md) "Active theme").
+- The **look** of the page shell you compose around the components (page/section backgrounds,
+  hero and section composition, when to use the accent) is not just tokens — follow the active
+  theme's `theme-presets/<active-theme>/rules.md` (do/don't look rules) and, **when that folder
+  has one**, its `theme-presets/<active-theme>/composition.md` (the composition layer:
+  ambient/backdrop treatment, light/dark acts, image/material texture, letterform-as-device
+  typography, reject-list — what tokens alone cannot express). When a `composition.md` is
+  present it is load-bearing; if absent, the theme has no composition layer — don't invent one.
 - Do NOT hard-code hex/px; use the `--stitch-*` role variables only.
 
 ## Scenario-specific rules

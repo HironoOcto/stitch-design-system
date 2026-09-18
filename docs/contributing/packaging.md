@@ -67,7 +67,7 @@ export default defineConfig({
 }
 ```
 
-- **`./style` 是"当前主题"的产物**：`contract.css` + 当前 `adapter.css` + 各组件编译样式，**主题在构建时烤进这一份**（换主题重新 `build`，与 [多站换肤架构](../design-system/multi-site-theming.md) 的"构建时切"一致）。
+- **`./style` 是"当前主题"的产物**：`contract.css` + 当前站页面尺度层 `layout.css` + 当前 `adapter.css` + 各组件编译样式，**主题在构建时烤进这一份**（换主题重新 `build`，与 [多站换肤架构](../design-system/multi-site-theming.md) 的"构建时切"一致）。
 - 版本：`radix-ui@^1.6.7`、`clsx@^2`、`recharts@^3.10.1`、`react`/`react-dom >=18`；例外依赖决策见 [ADR 0002 显式例外依赖](../adr/0002-runtime-deps.md)，通用依赖约定见 [组件源代码规范](./component-authoring.md)。
 
 ## `./style` 的主题 `:root` 怎么进来（Vite 虚拟模块）
@@ -94,9 +94,14 @@ export function stitchTheme() {
         load(id: string) {
             if (id !== '\0' + VID) return null;
             const { activeSite } = JSON.parse(readFileSync('stitch.config.json', 'utf8'));
-            // 合并出单份 :root（adapter 覆盖 contract、派生 color-mix 原样保留）
+            // 合并出单份 :root（contract → layer → adapter；adapter 覆盖 contract、
+            // 派生 color-mix 原样保留）。第二输入 = 该站页面尺度层 sites/<site>/layout.css
+            // （build:layout 产物、adapter 的成对值文件，ADR 0012），把
+            // --stitch-space-*/字阶/layout 全键折进烤死主题的 :root。activeSite 必是
+            // 可发布站（四件套齐），故 layout.css 必在。
             return mergeTokens(
                 'packages/tokens/contract.css',
+                `sites/${activeSite}/layout.css`,
                 `sites/${activeSite}/adapter.css`,
                 activeSite,
             );
@@ -105,7 +110,9 @@ export function stitchTheme() {
 }
 ```
 
-把 `stitchTheme()` 加进 `vite.config.ts` 的 `plugins`。换主题 = 改 `stitch.config.json` 的 `activeSite` 重新 `build`；组件产物不变，只 `dist/style.css` 的 `:root` 变。CSS 自定义属性是全局的，`var()` 不受 `:root` 与组件规则的先后影响，故顺序无需纠结——`mergeTokens` 内部已保证 adapter 覆盖 contract 并输出单份 `:root`。
+把 `stitchTheme()` 加进 `vite.config.ts` 的 `plugins`。换主题 = 改 `stitch.config.json` 的 `activeSite` 重新 `build`；组件产物不变，只 `dist/style.css` 的 `:root`（含页面尺度层）变。CSS 自定义属性是全局的，`var()` 不受 `:root` 与组件规则的先后影响，故顺序无需纠结——`mergeTokens` 内部已保证 `contract → layer → adapter` 逐级覆盖并输出单份 `:root`。
+
+同一插件的 `generateBundle` 还 emit 预览专用的 `dist/themes/<站>.css`（[ADR 0009](../adr/0009-themes-preview-export.md)，可发布站集合走 [`listPublishableSites`](../../scripts/lib/publishable-sites.mjs)＝四件套齐全，站名零写死）：经 [`scopeAdapter`](../../scripts/lib/scope-theme.mjs) 把该站**两份成对值文件**——`adapter.css` 的每站值 + 页面尺度层 `layout.css`（ADR 0012）——一起作用域化成 `[data-site="<站>"]` 块，故运行时翻 `data-site` 切主题连 layout/间距/字阶一并重排。恒定/派生**不**进分层块，仍留 `/style` 的 `:root` 靠 `var()` 跟随。可发布站四件套含 `layout.css`，故此处 layer 必在、无容缺分支。
 
 ## 发布前的两道闸（打包卫生 + 本地冒烟）
 

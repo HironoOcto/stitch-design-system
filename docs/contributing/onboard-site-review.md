@@ -34,6 +34,7 @@ echo "单段 :root:"; echo "开 $(grep -c ':root {' "$f") / 闭 $(grep -c '^}' "
 
 - [ ] **每个 `②`（派生/判断/多选一）**：读注释里的理由，判「认可 / 改」。常见：某槽 DESIGN 无独立值 → 借了近义值（如 image 圆角借 feature-card）；某槽收敛多档到契约档位。理由站得住即认可。
 - [ ] **每个 `③`（需确认）**：DESIGN 里根本没有或自相矛盾，**必须人拍板**。逐条写出你的裁决。
+- [ ] **规则 B —— 色角色归属核对组件规格，不只核 Colors 表 Role 列**（见 [multi-site-theming §9.4.2](../design-system/multi-site-theming.md#942-适配-adaptercss)）：对每个「前景文字色」角色（`link` / `text-*`），把 adapter 的取值**对回 DESIGN 的组件规格段**（Components / Example Prompts 里逐组件像素值），而非只对回 Colors 表的 Role 列。**两者冲突即降级为 `③` 人拍板、并算对比度**——Colors 表 Role 列常把多功能并成一档（如「slate-gray = 链接/helper/footer」），组件规格才是「哪个色扮演哪个角色」的真相。典型：Colors 表标「链接=某灰」，但组件 Text Link 写的是墨黑 → `--stitch-link` 应取墨黑。
 - [ ] **颜色类 `③`（尤其 accent-text / CTA 文字）**：按全局硬规则 §5 **算 WCAG 对比度**再裁，别只看 DESIGN 文字：
 
 ```bash

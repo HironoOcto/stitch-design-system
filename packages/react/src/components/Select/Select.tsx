@@ -42,7 +42,7 @@ export interface SelectOption {
  *   wrap），Home/End 跳首尾启用项，Enter/Space 选中当前高亮，Esc 关闭并把焦点还给 trigger；
  *   trigger `:focus-visible` 焦点环走 `--stitch-focus-ring`。
  * - **图标走 `<Icon>` 非裸 `<svg>`**：箭头 `<Icon name="chevron-down">`（`size="1em"` 跟随字号，
- *   展开 `rotate(180deg)` + 转 accent 色），选中项尾随 `<Icon name="check">`。
+ *   展开 `rotate(180deg)` + 转品牌前景强调 brand 色），选中项尾随 `<Icon name="check">`。
  * - **标准正下方展开**：浮层在 trigger 正下方展开（`top:100%`，`max-height` + 滚动），非侧向弹出/
  *   视口翻转定位——这是标准化取舍，保证可预期的下拉手感。
  */

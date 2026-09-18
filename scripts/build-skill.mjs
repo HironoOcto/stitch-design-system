@@ -7,9 +7,19 @@
 // Publish time defines the DEFAULT; consume time picks the active preset (read-time
 // resolution, see scripts/lib/resolve-preset.mjs + SKILL.md "Current style"). So build:skill
 // emits a preset for EVERY publishable site (#7 listPublishableSites), not just one:
-//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, adapter, site) (§4.1, H4)
-//   ② references/theme-presets/<site>/rules.md    = sites/<site>/rules.md               (verbatim)
+//   ① references/theme-presets/<site>/tokens.css = mergeTokens(contract, layer, adapter, site) (§4.1, H4)
+//      layer = sites/<site>/layout.css (the page-scale layer, build:layout output). Per ADR 0012
+//      决策5 the layer is FOLDED INTO this one tokens.css (no separate layout.css in the skill) —
+//      so the AI reads one token file and sees the complete scale (--stitch-space-*, the full
+//      --stitch-text-<role> type scale, the four layout keys) alongside the component roles.
+//      Three-input merge, adapter still wins; the contract's --stitch-spacing-* aliases now
+//      resolve to the folded-in --stitch-space-N.
+//   ② references/theme-presets/<site>/rules.md    = stripTrace(sites/<site>/rules.md)     (#34)
+//      源保留 DESIGN.md 来源追溯，迁移时 stripTrace 剥掉可剥位置的追溯 → preset consumer-clean。
 //   ③ references/theme-presets/<site>/style.md    = the two skill-blurb.md sections     (verbatim)
+//   ⑥ references/theme-presets/<site>/composition.md = stripTrace(sites/<site>/composition.md) (#35, OPTIONAL)
+//      源保留 DESIGN.md 追溯（可剥 trace 表 + ← 尾注），迁移时 stripTrace 剥掉 → preset consumer-clean；
+//      the pure-prose composition layer (#30/#31), emitted only when the site authored one.
 //   ④ references/theme/design-rules.md            = docs/.../design-rules.md            (global, once)
 //   ⑤ SKILL.md SLOT:default-site                  = the published-default site name
 // The published default = stitch.config.json `activeSite` (override with `--site`), = the
@@ -27,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { mergeTokens } from './lib/merge-tokens.mjs';
 import { replaceSlot } from './lib/slot.mjs';
+import { stripTrace } from './lib/strip-trace.mjs';
 import { parseBlurb } from './build-blurb.mjs';
 import { listPublishableSites } from './lib/publishable-sites.mjs';
 
@@ -88,6 +99,11 @@ export function buildSkill({ root, site, skillDir }) {
       resolve(root, 'sites', s, 'adapter.css'),
       `sites/${s}/adapter.css`,
     );
+    // Page-scale layer (build:layout output). Committed per publishable site; folded in here.
+    const layer = must(
+      resolve(root, 'sites', s, 'layout.css'),
+      `sites/${s}/layout.css (run build:layout first)`,
+    );
     const rules = must(
       resolve(root, 'sites', s, 'rules.md'),
       `sites/${s}/rules.md`,
@@ -98,12 +114,37 @@ export function buildSkill({ root, site, skillDir }) {
     );
     const dir = join(presetsRoot, s);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'tokens.css'), mergeTokens(contract, adapter, s));
-    copyFileSync(rules, join(dir, 'rules.md'));
+    writeFileSync(
+      join(dir, 'tokens.css'),
+      mergeTokens(contract, layer, adapter, s),
+    );
+    // ② rules.md — 从「字节拷贝」改为 stripTrace 确定性剥离（#34）：源保留 DESIGN.md 来源
+    //    追溯（可追溯），迁移时剥掉可剥位置的追溯 → preset 发布副本 consumer-clean。放错位置
+    //    （正文自由句里的 DESIGN.md）→ stripTrace 自检抛错、build:skill 失败并指出源哪行，
+    //    机器强制守可剥格式（新站不靠自觉）。仍纯确定、幂等。
+    writeFileSync(
+      join(dir, 'rules.md'),
+      stripTrace(readFileSync(rules, 'utf8'), { label: `sites/${s}/rules.md` }),
+    );
     writeFileSync(
       join(dir, 'style.md'),
       renderStyleMd(parseBlurb(readFileSync(blurbPath, 'utf8'))),
     );
+    // ⑥ composition.md — the pure-prose composition layer (#30/#31): OPTIONAL, not part
+    //    of the publishable quartet. Emitted only when the site authored one; a site without
+    //    it gets NO composition.md in its preset. Like rules.md (#34), the SOURCE keeps its
+    //    DESIGN.md 追溯（可剥 `<!-- trace -->` 表 + 各 `←` 尾注），迁移时走 stripTrace 剥掉可剥位置
+    //    → preset 只留正向散文（consumer-clean）。放错位置（正文自由句里的 DESIGN.md）→ stripTrace
+    //    自检抛错、build:skill 失败并指出源哪行（#35，原「字节拷贝」）。Conditional by design →
+    //    parity in check:skill is likewise conditional (Hook H7); adds no token slot.
+    const composition = resolve(root, 'sites', s, 'composition.md');
+    if (existsSync(composition))
+      writeFileSync(
+        join(dir, 'composition.md'),
+        stripTrace(readFileSync(composition, 'utf8'), {
+          label: `sites/${s}/composition.md`,
+        }),
+      );
   }
 
   // ④ global, theme-neutral rules — one copy, shared by every preset.
@@ -121,6 +162,10 @@ export function buildSkill({ root, site, skillDir }) {
     site,
     presetSites,
     presets: presetSites.map((s) => `references/theme-presets/${s}`),
+    // Which presets received the optional composition.md (source-present sites only).
+    compositionSites: presetSites.filter((s) =>
+      existsSync(resolve(root, 'sites', s, 'composition.md')),
+    ),
     designRules: 'references/theme/design-rules.md',
     slots: ['default-site'],
   };
@@ -133,6 +178,7 @@ function main(argv) {
   const report = buildSkill({ root, site });
   console.log(
     `build:skill ✓ default=${report.site} → presets {${report.presetSites.join(', ')}} ` +
+      `(composition.md: {${report.compositionSites.join(', ') || '—'}}) ` +
       `+ ${report.designRules} + SKILL.md slot {${report.slots.join(', ')}}`,
   );
 }

@@ -29,6 +29,7 @@ import {
   ChartFrame,
   ChartTooltip,
   catColor,
+  renderLegendLabel,
   type ChartTooltipProps,
 } from '../_internal/dataviz';
 
@@ -117,10 +118,10 @@ export const PieChart: React.FC<PieChartProps> = ({
     >
       <RcPieChart margin={{ top: 8, right: 8, bottom: 4, left: 4 }}>
         <Tooltip content={renderTooltip} />
-        {/* 默认出图例——把「分类名 → 色块」显式列出，一条不依赖颜色的区分通道。 */}
-        {legend && (
-          <Legend wrapperStyle={{ color: 'var(--stitch-text-primary)' }} />
-        )}
+        {/* 默认出图例——把「分类名 → 色块」显式列出，一条不依赖颜色的区分通道。
+            色卡（recharts 默认 = 扇区色）承载分类色；formatter 把标签文字拉成中性墨色，
+            分类色永不当文字色（守 WCAG 1.4.1 双通道 + §5 对比度）。 */}
+        {legend && <Legend formatter={renderLegendLabel} />}
         <Pie
           data={data}
           dataKey={angleField}

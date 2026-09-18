@@ -64,6 +64,9 @@
   border-radius: var(--stitch-radius-card);
   word-break: break-word;
   white-space: pre-wrap;
+  // sent/received 共用同一 elevated 表面：靠 --stitch-shadow-base 浮起显形（各站取本站阴影），
+  // 修 bg-card==bg-canvas 站上 received 隐形；仅填充色分身份（received=卡片底、sent=cat-1 兑色底）。
+  box-shadow: var(--stitch-shadow-base);
 }
 
 // received：卡片底 + 主文字。
@@ -72,9 +75,10 @@
   color: var(--stitch-text-primary);
 }
 
-// sent：软色调彩底 + cat-1 墨色文字——面色与文字皆同 Card filled cat-1 配方（bg = cat-1 兑
-// 画布底 88%；ink = cat-1 兑 text-primary 68%，深墨带 cat-1 色相、随站换肤、≥AA），全库
-// cat-1 填充面观感一致。
+// sent：软色调彩底 + cat-1 墨色文字——「填充配方」同 Card filled cat-1（bg = cat-1 兑画布底
+// 88%；ink = cat-1 兑 text-primary 68%，深墨带 cat-1 色相、随站换肤、≥AA），故 cat-1 填充面
+// 观感一致。注：表面处理不再等同 Card——气泡是独立浮起面（共用 .bubble 的 --stitch-shadow-base），
+// Card filled 无影；「同 Card」只限填充色（bg + ink），不含阴影。
 .variant-sent .bubble {
   background: color-mix(
     in srgb,
@@ -88,17 +92,18 @@
   );
 }
 
-// 正文内链接：同库内内容链接惯例（accent 色 + 无下划线 + medium 字重，hover 加下划线），
+// 正文内链接：同库内内容链接惯例（link 色 + 无下划线 + medium 字重，hover 加下划线），
 // 与其它组件的文本链接一致，不落回浏览器默认蓝链。
 .bubble a {
-  color: var(--stitch-accent);
+  color: var(--stitch-link);
   text-decoration: none;
   font-weight: var(--stitch-font-weight-medium);
   transition: color var(--stitch-motion-duration-fast) var(--stitch-motion-ease);
 }
 
 .bubble a:hover {
-  color: var(--stitch-accent-hover);
+  // 无 --stitch-link-hover 契约槽,内联 color-mix(照 accent-hover 同款配方)
+  color: color-mix(in srgb, var(--stitch-link), black 12%);
   text-decoration: underline;
 }
 

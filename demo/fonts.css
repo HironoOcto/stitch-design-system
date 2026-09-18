@@ -1,0 +1,31 @@
+/* demo/fonts.css —— demo 预览用【替代字体】映射（仅 demo 预览，不进产物、不改 adapter.css 的真实 stack）。
+ *
+ * 真字体 Signifier / Sohne / Roobert / Phantom 是商用或定制体，不随 demo 发布；这里把各站的
+ * --stitch-font-display / -body 映射到免费近似体 + 中文字体，让 demo 也能看出各站的字族质感：
+ *   · steep —— 编辑衬线：Latin = Source Serif 4，CJK = Noto Serif SC（补齐中文衬线，否则中文落系统黑体，衬线感丢一半）
+ *   · seline —— 几何无衬线：Latin = Inter Tight，CJK = Noto Sans SC
+ *   · phantom —— 通体无衬线细体：Latin = Inter，CJK = Noto Sans SC
+ * 字重仍由连接件的 var(--stitch-font-weight-normal) 决定（steep 400 / seline 400 / phantom 350）。
+ *
+ * 用 html[data-site]（特异性 0,1,1）压过 theme.ts 注入的 [data-site]（0,1,0）块，保证替代生效、与注入顺序无关。 */
+
+html[data-site='steep'] {
+  --stitch-font-display:
+    'Source Serif 4', 'Noto Serif SC', ui-serif, Georgia, serif;
+  --stitch-font-body:
+    'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-site='seline'] {
+  --stitch-font-display:
+    'Inter Tight', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  --stitch-font-body:
+    'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-site='phantom'] {
+  --stitch-font-display:
+    'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+  --stitch-font-body:
+    'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+}

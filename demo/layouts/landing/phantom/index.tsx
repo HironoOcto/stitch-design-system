@@ -986,23 +986,17 @@ export default function PhantomLanding() {
                   <span
                     style={{
                       ...subheading,
+                      // 链接组用真 Button type="link"（padding 0 spacing-lg=16px），标题须补同宽
+                      // 横向内距，左缘才与链接文字齐——否则标题外凸 16px（footer 三列显歪）。
+                      // 与 seline/steep 同款修法，token 取 spacing-lg（= Button 自身左内距）。
+                      paddingInline: 'var(--stitch-spacing-lg)',
                       marginBottom: 'var(--stitch-space-4)',
                     }}
                   >
                     {g.title}
                   </span>
                   {g.links.map((l) => (
-                    // 竖排 footer 链接齐左：去掉 link 按钮的横向内距 + 内容左对齐，
-                    // 令标签与列标题（无内距）在同一列左边缘对齐（否则按钮盒内 center
-                    // 会让不同字数的标签浮在列中间、参差错位）。padding/justify 属数值几何、非主题值。
-                    <Button
-                      key={l}
-                      type="link"
-                      style={{
-                        justifyContent: 'flex-start',
-                        paddingInline: 0,
-                      }}
-                    >
+                    <Button key={l} type="link">
                       {l}
                     </Button>
                   ))}

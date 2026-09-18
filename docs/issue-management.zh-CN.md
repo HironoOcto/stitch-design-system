@@ -591,22 +591,7 @@ Issue: https://github.com/HironoOcto/stitch-design-system/issues/28
 
 > 在 #27 分发管道之上，**读 skill 的 phantom 主题自行设计**并完成 phantom 落地页。Parent #26。（注：与旧 study 仓 #29 撞号，靠 Issue URL 区分。）
 
-```text
-先读 issue（规范正本）：GH_CONFIG_DIR=~/.config/gh-linling9025 gh issue view 29 --comments --repo HironoOcto/stitch-design-system
-你在【stitch-design-system/】执行（先 pwd 确认结尾 /stitch-design-system）。gh 一律 GH_CONFIG_DIR=~/.config/gh-linling9025，新仓命令带 --repo HironoOcto/stitch-design-system。
-
-前置：#27 的 landing 分发管道须已并入（切站即切 per-site landing）。
-
-目标：为 phantom 主题做完整落地页 showcase——真组件（基元…经 @octohirono/stitch-design-system import）组合成各区块，连接件手写只读 var(--stitch-*)。区块是真组件+连接件组合出来的，不是可 import 的组件。
-
-关键：设计一律你自己读 skill 得出，本 prompt 与 issue 不喂设计决定。按 SKILL.md 读 phantom 主题的全部 preset 文件 theme-presets/phantom/（style.md 先、rules.md，再 composition.md——合成层补充；**composition.md 可选，按方法论某站可能不存在，有则必读、无则只读前两份**），像真实使用者那样自行判定 phantom 的一切长相（含 light-on-light 等原站刻意做法），自己设计、自己踩坑。
-
-边界/红线/尊重原站长相：同 #27（demo-only、不改 adapter、不「纠正」phantom 刻意配色/对比、只读 var、无 emoji/裸 svg/Unicode）。
-
-验收：切 phantom，Landing 完整落地页、全真组件、连接件只读 var、console 干净；逐条对照 theme-presets/phantom/rules.md 自证；未改 adapter；npm run ci 全绿。
-
-收尾门：用户验收通过才 commit(#29)+close+GH 登记执行报告（含逐条 rules.md 对照）。
-```
+> ✅ 已完成并 close（commit `7466db3`，2026-09-18，用户验收通过）。**phantom 落地页** `demo/layouts/landing/phantom/index.tsx`（纯 index.tsx——静态拼贴无需动画模块）+ 分发器 `bySite` 加 `phantom` 一行。十区块全真组件（Button/Card/Tag/Avatar/Stat·StatGroup/Line·BarChart/Accordion/Divider/Icon/AspectRatio）组合药丸导航/hero/bento/指标/图表/证言/定价/FAQ/CTA/footer，连接件（`CANVAS`/`Band`/`Tile`/`Ghost`/`Brand`）只读 `var(--stitch-*)`。**读 skill 得出的 phantom 长相**（逐条贴 theme-presets/phantom/rules.md，浏览器 computed 佐证）：**淡紫近白画布** `color-mix(bg-canvas, accent 30%)`（无 mesh/颗粒/毛玻璃/背景图，氛围来自色相）；**实心彩糖 bento 瓦**（cat-1..4 糖色 + `bg-inverted`aubergine/`text-primary`obsidian 深瓦，每块罩 `shadow-base` 4px 淡紫环境光晕=系统唯一阴影）；低语 display 恒 350 永不加粗 + -0.025em 紧字距（走 tracking-* 角色变量、96px 行高塌到 1.0）；**药丸几何**全 100px 胶囊（导航/按钮/标签）、瓦片 24px 柔角；主 CTA=`type=primary`（`accent` 面 + `accent-text` 深字 + 光晕）；**玻璃全禁**（sticky 导航实心白药丸不磨砂，区别于 seline）；图表系列色取 `cat-1` periwinkle 随站换肤；成功徽章 `cat-6` mint 少用。**三处刻意判定**（文件头注明，AGENTS 硬规则 > 预置；style.md/composition.md 是吸收 composition 修正后重生成的更新真相 > rules.md 旧组件规格段）：① **无满幅暗幕**——`composition.md §4`+`style.md` 明确 dark 只活在瓦片、never full-bleed，压过 rules.md「Hero（暗）满幅 aubergine / 交替亮暗区块」，故深色只作单块瓦片、10 section 全画布无通栏暗带；② **实心彩糖瓦=连接件**——真 `Card color=cat-N` 是契约 a11y 软底（cat 混 canvas 88% 淡 wash）=白底描边卡、非实心糖色，故招牌瓦片手写连接件外壳（bg 读 `var(--stitch-cat-N)` 实心 + `shadow-base` 光晕）**内装真组件**，正合本 issue「区块=真组件+连接件」模型，真 `Card` 留给中性浅色内容容器（图表/FAQ）；③ **幽灵吉祥物=纯 CSS**——图标集无 `ghost`、红线禁裸 SVG/emoji/Unicode、demo 无素材，故纯 CSS 药丸几何塑 periwinkle 幽灵（沿 seline 纯 CSS 抽象先例，色读 `cat-1`/眼读 `bg-inverted`），内联替换 hero 标题 Phantom 的元音 o。**Hero「视频秀」取舍**：视频是每站自备内容资产、demo 无素材 + 意象规则禁摄影/截图，故以全宽圆角 obsidian 深瓦「视频框」（真 AspectRatio 16:9 + 光晕 + play 可供性 + 静音自动循环说明）忠实复刻形、不臆造影像。**用户验收轮修**：footer 竖排链接改 `paddingInline:0`+`justifyContent:flex-start` 齐左（link 按钮盒 center + 16px 内距致不同字数标签浮于列中参差、与列标题错位显歪；修后三列链接左边缘与各自列标题对齐 583/730/877）。**demo-only**：未改任何 `sites/*/adapter.css` / 族表 / 结构 Hook；phantom 真实配色（含 light-on-light、cornflower 上 obsidian 字等刻意做法）原样保留；`npm run ci` EXIT 0（pre-commit 全绿）。执行报告 + 逐条 rules.md 对照见 GH #29 close 评论。
 
 Issue: https://github.com/HironoOcto/stitch-design-system/issues/29
 依赖：#27（landing 分发管道）。
